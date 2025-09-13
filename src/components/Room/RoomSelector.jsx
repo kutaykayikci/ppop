@@ -20,18 +20,30 @@ const RoomSelector = ({ onRoomSelected }) => {
 
   // Animasyonlu efektleri başlat
   useEffect(() => {
-    // Floating emojiler oluştur - çeşitli animasyon türleri ile
-    const emojis = ['💩', '🚽', '🧻', '🪠', '💧', '🌟', '✨', '🎉', '💫', '🌈', '🎊', '🎈'];
+    // Floating emojiler oluştur - çok daha fazla emoji ve çeşitlilik ile
+    const emojis = [
+      '💩', '🚽', '🧻', '🪠', '💧', '🌟', '✨', '🎉', '💫', '🌈', '🎊', '🎈',
+      '🎭', '🎨', '🎪', '🎯', '🎲', '🎸', '🎹', '🎺', '🎻', '🎼', '🎵', '🎶',
+      '🏆', '🏅', '🏆', '🥇', '🥈', '🥉', '🏅', '🏆', '🎖️', '🏅', '🏆', '🏅',
+      '💎', '💍', '💎', '💎', '💎', '💎', '💎', '💎', '💎', '💎', '💎', '💎',
+      '🌺', '🌻', '🌼', '🌷', '🌸', '🌹', '🌻', '🌺', '🌼', '🌷', '🌸', '🌹',
+      '🦋', '🐝', '🦋', '🐝', '🦋', '🐝', '🦋', '🐝', '🦋', '🐝', '🦋', '🐝',
+      '🍀', '🌿', '🍀', '🌿', '🍀', '🌿', '🍀', '🌿', '🍀', '🌿', '🍀', '🌿',
+      '⭐', '🌟', '⭐', '🌟', '⭐', '🌟', '⭐', '🌟', '⭐', '🌟', '⭐', '🌟',
+      '💖', '💕', '💖', '💕', '💖', '💕', '💖', '💕', '💖', '💕', '💖', '💕',
+      '🎈', '🎊', '🎈', '🎊', '🎈', '🎊', '🎈', '🎊', '🎈', '🎊', '🎈', '🎊'
+    ];
     const animationTypes = ['delayed', 'spiral', 'bounce', 'wave'];
     const floatingEmojisArray = [];
     
-    for (let i = 0; i < 12; i++) {
+    // Çok daha fazla emoji oluştur (25-30 adet)
+    for (let i = 0; i < 28; i++) {
       floatingEmojisArray.push({
         id: i,
         emoji: emojis[Math.floor(Math.random() * emojis.length)],
         left: Math.random() * 100,
         top: Math.random() * 100,
-        delay: Math.random() * 8,
+        delay: Math.random() * 10,
         animationType: animationTypes[Math.floor(Math.random() * animationTypes.length)]
       });
     }

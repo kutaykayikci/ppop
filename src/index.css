@@ -985,7 +985,7 @@ body {
 /* Mobil Optimizasyonları */
 @media (max-width: 768px) {
   .floating-emoji {
-    font-size: 18px;
+    font-size: 16px;
   }
   
   .particle {
@@ -1025,31 +1025,31 @@ body {
   }
   
   .floating-emoji {
-    animation-duration: 10s;
-  }
-  
-  .floating-emoji.delayed {
-    animation-duration: 8s;
-  }
-  
-  .floating-emoji.spiral {
     animation-duration: 12s;
   }
   
+  .floating-emoji.delayed {
+    animation-duration: 10s;
+  }
+  
+  .floating-emoji.spiral {
+    animation-duration: 14s;
+  }
+  
   .floating-emoji.bounce {
-    animation-duration: 9s;
+    animation-duration: 11s;
   }
   
   .floating-emoji.wave {
-    animation-duration: 11s;
+    animation-duration: 13s;
   }
 }
 
 /* Çok küçük ekranlar için daha da optimize */
 @media (max-width: 480px) {
   .floating-emoji {
-    font-size: 16px;
-    animation-duration: 12s;
+    font-size: 14px;
+    animation-duration: 14s;
   }
   
   .particle {
