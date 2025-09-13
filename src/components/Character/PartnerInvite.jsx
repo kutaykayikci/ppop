@@ -206,6 +206,35 @@ const PartnerInvite = ({ room, character, onPartnerJoined }) => {
           💡 İpucu: Partnerin Room ID'yi kopyalayıp "Odaya Gir" bölümünde kullanabilir<br/>
           Her iki karakter de oluşturulduğunda dashboard açılacak
         </div>
+        
+        {/* Progress indicator - CharacterCreator ile aynı */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          marginTop: '20px',
+          gap: '8px'
+        }}>
+          {['gender', 'customization', 'profile', 'partner-invite'].map((step, index) => {
+            const currentStepIndex = 3; // PartnerInvite = step 3 (0: gender, 1: customization, 2: profile, 3: partner-invite)
+            const isActive = index <= currentStepIndex;
+            const isCurrent = index === currentStepIndex;
+            
+            return (
+              <div
+                key={step}
+                style={{
+                  width: '12px',
+                  height: '12px',
+                  borderRadius: '50%',
+                  backgroundColor: isActive ? '#4CAF50' : '#ddd',
+                  border: isCurrent ? '2px solid #333' : '2px solid transparent',
+                  transition: 'all 0.3s ease',
+                  transform: isCurrent ? 'scale(1.2)' : 'scale(1)'
+                }}
+              />
+            );
+          })}
+        </div>
       </div>
     </div>
   );

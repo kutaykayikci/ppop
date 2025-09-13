@@ -18,6 +18,8 @@ const CharacterCreator = ({ roomId, onBack }) => {
   const [currentStep, setCurrentStep] = useState('gender'); // gender, customization, profile, partner-invite
   const [createdCharacter, setCreatedCharacter] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [animationDirection, setAnimationDirection] = useState('next');
 
   useEffect(() => {
     loadRoomCharacters();
@@ -46,6 +48,19 @@ const CharacterCreator = ({ roomId, onBack }) => {
     } catch (error) {
       console.error('Room karakterlerini yükleme hatası:', error);
     }
+  };
+
+  // Animasyonlu step geçişi
+  const transitionToStep = (newStep, direction = 'next') => {
+    setIsAnimating(true);
+    setAnimationDirection(direction);
+    
+    setTimeout(() => {
+      setCurrentStep(newStep);
+      setTimeout(() => {
+        setIsAnimating(false);
+      }, 150);
+    }, 300);
   };
 
   const handleSubmit = async (e) => {
@@ -78,7 +93,7 @@ const CharacterCreator = ({ roomId, onBack }) => {
       // Karakteri kaydet ve profil kurulumuna geç
       console.log('Karakter oluşturuldu, profil kurulumuna geçiliyor:', character);
       setCreatedCharacter(character);
-      setCurrentStep('profile');
+      transitionToStep('profile', 'next');
     } catch (error) {
       console.error('Character oluşturma hatası:', error);
       setError(error.message);
@@ -182,7 +197,7 @@ const CharacterCreator = ({ roomId, onBack }) => {
           <PixelButton
             onClick={() => {
               setGender(availableGenders[0]);
-              setCurrentStep('customization');
+              transitionToStep('customization', 'next');
             }}
             variant="primary"
             size="lg"
@@ -228,7 +243,7 @@ const CharacterCreator = ({ roomId, onBack }) => {
               key={genderOption}
               onClick={() => {
                 setGender(genderOption);
-                setCurrentStep('customization');
+                transitionToStep('customization', 'next');
               }}
               variant={gender === genderOption ? 'primary' : 'secondary'}
               size="lg"
@@ -261,7 +276,7 @@ const CharacterCreator = ({ roomId, onBack }) => {
     } else {
       // İlk karakter oluşturuldu, partner davet ekranına geç
       console.log('İlk karakter hazır, partner davet ekranına geçiliyor');
-      setCurrentStep('partner-invite');
+      transitionToStep('partner-invite', 'next');
     }
   };
 
@@ -475,6 +490,21 @@ const CharacterCreator = ({ roomId, onBack }) => {
     );
   }
 
+  // Animasyon stilleri
+  const getAnimationStyles = () => {
+    const baseStyles = {
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      transform: isAnimating ? 
+        (animationDirection === 'next' ? 'translateX(-100%)' : 'translateX(100%)') : 
+        'translateX(0)',
+      opacity: isAnimating ? 0 : 1,
+      position: 'relative',
+      width: '100%'
+    };
+    
+    return baseStyles;
+  };
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -482,7 +512,8 @@ const CharacterCreator = ({ roomId, onBack }) => {
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: '#f0f0f0',
-      padding: '20px'
+      padding: '20px',
+      overflow: 'hidden'
     }}>
       <div style={{
         backgroundColor: '#fff',
@@ -492,10 +523,43 @@ const CharacterCreator = ({ roomId, onBack }) => {
         padding: '30px',
         width: '100%',
         maxWidth: '500px',
-        textAlign: 'center'
+        textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden'
       }}>
-        {currentStep === 'gender' && renderGenderSelection()}
-        {currentStep === 'customization' && renderCharacterCustomization()}
+        <div style={getAnimationStyles()}>
+          {currentStep === 'gender' && renderGenderSelection()}
+          {currentStep === 'customization' && renderCharacterCustomization()}
+        </div>
+        
+        {/* Progress indicator */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          marginTop: '20px',
+          gap: '8px'
+        }}>
+          {['gender', 'customization', 'profile', 'partner-invite'].map((step, index) => {
+            const stepIndex = ['gender', 'customization', 'profile', 'partner-invite'].indexOf(currentStep);
+            const isActive = index <= stepIndex;
+            const isCurrent = index === stepIndex;
+            
+            return (
+              <div
+                key={step}
+                style={{
+                  width: '12px',
+                  height: '12px',
+                  borderRadius: '50%',
+                  backgroundColor: isActive ? '#4CAF50' : '#ddd',
+                  border: isCurrent ? '2px solid #333' : '2px solid transparent',
+                  transition: 'all 0.3s ease',
+                  transform: isCurrent ? 'scale(1.2)' : 'scale(1)'
+                }}
+              />
+            );
+          })}
+        </div>
       </div>
     </div>
   );
