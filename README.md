@@ -70,3 +70,7 @@ Bu uygulama sevgililer arası eğlenceli rekabet için tasarlandı. Her poop an�
 
 ---
 *Sevgilerle, Poop Count ekibi* 💖
+
+## 🚀 GitHub Pages Deploy
+
+Uygulama GitHub Pages'de yayınlanmıştır: https://kutaykayikci.github.io/ppop/
