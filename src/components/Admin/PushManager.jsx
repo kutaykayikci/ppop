@@ -14,9 +14,9 @@ const PushManager = () => {
     title: '',
     body: '',
     imageUrl: '',
+    imageFile: null,
     targetType: 'all', // all, room, character
-    targetId: '',
-    scheduledTime: ''
+    targetId: ''
   });
   const [rooms, setRooms] = useState([]);
   const [characters, setCharacters] = useState([]);
@@ -54,6 +54,37 @@ const PushManager = () => {
     }));
   };
 
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      // Dosya boyutunu kontrol et (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Dosya boyutu 5MB\'dan büyük olamaz!');
+        return;
+      }
+      
+      // Dosya tipini kontrol et
+      if (!file.type.startsWith('image/')) {
+        alert('Lütfen sadece resim dosyası seçin!');
+        return;
+      }
+
+      setPushData(prev => ({
+        ...prev,
+        imageFile: file,
+        imageUrl: '' // URL'yi temizle
+      }));
+    }
+  };
+
+  const removeImage = () => {
+    setPushData(prev => ({
+      ...prev,
+      imageFile: null,
+      imageUrl: ''
+    }));
+  };
+
   const handleSendPush = async () => {
     if (!pushData.title || !pushData.body) {
       alert('Başlık ve açıklama alanları zorunludur!');
@@ -63,49 +94,68 @@ const PushManager = () => {
     try {
       setSending(true);
       
-      // Push bildirimini kaydet
-      const pushNotification = {
-        title: pushData.title,
-        body: pushData.body,
-        imageUrl: pushData.imageUrl || '/poop-emoji.svg',
-        targetType: pushData.targetType,
-        targetId: pushData.targetId || null,
-        scheduledTime: pushData.scheduledTime || new Date().toISOString(),
-        sentAt: new Date().toISOString(),
-        status: 'sent'
-      };
-
-      await savePushNotification(pushNotification);
-
-      // Push gönder
-      let result;
-      if (pushData.targetType === 'all') {
-        result = await sendPushToAllUsers(pushNotification);
-      } else if (pushData.targetType === 'room') {
-        result = await sendPushToRoom(pushData.targetId, pushNotification);
-      } else if (pushData.targetType === 'character') {
-        result = await sendPushToCharacter(pushData.targetId, pushNotification);
+      let imageUrl = '/poop-emoji.svg'; // Varsayılan görsel
+      
+      // Eğer dosya yüklendiyse, base64'e çevir
+      if (pushData.imageFile) {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          imageUrl = e.target.result;
+          await sendPushWithImage(imageUrl);
+        };
+        reader.readAsDataURL(pushData.imageFile);
+        return;
+      } else if (pushData.imageUrl) {
+        imageUrl = pushData.imageUrl;
       }
-
-      if (result.success) {
-        alert('Push bildirimi başarıyla gönderildi!');
-        setPushData({
-          title: '',
-          body: '',
-          imageUrl: '',
-          targetType: 'all',
-          targetId: '',
-          scheduledTime: ''
-        });
-        loadData(); // Geçmişi yenile
-      } else {
-        alert('Push gönderilirken hata oluştu: ' + result.error);
-      }
+      
+      await sendPushWithImage(imageUrl);
+      
     } catch (error) {
       console.error('Push gönderme hatası:', error);
       alert('Push gönderilirken hata oluştu!');
     } finally {
       setSending(false);
+    }
+  };
+
+  const sendPushWithImage = async (imageUrl) => {
+    // Push bildirimini kaydet
+    const pushNotification = {
+      title: pushData.title,
+      body: pushData.body,
+      imageUrl: imageUrl,
+      targetType: pushData.targetType,
+      targetId: pushData.targetId || null,
+      sentAt: new Date().toISOString(),
+      status: 'sent'
+    };
+
+    await savePushNotification(pushNotification);
+
+    // Push gönder
+    let result;
+    if (pushData.targetType === 'all') {
+      result = await sendPushToAllUsers(pushNotification);
+    } else if (pushData.targetType === 'room') {
+      result = await sendPushToRoom(pushData.targetId, pushNotification);
+    } else if (pushData.targetType === 'character') {
+      result = await sendPushToCharacter(pushData.targetId, pushNotification);
+    }
+
+    if (result.success) {
+      alert('Push bildirimi başarıyla gönderildi!');
+      setPushData({
+        title: '',
+        body: '',
+        imageUrl: '',
+        imageFile: null,
+        targetType: 'all',
+        targetId: ''
+      });
+      loadData(); // Geçmişi yenile
+    } else {
+      alert('Push gönderilirken hata oluştu: ' + result.error);
     }
   };
 
@@ -194,16 +244,78 @@ const PushManager = () => {
               color: '#333',
               marginBottom: '5px'
             }}>
-              🖼️ Görsel URL (opsiyonel)
+              🖼️ Görsel (opsiyonel)
             </label>
-            <input
-              type="url"
-              value={pushData.imageUrl}
-              onChange={(e) => handleInputChange('imageUrl', e.target.value)}
-              className="pixel-input"
-              style={{ width: '100%', fontSize: '10px' }}
-              placeholder="https://example.com/image.png"
-            />
+            
+            {/* Dosya Yükleme */}
+            <div style={{ marginBottom: '10px' }}>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                style={{ display: 'none' }}
+                id="imageUpload"
+              />
+              <label
+                htmlFor="imageUpload"
+                style={{
+                  display: 'block',
+                  padding: '10px',
+                  border: '2px dashed #333',
+                  borderRadius: '4px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  fontSize: '10px',
+                  backgroundColor: pushData.imageFile ? '#e8f5e8' : '#f8f9fa',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                📁 {pushData.imageFile ? pushData.imageFile.name : 'Resim Dosyası Seç'}
+              </label>
+            </div>
+            
+            {/* URL Girişi */}
+            <div style={{ marginBottom: '10px' }}>
+              <div style={{ fontSize: '8px', color: '#666', marginBottom: '3px' }}>
+                veya URL girin:
+              </div>
+              <input
+                type="url"
+                value={pushData.imageUrl}
+                onChange={(e) => handleInputChange('imageUrl', e.target.value)}
+                className="pixel-input"
+                style={{ width: '100%', fontSize: '10px' }}
+                placeholder="https://example.com/image.png"
+                disabled={!!pushData.imageFile}
+              />
+            </div>
+            
+            {/* Seçilen Görsel Önizleme */}
+            {pushData.imageFile && (
+              <div style={{
+                marginTop: '10px',
+                padding: '10px',
+                border: '2px solid #28a745',
+                borderRadius: '4px',
+                backgroundColor: '#f8fff8'
+              }}>
+                <div style={{ fontSize: '8px', color: '#28a745', marginBottom: '5px' }}>
+                  ✅ Seçilen dosya: {pushData.imageFile.name}
+                </div>
+                <PixelButton
+                  onClick={removeImage}
+                  style={{
+                    fontSize: '8px',
+                    padding: '5px 10px',
+                    backgroundColor: '#dc3545',
+                    borderColor: '#c82333',
+                    color: '#fff'
+                  }}
+                >
+                  🗑️ Kaldır
+                </PixelButton>
+              </div>
+            )}
           </div>
 
           <div style={{ marginBottom: '15px' }}>
@@ -297,23 +409,6 @@ const PushManager = () => {
             </div>
           )}
 
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '10px',
-              color: '#333',
-              marginBottom: '5px'
-            }}>
-              ⏰ Zamanlama (opsiyonel)
-            </label>
-            <input
-              type="datetime-local"
-              value={pushData.scheduledTime}
-              onChange={(e) => handleInputChange('scheduledTime', e.target.value)}
-              className="pixel-input"
-              style={{ width: '100%', fontSize: '10px' }}
-            />
-          </div>
 
           <PixelButton
             onClick={handleSendPush}

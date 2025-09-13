@@ -62,7 +62,28 @@ const AdminDashboard = ({ user, onLogout }) => {
   };
 
   const formatDate = (timestamp) => {
-    return new Date(timestamp).toLocaleString('tr-TR');
+    try {
+      if (!timestamp) return 'Tarih bilinmiyor';
+      
+      let date;
+      if (timestamp instanceof Date) {
+        date = timestamp;
+      } else if (timestamp.toDate) {
+        // Firestore Timestamp
+        date = timestamp.toDate();
+      } else {
+        date = new Date(timestamp);
+      }
+      
+      if (isNaN(date.getTime())) {
+        return 'Geçersiz tarih';
+      }
+      
+      return date.toLocaleString('tr-TR');
+    } catch (error) {
+      console.error('Tarih formatlama hatası:', error);
+      return 'Tarih hatası';
+    }
   };
 
   if (loading) {
@@ -141,7 +162,6 @@ const AdminDashboard = ({ user, onLogout }) => {
         {[
           { id: 'overview', name: '📊 Genel', icon: '📊' },
           { id: 'rooms', name: '🏠 Odalar', icon: '🏠' },
-          { id: 'characters', name: '👤 Karakterler', icon: '👤' },
           { id: 'poops', name: '💩 Poops', icon: '💩' },
           { id: 'push', name: '📱 Push', icon: '📱' }
         ].map(tab => (
@@ -253,102 +273,177 @@ const AdminDashboard = ({ user, onLogout }) => {
             </h2>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
               gap: '15px'
             }}>
-              {rooms.map(room => (
-                <PixelCard key={room.id}>
-                  <h3 style={{ fontSize: '12px', marginBottom: '10px', color: '#333' }}>
-                    🏠 {room.name}
-                  </h3>
-                  <div style={{ fontSize: '9px', color: '#666', marginBottom: '10px' }}>
-                    <div>ID: {room.id}</div>
-                    <div>Oluşturulma: {formatDate(room.createdAt)}</div>
-                    <div>Karakter Sayısı: {room.characterCount || 0}</div>
-                  </div>
-                  <div style={{
-                    fontSize: '8px',
-                    color: '#999',
-                    backgroundColor: '#f5f5f5',
-                    padding: '5px',
-                    borderRadius: '4px',
-                    fontFamily: 'monospace'
-                  }}>
-                    {room.id}
-                  </div>
-                </PixelCard>
-              ))}
+              {rooms.map(room => {
+                const roomCharacters = characters.filter(char => char.roomId === room.roomId);
+                return (
+                  <PixelCard key={room.id}>
+                    <h3 style={{ fontSize: '12px', marginBottom: '10px', color: '#333' }}>
+                      🏠 {room.name}
+                    </h3>
+                    <div style={{ fontSize: '9px', color: '#666', marginBottom: '10px' }}>
+                      <div>ID: {room.id}</div>
+                      <div>Oluşturulma: {formatDate(room.createdAt)}</div>
+                      <div>Karakter Sayısı: {roomCharacters.length}</div>
+                    </div>
+                    
+                    {roomCharacters.length > 0 && (
+                      <div style={{ marginBottom: '10px' }}>
+                        <div style={{ fontSize: '10px', fontWeight: 'bold', color: '#333', marginBottom: '5px' }}>
+                          👥 Odadaki Karakterler:
+                        </div>
+                        {roomCharacters.map(character => (
+                          <div key={character.id} style={{
+                            fontSize: '8px',
+                            color: '#666',
+                            backgroundColor: '#f8f9fa',
+                            padding: '5px',
+                            borderRadius: '3px',
+                            marginBottom: '3px',
+                            border: '1px solid #e9ecef'
+                          }}>
+                            <div style={{ fontWeight: 'bold', color: '#333' }}>
+                              {character.emoji} {character.name}
+                            </div>
+                            <div>Cinsiyet: {character.gender === 'male' ? '👨 Erkek' : '👩 Kadın'}</div>
+                            <div>Renk: <span style={{ color: character.color }}>●</span> {character.color}</div>
+                            <div>Poop Sayısı: {character.poopCount || 0}</div>
+                            <div>Oluşturulma: {formatDate(character.createdAt)}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    <div style={{
+                      fontSize: '8px',
+                      color: '#999',
+                      backgroundColor: '#f5f5f5',
+                      padding: '5px',
+                      borderRadius: '4px',
+                      fontFamily: 'monospace'
+                    }}>
+                      {room.id}
+                    </div>
+                  </PixelCard>
+                );
+              })}
             </div>
           </div>
         )}
 
-        {activeTab === 'characters' && (
-          <div>
-            <h2 style={{ fontSize: '14px', color: '#333', marginBottom: '20px' }}>
-              👤 Karakter Yönetimi
-            </h2>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-              gap: '15px'
-            }}>
-              {characters.map(character => (
-                <PixelCard key={character.id}>
-                  <h3 style={{ fontSize: '12px', marginBottom: '10px', color: '#333' }}>
-                    {character.emoji} {character.name}
-                  </h3>
-                  <div style={{ fontSize: '9px', color: '#666', marginBottom: '10px' }}>
-                    <div>Oda: {character.roomName}</div>
-                    <div>Oluşturulma: {formatDate(character.createdAt)}</div>
-                    <div>Poop Sayısı: {character.poopCount || 0}</div>
-                  </div>
-                  <div style={{
-                    fontSize: '8px',
-                    color: '#999',
-                    backgroundColor: '#f5f5f5',
-                    padding: '5px',
-                    borderRadius: '4px',
-                    fontFamily: 'monospace'
-                  }}>
-                    {character.id}
-                  </div>
-                </PixelCard>
-              ))}
-            </div>
-          </div>
-        )}
 
         {activeTab === 'poops' && (
           <div>
             <h2 style={{ fontSize: '14px', color: '#333', marginBottom: '20px' }}>
               💩 Poop Geçmişi
             </h2>
+            
+            {/* İstatistikler */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+              gap: '10px',
+              marginBottom: '20px'
+            }}>
+              <PixelCard style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '20px', marginBottom: '5px' }}>💩</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#ff6b6b' }}>
+                  {poops.length}
+                </div>
+                <div style={{ fontSize: '8px', color: '#666' }}>Toplam Poop</div>
+              </PixelCard>
+              
+              <PixelCard style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '20px', marginBottom: '5px' }}>📅</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#4ecdc4' }}>
+                  {stats.todayPoops}
+                </div>
+                <div style={{ fontSize: '8px', color: '#666' }}>Bugünkü Poop</div>
+              </PixelCard>
+              
+              <PixelCard style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '20px', marginBottom: '5px' }}>📊</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#ffa726' }}>
+                  {poops.length > 0 ? (poops.length / stats.totalCharacters).toFixed(1) : 0}
+                </div>
+                <div style={{ fontSize: '8px', color: '#666' }}>Karakter Başına Ort.</div>
+              </PixelCard>
+            </div>
+
+            {/* Poop Listesi */}
             <PixelCard>
+              <h3 style={{ fontSize: '12px', marginBottom: '15px', color: '#333' }}>
+                📜 Tüm Poop Kayıtları
+              </h3>
               <div style={{ maxHeight: '500px', overflow: 'auto' }}>
-                {poops.map(poop => (
-                  <div key={poop.id} style={{
-                    padding: '10px',
-                    borderBottom: '1px solid #eee',
-                    fontSize: '9px'
+                {poops.length === 0 ? (
+                  <div style={{
+                    textAlign: 'center',
+                    color: '#666',
+                    fontSize: '10px',
+                    padding: '40px'
                   }}>
-                    <div style={{ fontWeight: 'bold', color: '#333', marginBottom: '5px' }}>
-                      {poop.characterName} - {poop.roomName}
-                    </div>
-                    <div style={{ color: '#666', marginBottom: '5px' }}>
-                      Tarih: {poop.date} - {formatDate(poop.timestamp)}
-                    </div>
-                    <div style={{
-                      fontSize: '8px',
-                      color: '#999',
-                      backgroundColor: '#f5f5f5',
-                      padding: '3px',
-                      borderRadius: '3px',
-                      fontFamily: 'monospace'
-                    }}>
-                      {poop.id}
-                    </div>
+                    Henüz poop kaydı bulunmuyor
                   </div>
-                ))}
+                ) : (
+                  poops.slice().reverse().map(poop => (
+                    <div key={poop.id} style={{
+                      padding: '12px',
+                      borderBottom: '1px solid #eee',
+                      fontSize: '9px',
+                      backgroundColor: '#fafafa',
+                      marginBottom: '5px',
+                      borderRadius: '4px'
+                    }}>
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px',
+                        marginBottom: '8px' 
+                      }}>
+                        <div style={{ fontSize: '16px' }}>
+                          {poop.characterEmoji || '👤'}
+                        </div>
+                        <div style={{ fontWeight: 'bold', color: '#333' }}>
+                          {poop.characterName || 'Bilinmeyen Karakter'}
+                        </div>
+                        <div style={{ color: '#666', fontSize: '8px' }}>
+                          - {poop.roomName || 'Bilinmeyen Oda'}
+                        </div>
+                      </div>
+                      
+                      <div style={{ color: '#666', marginBottom: '5px' }}>
+                        📅 Tarih: {poop.date} 
+                        <span style={{ marginLeft: '10px' }}>
+                          🕐 Saat: {formatDate(poop.timestamp)}
+                        </span>
+                      </div>
+                      
+                      <div style={{ 
+                        fontSize: '8px', 
+                        color: '#888',
+                        marginBottom: '5px'
+                      }}>
+                        Cinsiyet: {poop.characterGender === 'male' ? '👨 Erkek' : poop.characterGender === 'female' ? '👩 Kadın' : '❓ Bilinmeyen'} | 
+                        Renk: <span style={{ color: poop.characterColor }}>●</span> {poop.characterColor}
+                      </div>
+                      
+                      <div style={{
+                        fontSize: '7px',
+                        color: '#999',
+                        backgroundColor: '#f0f0f0',
+                        padding: '3px',
+                        borderRadius: '3px',
+                        fontFamily: 'monospace',
+                        wordBreak: 'break-all'
+                      }}>
+                        ID: {poop.id}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </PixelCard>
           </div>
