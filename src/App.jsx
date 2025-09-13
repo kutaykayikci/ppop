@@ -1,144 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import RoomSelector from './components/Room/RoomSelector';
-import CharacterCreator from './components/Character/CharacterCreator';
-import ProfileSetup from './components/Profile/ProfileSetup';
-import PartnerInvite from './components/Character/PartnerInvite';
-import RoomDashboard from './components/Dashboard/RoomDashboard';
-import AdminPanel from './components/Admin/AdminPanel';
-import { getRoomById } from './services/roomService';
-import { getRoomCharacters } from './services/characterService';
+import React from 'react';
 import './index.css';
 
 function App() {
-  const [currentStep, setCurrentStep] = useState('room-select'); // room-select, character-create, profile-setup, partner-invite, dashboard
-  const [currentRoom, setCurrentRoom] = useState(null);
-  const [currentCharacter, setCurrentCharacter] = useState(null);
-  const [currentProfile, setCurrentProfile] = useState(null);
-
-  // URL'den parametreleri kontrol et
-  useEffect(() => {
-    const path = window.location.pathname;
-    
-    // Admin panel kontrolü
-    if (path === '/admin') {
-      setCurrentStep('admin');
-      return;
-    }
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const roomId = urlParams.get('room');
-    const isInvite = urlParams.get('invite');
-    
-    if (roomId) {
-      if (isInvite) {
-        // Davet linki ile gelindi
-        handleJoinRoomFromInvite(roomId);
-      } else {
-        // Room ID ile direkt erişim
-        handleDirectRoomAccess(roomId);
-      }
-    }
-  }, []);
-
-  const handleJoinRoomFromInvite = async (roomId) => {
-    try {
-      const room = await getRoomById(roomId);
-      if (room) {
-        setCurrentRoom(room);
-        setCurrentStep('character-create');
-      }
-    } catch (error) {
-      console.error('Davet room\'una katılma hatası:', error);
-    }
-  };
-
-  const handleDirectRoomAccess = async (roomId) => {
-    try {
-      const room = await getRoomById(roomId);
-      if (room) {
-        setCurrentRoom(room);
-        
-        // Room'daki karakterleri kontrol et
-        const characters = await getRoomCharacters(roomId);
-        
-        if (characters.length >= 2) {
-          // 2 kişi de karakter oluşturmuş, direkt dashboard'a git
-          setCurrentStep('dashboard');
-        } else {
-          // Henüz karakter oluşturulmamış veya eksik, karakter oluşturma ekranına git
-          setCurrentStep('character-create');
-        }
-      }
-    } catch (error) {
-      console.error('Room\'a direkt erişim hatası:', error);
-    }
-  };
-
-  const handleRoomSelected = (room) => {
-    setCurrentRoom(room);
-    setCurrentStep('character-create');
-  };
-
-  const handleCharacterCreated = (character) => {
-    setCurrentCharacter(character);
-    setCurrentStep('profile-setup');
-  };
-
-  const handleProfileCreated = (profile) => {
-    setCurrentProfile(profile);
-    setCurrentStep('partner-invite');
-  };
-
-  const handlePartnerJoined = () => {
-    setCurrentStep('dashboard');
-  };
-
-  const handleBackToRoomSelect = () => {
-    setCurrentRoom(null);
-    setCurrentCharacter(null);
-    setCurrentProfile(null);
-    setCurrentStep('room-select');
-  };
-
-  const renderCurrentStep = () => {
-    switch (currentStep) {
-      case 'admin':
-        return <AdminPanel />;
-      case 'room-select':
-        return <RoomSelector onRoomSelected={handleRoomSelected} />;
-      case 'character-create':
-        return (
-          <CharacterCreator 
-            roomId={currentRoom.id} 
-            onCharacterCreated={handleCharacterCreated} 
-          />
-        );
-      case 'profile-setup':
-        return (
-          <ProfileSetup 
-            roomId={currentRoom.id}
-            characterId={currentCharacter.id}
-            onProfileCreated={handleProfileCreated} 
-          />
-        );
-      case 'partner-invite':
-        return (
-          <PartnerInvite 
-            room={currentRoom}
-            character={currentCharacter}
-            onPartnerJoined={handlePartnerJoined}
-          />
-        );
-      case 'dashboard':
-        return <RoomDashboard room={currentRoom} />;
-      default:
-        return <RoomSelector onRoomSelected={handleRoomSelected} />;
-    }
-  };
-
   return (
-    <div style={{ minHeight: '100vh' }}>
-      {renderCurrentStep()}
+    <div style={{ 
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#f0f0f0',
+      padding: '20px'
+    }}>
+      <div style={{
+        backgroundColor: '#fff',
+        border: '3px solid #333',
+        borderRadius: '8px',
+        boxShadow: '6px 6px 0px rgba(0, 0, 0, 0.2)',
+        padding: '30px',
+        textAlign: 'center',
+        maxWidth: '400px'
+      }}>
+        <h1 style={{ fontSize: '24px', color: '#333', marginBottom: '20px' }}>
+          💩 Poop Count
+        </h1>
+        <p style={{ fontSize: '16px', color: '#666', marginBottom: '20px' }}>
+          Sevgililer Takibi
+        </p>
+        <div style={{
+          backgroundColor: '#ff6b6b',
+          color: '#fff',
+          padding: '15px',
+          borderRadius: '4px',
+          fontSize: '14px'
+        }}>
+          ✅ GitHub Pages'te çalışıyor!
+        </div>
+        <div style={{ marginTop: '20px', fontSize: '12px', color: '#999' }}>
+          Build: {new Date().toLocaleString()}
+        </div>
+      </div>
     </div>
   );
 }
