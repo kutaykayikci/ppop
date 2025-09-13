@@ -184,7 +184,7 @@ const AdminLogin = ({ onLoginSuccess, onBack }) => {
           <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
             ✅ Basit Admin Sistemi:
           </div>
-          <div>• Firebase Console > Authentication > Users</div>
+          <div>• Firebase Console → Authentication → Users</div>
           <div>• Yeni kullanıcı ekle (email + şifre)</div>
           <div>• Bu email/şifre ile admin paneline giriş yap</div>
           <div>• Kodda email listesi yok, tamamen güvenli!</div>
