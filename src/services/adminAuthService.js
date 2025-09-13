@@ -6,11 +6,15 @@ import {
 // Firestore import'ları artık gerekli değil
 import { auth } from '../firebase/config';
 
+// Admin email listesi - sadece bu emaillere sahip kullanıcılar admin olabilir
+const ADMIN_EMAILS = [
+  import.meta.env.VITE_ADMIN_EMAIL || 'admin@poopcount.com'
+];
+
 // Firebase Auth'daki kullanıcılar admin yetkisine sahip
-const checkFirebaseAdminRole = async (uid) => {
-  // Firebase Authentication'da kayıtlı tüm kullanıcılar admin olabilir
-  // Bu şekilde sadece Firebase Console'dan kullanıcı ekleyip/çıkarabilirsin
-  return true;
+const checkFirebaseAdminRole = async (uid, email) => {
+  // Sadece belirli emaillere sahip kullanıcılar admin olabilir
+  return ADMIN_EMAILS.includes(email);
 };
 
 // Admin girişi
@@ -20,7 +24,7 @@ export const adminSignIn = async (email, password) => {
     const user = userCredential.user;
     
     // Firebase'de admin rolü kontrol et
-    const isFirebaseAdmin = await checkFirebaseAdminRole(user.uid);
+    const isFirebaseAdmin = await checkFirebaseAdminRole(user.uid, user.email);
     
     if (!isFirebaseAdmin) {
       await signOut(auth);
@@ -70,7 +74,7 @@ export const checkAdminAuth = () => {
       
       if (user) {
         // Firebase'de admin rolü kontrol et
-        const isFirebaseAdmin = await checkFirebaseAdminRole(user.uid);
+        const isFirebaseAdmin = await checkFirebaseAdminRole(user.uid, user.email);
         
         if (isFirebaseAdmin) {
           // Admin bilgilerini güncelle

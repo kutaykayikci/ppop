@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  base: '/ppop/', // GitHub Pages için repository adınızı buraya yazın
   plugins: [
     react(),
     VitePWA({
@@ -24,5 +25,16 @@ export default defineConfig({
         ]
       }
     })
-  ]
+  ],
+  build: {
+    outDir: 'dist',
+    sourcemap: false, // Production'da sourcemap'i kapat
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Console.log'ları production'da kaldır
+        drop_debugger: true
+      }
+    }
+  }
 })
