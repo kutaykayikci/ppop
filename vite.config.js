@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  base: '/ppop/', // GitHub Pages için repository adınızı buraya yazın
+  base: '/', // GitHub Pages için root path
   plugins: [
     react(),
     VitePWA({
