@@ -4,6 +4,7 @@ import CharacterCreator from './components/Character/CharacterCreator';
 import ProfileSetup from './components/Profile/ProfileSetup';
 import PartnerInvite from './components/Character/PartnerInvite';
 import RoomDashboard from './components/Dashboard/RoomDashboard';
+import AdminPanel from './components/Admin/AdminPanel';
 import { getRoomById } from './services/roomService';
 import { getRoomCharacters } from './services/characterService';
 import './index.css';
@@ -14,8 +15,16 @@ function App() {
   const [currentCharacter, setCurrentCharacter] = useState(null);
   const [currentProfile, setCurrentProfile] = useState(null);
 
-  // URL'den room parametresi kontrol et
+  // URL'den parametreleri kontrol et
   useEffect(() => {
+    const path = window.location.pathname;
+    
+    // Admin panel kontrolü
+    if (path === '/admin') {
+      setCurrentStep('admin');
+      return;
+    }
+    
     const urlParams = new URLSearchParams(window.location.search);
     const roomId = urlParams.get('room');
     const isInvite = urlParams.get('invite');
@@ -93,6 +102,8 @@ function App() {
 
   const renderCurrentStep = () => {
     switch (currentStep) {
+      case 'admin':
+        return <AdminPanel />;
       case 'room-select':
         return <RoomSelector onRoomSelected={handleRoomSelected} />;
       case 'character-create':
