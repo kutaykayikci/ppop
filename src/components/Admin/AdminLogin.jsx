@@ -3,7 +3,7 @@ import PixelCard from '../PixelCard';
 import PixelButton from '../PixelButton';
 import { adminSignIn } from '../../services/adminAuthService';
 
-const AdminLogin = ({ onLoginSuccess }) => {
+const AdminLogin = ({ onLoginSuccess, onBack }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -125,20 +125,39 @@ const AdminLogin = ({ onLoginSuccess }) => {
             </div>
           )}
 
-          <PixelButton
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%',
-              fontSize: '12px',
-              padding: '15px',
-              backgroundColor: loading ? '#6c757d' : '#ff6b6b',
-              borderColor: loading ? '#5a6268' : '#e55a5a',
-              color: '#fff'
-            }}
-          >
-            {loading ? 'Giriş yapılıyor...' : '🚀 Admin Girişi'}
-          </PixelButton>
+          <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
+            <PixelButton
+              type="submit"
+              disabled={loading}
+              style={{
+                width: '100%',
+                fontSize: '12px',
+                padding: '15px',
+                backgroundColor: loading ? '#6c757d' : '#ff6b6b',
+                borderColor: loading ? '#5a6268' : '#e55a5a',
+                color: '#fff'
+              }}
+            >
+              {loading ? 'Giriş yapılıyor...' : '🚀 Admin Girişi'}
+            </PixelButton>
+            
+            {onBack && (
+              <PixelButton
+                type="button"
+                onClick={onBack}
+                style={{
+                  width: '100%',
+                  fontSize: '10px',
+                  padding: '10px',
+                  backgroundColor: '#6c757d',
+                  borderColor: '#5a6268',
+                  color: '#fff'
+                }}
+              >
+                🏠 Ana Sayfaya Dön
+              </PixelButton>
+            )}
+          </div>
         </form>
 
         <div style={{

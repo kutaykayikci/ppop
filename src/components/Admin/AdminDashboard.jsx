@@ -5,7 +5,7 @@ import { adminSignOut } from '../../services/adminAuthService';
 import { getRoomsData, getCharactersData, getPoopsData } from '../../services/adminDataService';
 import PushManager from './PushManager';
 
-const AdminDashboard = ({ user, onLogout }) => {
+const AdminDashboard = ({ user, onLogout, onBack }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [rooms, setRooms] = useState([]);
   const [characters, setCharacters] = useState([]);
@@ -138,18 +138,34 @@ const AdminDashboard = ({ user, onLogout }) => {
           </p>
         </div>
         
-        <PixelButton
-          onClick={handleLogout}
-          style={{
-            backgroundColor: '#dc3545',
-            borderColor: '#c82333',
-            color: '#fff',
-            fontSize: '10px',
-            padding: '10px 15px'
-          }}
-        >
-          🚪 Çıkış
-        </PixelButton>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          {onBack && (
+            <PixelButton
+              onClick={onBack}
+              style={{
+                backgroundColor: '#6c757d',
+                borderColor: '#5a6268',
+                color: '#fff',
+                fontSize: '10px',
+                padding: '10px 15px'
+              }}
+            >
+              🏠 Ana Sayfa
+            </PixelButton>
+          )}
+          <PixelButton
+            onClick={handleLogout}
+            style={{
+              backgroundColor: '#dc3545',
+              borderColor: '#c82333',
+              color: '#fff',
+              fontSize: '10px',
+              padding: '10px 15px'
+            }}
+          >
+            🚪 Çıkış
+          </PixelButton>
+        </div>
       </div>
 
       {/* Tab Navigation */}

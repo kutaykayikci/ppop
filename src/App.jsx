@@ -6,6 +6,7 @@ import { getRoomCharacters } from './services/characterService';
 const RoomSelector = lazy(() => import('./components/Room/RoomSelector'));
 const CharacterCreator = lazy(() => import('./components/Character/CharacterCreator'));
 const RoomDashboard = lazy(() => import('./components/Dashboard/RoomDashboard'));
+const AdminPanel = lazy(() => import('./components/Admin/AdminPanel'));
 
 // Loading component
 const LoadingSpinner = () => (
@@ -24,11 +25,18 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [isWaiting, setIsWaiting] = useState(false);
 
-  // URL'den room parametresini kontrol et
+  // URL'den parametreleri kontrol et
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const roomId = urlParams.get('room');
     const waiting = urlParams.get('waiting');
+    const admin = urlParams.get('admin');
+    
+    // Admin sayfası kontrolü
+    if (admin === 'true') {
+      setCurrentView('admin');
+      return;
+    }
     
     if (roomId) {
       setIsWaiting(waiting === 'true');
@@ -80,6 +88,12 @@ function App() {
     setRoom(null);
     setCharacters([]);
     setIsWaiting(false);
+    setCurrentView('room-selector');
+    // URL'yi temizle
+    window.history.replaceState({}, document.title, window.location.pathname);
+  };
+
+  const handleBackFromAdmin = () => {
     setCurrentView('room-selector');
     // URL'yi temizle
     window.history.replaceState({}, document.title, window.location.pathname);
@@ -316,6 +330,10 @@ function App() {
             characters={characters}
             onBack={handleBackToRoomSelector}
           />
+        )}
+
+        {currentView === 'admin' && (
+          <AdminPanel onBack={handleBackFromAdmin} />
         )}
       </Suspense>
     </div>

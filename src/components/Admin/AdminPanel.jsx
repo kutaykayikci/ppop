@@ -3,7 +3,7 @@ import AdminLogin from './AdminLogin';
 import AdminDashboard from './AdminDashboard';
 import { checkAdminAuth } from '../../services/adminAuthService';
 
-const AdminPanel = () => {
+const AdminPanel = ({ onBack }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -30,6 +30,9 @@ const AdminPanel = () => {
 
   const handleLogout = () => {
     setUser(null);
+    if (onBack) {
+      onBack();
+    }
   };
 
   if (loading) {
@@ -59,9 +62,9 @@ const AdminPanel = () => {
   return (
     <div>
       {user ? (
-        <AdminDashboard user={user} onLogout={handleLogout} />
+        <AdminDashboard user={user} onLogout={handleLogout} onBack={onBack} />
       ) : (
-        <AdminLogin onLoginSuccess={handleLoginSuccess} />
+        <AdminLogin onLoginSuccess={handleLoginSuccess} onBack={onBack} />
       )}
     </div>
   );
