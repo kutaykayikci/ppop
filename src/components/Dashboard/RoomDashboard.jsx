@@ -10,6 +10,7 @@ const RoomDashboard = ({ room }) => {
   const [profiles, setProfiles] = useState([]);
   const [stats, setStats] = useState({
     today: {},
+    yesterday: {},
     week: {},
     month: {},
     total: {}
@@ -22,10 +23,16 @@ const RoomDashboard = ({ room }) => {
   }, [room.id]);
 
   useEffect(() => {
-    if (characters.length > 0 && profiles.length > 0) {
+    if (characters.length > 0) {
+      loadAllStatistics();
+    }
+  }, [characters, room.id]);
+
+  useEffect(() => {
+    if (characters.length > 0) {
       loadStatistics();
     }
-  }, [selectedPeriod, characters, profiles]);
+  }, [selectedPeriod, characters, room.id]);
 
   const loadRoomData = async () => {
     try {
@@ -44,8 +51,32 @@ const RoomDashboard = ({ room }) => {
     }
   };
 
+  const loadAllStatistics = async () => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Bugün için verileri yükle
+      const todayPoops = await getPoopsByDateRange(room.id, today, today);
+      
+      // Bugün için istatistik hesapla
+      const todayStats = {};
+      characters.forEach(character => {
+        const characterPoops = todayPoops.filter(poop => poop.characterId === character.id);
+        todayStats[character.id] = characterPoops.length;
+      });
+      
+      setStats(prev => ({
+        ...prev,
+        today: todayStats
+      }));
+    } catch (error) {
+      console.error('Tüm istatistik yükleme hatası:', error);
+    }
+  };
+
   const loadStatistics = async () => {
     try {
+
       const today = new Date().toISOString().split('T')[0];
       let startDate, endDate;
 
@@ -53,9 +84,14 @@ const RoomDashboard = ({ room }) => {
         case 'today':
           startDate = endDate = today;
           break;
+        case 'yesterday':
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          startDate = endDate = yesterday.toISOString().split('T')[0];
+          break;
         case 'week':
           const weekStart = new Date();
-          weekStart.setDate(weekStart.getDate() - 7);
+          weekStart.setDate(weekStart.getDate() - weekStart.getDay()); // Bu haftanın pazartesi günü
           startDate = weekStart.toISOString().split('T')[0];
           endDate = today;
           break;
@@ -73,9 +109,7 @@ const RoomDashboard = ({ room }) => {
           startDate = endDate = today;
       }
 
-      console.log(`${selectedPeriod} istatistikleri yükleniyor:`, { startDate, endDate });
       const poops = await getPoopsByDateRange(room.id, startDate, endDate);
-      console.log('Firestore\'dan gelen poop verileri:', poops);
       
       // Karakter bazında istatistik hesapla
       const newStats = {};
@@ -90,12 +124,22 @@ const RoomDashboard = ({ room }) => {
       }));
     } catch (error) {
       console.error('İstatistik yükleme hatası:', error);
+      // Hata durumunda 0 değerleri ata
+      const errorStats = {};
+      characters.forEach(character => {
+        errorStats[character.id] = 0;
+      });
+      setStats(prev => ({
+        ...prev,
+        [selectedPeriod]: errorStats
+      }));
     }
   };
 
   const getPeriodTitle = () => {
     switch (selectedPeriod) {
       case 'today': return 'Bugün';
+      case 'yesterday': return 'Dün';
       case 'week': return 'Bu Hafta';
       case 'month': 
         const monthNames = [
@@ -143,6 +187,11 @@ const RoomDashboard = ({ room }) => {
 
   const getUserProfile = (characterId) => {
     return profiles.find(profile => profile.characterId === characterId);
+  };
+
+  const handlePoopAdded = () => {
+    // Yeni poop eklendiğinde istatistikleri yenile
+    loadStatistics();
   };
 
   if (loading) {
@@ -222,6 +271,7 @@ const RoomDashboard = ({ room }) => {
                 profile={profile}
                 userColor={userColor}
                 roomId={room.id}
+                onPoopAdded={handlePoopAdded}
               />
             );
           })}
@@ -246,7 +296,7 @@ const RoomDashboard = ({ room }) => {
           </h2>
 
           <div style={{ marginBottom: '20px' }}>
-            {['today', 'week', 'month', 'total'].map(period => (
+            {['today', 'yesterday', 'week', 'month', 'total'].map(period => (
               <PixelButton
                 key={period}
                 onClick={() => setSelectedPeriod(period)}
@@ -255,8 +305,15 @@ const RoomDashboard = ({ room }) => {
                 style={{ margin: '0 5px' }}
               >
                 {period === 'today' ? 'Bugün' : 
+                 period === 'yesterday' ? 'Dün' :
                  period === 'week' ? 'Hafta' : 
-                 period === 'month' ? getPeriodTitle() : 'Toplam'}
+                 period === 'month' ? (() => {
+                   const monthNames = [
+                     'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+                     'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+                   ];
+                   return monthNames[new Date().getMonth()];
+                 })() : 'Toplam'}
               </PixelButton>
             ))}
           </div>
@@ -269,7 +326,8 @@ const RoomDashboard = ({ room }) => {
           }}>
             {characters.map(character => {
               const profile = getUserProfile(character.id);
-              const count = stats[selectedPeriod][character.id] || 0;
+              const currentStats = stats[selectedPeriod] || {};
+              const count = currentStats[character.id] || 0;
               
               return (
                 <div key={character.id} style={{

@@ -3,10 +3,12 @@ import PixelButton from './PixelButton';
 import PixelCard from './PixelCard';
 import { addPoopEntry, getTodayPoops } from '../firebase/poopService';
 
-const PoopCounter = ({ character, profile, userColor, roomId }) => {
+const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => {
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [animation, setAnimation] = useState('');
+  const [particles, setParticles] = useState([]);
+  const [showCountJump, setShowCountJump] = useState(false);
 
   useEffect(() => {
     loadTodayCount();
@@ -24,11 +26,31 @@ const PoopCounter = ({ character, profile, userColor, roomId }) => {
     }
   };
 
+  const createParticles = () => {
+    const newParticles = [];
+    for (let i = 0; i < 6; i++) {
+      newParticles.push({
+        id: Date.now() + i,
+        emoji: '💩',
+        left: 50 + (Math.random() - 0.5) * 60,
+        top: 50 + (Math.random() - 0.5) * 40,
+        delay: Math.random() * 200
+      });
+    }
+    setParticles(newParticles);
+    
+    // Parçacıkları temizle
+    setTimeout(() => setParticles([]), 1200);
+  };
+
   const handlePoopClick = async () => {
     if (loading) return;
     
     setLoading(true);
-    setAnimation('bounce');
+    setAnimation('poop-explosion');
+    
+    // Parçacık efektini başlat
+    createParticles();
     
     try {
       console.log(`${character.name} için poop ekleniyor...`);
@@ -38,11 +60,14 @@ const PoopCounter = ({ character, profile, userColor, roomId }) => {
       // Veritabanından güncel sayıyı al
       await loadTodayCount();
       
-      // Başarı animasyonu
-      setTimeout(() => {
-        setAnimation('shake');
-        setTimeout(() => setAnimation(''), 500);
-      }, 300);
+      // Sayı zıplama animasyonunu başlat
+      setShowCountJump(true);
+      setTimeout(() => setShowCountJump(false), 1000);
+      
+      // İstatistikleri güncelle
+      if (onPoopAdded) {
+        onPoopAdded();
+      }
       
     } catch (error) {
       console.error('Poop ekleme hatası:', error);
@@ -51,7 +76,7 @@ const PoopCounter = ({ character, profile, userColor, roomId }) => {
       setTimeout(() => setAnimation(''), 500);
     } finally {
       setLoading(false);
-      setTimeout(() => setAnimation(''), 1000);
+      setTimeout(() => setAnimation(''), 800);
     }
   };
 
@@ -67,14 +92,31 @@ const PoopCounter = ({ character, profile, userColor, roomId }) => {
       style={{ 
         backgroundColor: userColor.background,
         borderColor: userColor.border,
-        position: 'relative'
+        position: 'relative',
+        overflow: 'hidden'
       }}
     >
+      {/* Parçacık efektleri */}
+      {particles.map(particle => (
+        <div
+          key={particle.id}
+          className="poop-particle"
+          style={{
+            left: `${particle.left}%`,
+            top: `${particle.top}%`,
+            animationDelay: `${particle.delay}ms`
+          }}
+        >
+          {particle.emoji}
+        </div>
+      ))}
+      
       <div style={{ textAlign: 'center' }}>
         <h2 style={{ 
           color: userColor.text,
           marginBottom: '20px',
-          fontSize: '14px'
+          fontSize: '14px',
+          animation: animation ? `${animation}` : 'none'
         }}>
           {character.name} {character.emoji}
         </h2>
@@ -93,7 +135,8 @@ const PoopCounter = ({ character, profile, userColor, roomId }) => {
         <div style={{ 
           fontSize: '48px', 
           marginBottom: '20px',
-          animation: animation ? `${animation} 1s ease-in-out` : 'none'
+          position: 'relative',
+          animation: showCountJump ? 'count-jump' : 'none'
         }}>
           {count}
         </div>
@@ -115,7 +158,8 @@ const PoopCounter = ({ character, profile, userColor, roomId }) => {
             borderColor: userColor.buttonBorder,
             color: '#fff',
             fontSize: '12px',
-            padding: '15px 30px'
+            padding: '15px 30px',
+            animation: loading ? 'button-squash' : 'none'
           }}
         >
           {loading ? 'Ekleniyor...' : '+1 Poop!'}
