@@ -394,28 +394,97 @@ body {
   }
 }
 
-/* ===== YENİ ANİMASYONLU ARKA PLAN EFEKTLERİ ===== */
+/* ===== GELİŞMİŞ ANİMASYONLU ARKA PLAN EFEKTLERİ ===== */
 
-/* Floating Emojis */
-@keyframes float {
+/* Çoklu Floating Emoji Animasyonları */
+@keyframes float-slow {
   0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-    opacity: 0.3;
+    transform: translateY(0px) translateX(0px) rotate(0deg) scale(1);
+    opacity: 0.2;
+  }
+  25% {
+    transform: translateY(-15px) translateX(10px) rotate(90deg) scale(1.1);
+    opacity: 0.4;
   }
   50% {
-    transform: translateY(-20px) rotate(180deg);
+    transform: translateY(-25px) translateX(-5px) rotate(180deg) scale(1.2);
     opacity: 0.6;
+  }
+  75% {
+    transform: translateY(-15px) translateX(-10px) rotate(270deg) scale(1.1);
+    opacity: 0.4;
   }
 }
 
-@keyframes float-delayed {
+@keyframes float-fast {
   0%, 100% {
-    transform: translateY(0px) rotate(0deg);
+    transform: translateY(0px) translateX(0px) rotate(0deg) scale(1);
+    opacity: 0.3;
+  }
+  33% {
+    transform: translateY(-20px) translateX(15px) rotate(120deg) scale(1.3);
+    opacity: 0.7;
+  }
+  66% {
+    transform: translateY(-35px) translateX(-15px) rotate(240deg) scale(1.1);
+    opacity: 0.5;
+  }
+}
+
+@keyframes float-spiral {
+  0% {
+    transform: translateY(0px) translateX(0px) rotate(0deg) scale(1);
+    opacity: 0.2;
+  }
+  25% {
+    transform: translateY(-20px) translateX(20px) rotate(90deg) scale(1.2);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-40px) translateX(0px) rotate(180deg) scale(1.4);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateY(-20px) translateX(-20px) rotate(270deg) scale(1.2);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(0px) translateX(0px) rotate(360deg) scale(1);
+    opacity: 0.2;
+  }
+}
+
+@keyframes float-bounce {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+    opacity: 0.3;
+  }
+  20% {
+    transform: translateY(-10px) rotate(36deg) scale(1.1);
+    opacity: 0.5;
+  }
+  40% {
+    transform: translateY(-25px) rotate(72deg) scale(1.3);
+    opacity: 0.7;
+  }
+  60% {
+    transform: translateY(-35px) rotate(108deg) scale(1.2);
+    opacity: 0.6;
+  }
+  80% {
+    transform: translateY(-15px) rotate(144deg) scale(1.1);
+    opacity: 0.4;
+  }
+}
+
+@keyframes float-wave {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
     opacity: 0.2;
   }
   50% {
-    transform: translateY(-30px) rotate(-180deg);
-    opacity: 0.5;
+    transform: translateY(-30px) translateX(25px) rotate(180deg);
+    opacity: 0.6;
   }
 }
 
@@ -424,46 +493,155 @@ body {
   font-size: 20px;
   pointer-events: none;
   z-index: 1;
-  animation: float 6s ease-in-out infinite;
+  animation: float-slow 8s ease-in-out infinite;
 }
 
 .floating-emoji.delayed {
-  animation: float-delayed 8s ease-in-out infinite;
+  animation: float-fast 6s ease-in-out infinite;
 }
 
-/* Gradient Animasyonu */
+.floating-emoji.spiral {
+  animation: float-spiral 10s linear infinite;
+}
+
+.floating-emoji.bounce {
+  animation: float-bounce 7s ease-in-out infinite;
+}
+
+.floating-emoji.wave {
+  animation: float-wave 9s ease-in-out infinite;
+}
+
+/* Gelişmiş Gradient Animasyonları */
 @keyframes gradient-shift {
   0% {
     background-position: 0% 50%;
   }
+  25% {
+    background-position: 100% 25%;
+  }
   50% {
-    background-position: 100% 50%;
+    background-position: 100% 75%;
+  }
+  75% {
+    background-position: 0% 25%;
   }
   100% {
     background-position: 0% 50%;
   }
 }
 
-.animated-gradient {
-  background: linear-gradient(-45deg, #ff6b6b, #4ecdc4, #45b7b8, #96ceb4, #feca57, #ff9ff3);
-  background-size: 400% 400%;
-  animation: gradient-shift 15s ease infinite;
+@keyframes gradient-pulse {
+  0%, 100% {
+    background-size: 400% 400%;
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    background-size: 500% 500%;
+    filter: hue-rotate(30deg);
+  }
 }
 
-/* Parçacık Efektleri */
+@keyframes gradient-wave {
+  0% {
+    background-position: 0% 0%;
+  }
+  25% {
+    background-position: 100% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  75% {
+    background-position: 0% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+.animated-gradient {
+  background: linear-gradient(-45deg, #ff6b6b, #4ecdc4, #45b7b8, #96ceb4, #feca57, #ff9ff3, #ff6b6b, #4ecdc4);
+  background-size: 400% 400%;
+  animation: gradient-shift 12s ease infinite, gradient-pulse 8s ease-in-out infinite;
+}
+
+.animated-gradient.wave {
+  animation: gradient-wave 15s linear infinite, gradient-pulse 6s ease-in-out infinite;
+}
+
+/* Gelişmiş Parçacık Efektleri */
 @keyframes particle-float {
   0% {
-    transform: translateY(0px) translateX(0px) rotate(0deg);
+    transform: translateY(0px) translateX(0px) rotate(0deg) scale(0);
     opacity: 0;
   }
   10% {
     opacity: 1;
+    transform: translateY(-10px) translateX(5px) rotate(36deg) scale(1);
+  }
+  30% {
+    opacity: 0.8;
+    transform: translateY(-30px) translateX(15px) rotate(108deg) scale(1.2);
+  }
+  60% {
+    opacity: 0.6;
+    transform: translateY(-60px) translateX(25px) rotate(216deg) scale(1.1);
   }
   90% {
-    opacity: 1;
+    opacity: 0.3;
+    transform: translateY(-90px) translateX(35px) rotate(324deg) scale(0.8);
   }
   100% {
-    transform: translateY(-100px) translateX(50px) rotate(360deg);
+    transform: translateY(-120px) translateX(50px) rotate(360deg) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes particle-sparkle {
+  0% {
+    transform: translateY(0px) translateX(0px) rotate(0deg) scale(0);
+    opacity: 0;
+    filter: brightness(1);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-20px) translateX(10px) rotate(72deg) scale(1.5);
+    filter: brightness(1.5);
+  }
+  40% {
+    opacity: 0.9;
+    transform: translateY(-40px) translateX(-10px) rotate(144deg) scale(1.2);
+    filter: brightness(1.2);
+  }
+  60% {
+    opacity: 0.7;
+    transform: translateY(-60px) translateX(20px) rotate(216deg) scale(1.3);
+    filter: brightness(1.8);
+  }
+  80% {
+    opacity: 0.4;
+    transform: translateY(-80px) translateX(-15px) rotate(288deg) scale(1);
+    filter: brightness(1.1);
+  }
+  100% {
+    transform: translateY(-100px) translateX(30px) rotate(360deg) scale(0);
+    opacity: 0;
+    filter: brightness(1);
+  }
+}
+
+@keyframes particle-trail {
+  0% {
+    transform: translateY(0px) translateX(0px) rotate(0deg) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-50px) translateX(25px) rotate(180deg) scale(1.5);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-100px) translateX(50px) rotate(360deg) scale(0.5);
     opacity: 0;
   }
 }
@@ -476,7 +654,22 @@ body {
   border-radius: 50%;
   pointer-events: none;
   z-index: 2;
-  animation: particle-float 3s ease-out forwards;
+  animation: particle-float 4s ease-out forwards;
+}
+
+.particle.sparkle {
+  width: 6px;
+  height: 6px;
+  background: linear-gradient(45deg, #ff6b6b, #feca57);
+  animation: particle-sparkle 3s ease-out forwards;
+}
+
+.particle.trail {
+  width: 3px;
+  height: 8px;
+  background: linear-gradient(to bottom, #4ecdc4, transparent);
+  border-radius: 2px;
+  animation: particle-trail 5s ease-out forwards;
 }
 
 /* ===== İNTERAKTİF HOVER EFEKTLERİ ===== */
@@ -789,15 +982,25 @@ body {
   animation: swipe-hint-right 2s ease-in-out infinite;
 }
 
-/* Mobile Optimizations */
+/* Mobil Optimizasyonları */
 @media (max-width: 768px) {
   .floating-emoji {
-    font-size: 16px;
+    font-size: 18px;
   }
   
   .particle {
     width: 3px;
     height: 3px;
+  }
+  
+  .particle.sparkle {
+    width: 4px;
+    height: 4px;
+  }
+  
+  .particle.trail {
+    width: 2px;
+    height: 6px;
   }
   
   .pixel-button {
@@ -814,6 +1017,61 @@ body {
   .touch-button {
     min-height: 44px;
     min-width: 44px;
+  }
+  
+  /* Mobil için daha az CPU kullanan animasyonlar */
+  .animated-gradient {
+    animation: gradient-shift 15s ease infinite;
+  }
+  
+  .floating-emoji {
+    animation-duration: 10s;
+  }
+  
+  .floating-emoji.delayed {
+    animation-duration: 8s;
+  }
+  
+  .floating-emoji.spiral {
+    animation-duration: 12s;
+  }
+  
+  .floating-emoji.bounce {
+    animation-duration: 9s;
+  }
+  
+  .floating-emoji.wave {
+    animation-duration: 11s;
+  }
+}
+
+/* Çok küçük ekranlar için daha da optimize */
+@media (max-width: 480px) {
+  .floating-emoji {
+    font-size: 16px;
+    animation-duration: 12s;
+  }
+  
+  .particle {
+    width: 2px;
+    height: 2px;
+  }
+  
+  .animated-gradient {
+    animation: gradient-shift 18s ease infinite;
+  }
+  
+  /* Reduced motion desteği */
+  @media (prefers-reduced-motion: reduce) {
+    .floating-emoji,
+    .particle,
+    .animated-gradient {
+      animation: none;
+    }
+    
+    .floating-emoji {
+      opacity: 0.3;
+    }
   }
 }
 

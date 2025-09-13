@@ -2,6 +2,8 @@ import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { getRoomById } from './services/roomService';
 import { getRoomCharacters } from './services/characterService';
 import { initializePushNotifications } from './services/fcmService';
+import PermissionPrompt from './components/Notification/PermissionPrompt';
+import { debugPushNotifications } from './utils/pushDebug';
 
 // Lazy loading ile bileşenleri yükle
 const RoomSelector = lazy(() => import('./components/Room/RoomSelector'));
@@ -25,6 +27,8 @@ function App() {
   const [characters, setCharacters] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isWaiting, setIsWaiting] = useState(false);
+  const [showPermissionPrompt, setShowPermissionPrompt] = useState(false);
+  const [notificationPermissionGranted, setNotificationPermissionGranted] = useState(false);
 
   // URL'den parametreleri kontrol et
   useEffect(() => {
@@ -54,15 +58,41 @@ function App() {
         localStorage.setItem('userId', userId);
         
         // FCM'i başlat (room ve character bilgisi olmadan)
-        await initializePushNotifications(userId, null, null);
-        console.log('FCM Push Notifications başlatıldı');
+        const result = await initializePushNotifications(userId, null, null);
+        
+        if (result.success) {
+          console.log('FCM Push Notifications başarıyla başlatıldı');
+          setNotificationPermissionGranted(true);
+          
+          // Debug bilgilerini göster
+          setTimeout(() => {
+            debugPushNotifications();
+          }, 2000);
+        } else {
+          console.warn('FCM başlatılamadı:', result.error);
+          // Permission prompt göster
+          setShowPermissionPrompt(true);
+        }
       } catch (error) {
         console.error('FCM başlatma hatası:', error);
+        setShowPermissionPrompt(true);
       }
     };
 
-    initializeFCM();
+    // Sayfa yüklendikten sonra FCM'i başlat
+    setTimeout(initializeFCM, 1000);
   }, []);
+
+  const handlePermissionGranted = () => {
+    setNotificationPermissionGranted(true);
+    setShowPermissionPrompt(false);
+    console.log('Notification izni verildi!');
+  };
+
+  const handlePermissionDenied = (error) => {
+    setShowPermissionPrompt(false);
+    console.warn('Notification izni reddedildi:', error);
+  };
 
   const handleDirectRoomAccess = async (roomId) => {
     setLoading(true);
@@ -134,19 +164,23 @@ function App() {
         }}
       >
         {/* Floating Emojiler */}
-        {[...Array(6)].map((_, i) => (
-          <div
-            key={i}
-            className={`floating-emoji ${i % 2 === 0 ? 'delayed' : ''}`}
-            style={{
-              left: `${20 + i * 15}%`,
-              top: `${30 + (i % 3) * 20}%`,
-              animationDelay: `${i * 0.5}s`
-            }}
-          >
-            {['💩', '🚽', '🧻', '🪠', '💧', '🌟'][i]}
-          </div>
-        ))}
+        {[...Array(8)].map((_, i) => {
+          const animationTypes = ['delayed', 'spiral', 'bounce', 'wave'];
+          const emojis = ['💩', '🚽', '🧻', '🪠', '💧', '🌟', '✨', '🎉'];
+          return (
+            <div
+              key={i}
+              className={`floating-emoji ${animationTypes[i % 4]}`}
+              style={{
+                left: `${15 + i * 12}%`,
+                top: `${25 + (i % 4) * 18}%`,
+                animationDelay: `${i * 0.6}s`
+              }}
+            >
+              {emojis[i]}
+            </div>
+          );
+        })}
 
         <div 
           className="tilt-card"
@@ -188,6 +222,30 @@ function App() {
         overflow: 'hidden'
       }}
     >
+      {/* Notification Permission Prompt */}
+      {showPermissionPrompt && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '20px'
+        }}>
+          <div style={{ maxWidth: '500px', width: '100%' }}>
+            <PermissionPrompt 
+              onPermissionGranted={handlePermissionGranted}
+              onPermissionDenied={handlePermissionDenied}
+            />
+          </div>
+        </div>
+      )}
+
       <Suspense fallback={<LoadingSpinner />}>
         {currentView === 'room-selector' && (
           <RoomSelector onRoomSelected={handleRoomSelected} />

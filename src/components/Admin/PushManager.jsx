@@ -8,6 +8,7 @@ import {
   getPushHistory,
   savePushNotification
 } from '../../services/pushService';
+import { getAllActiveFCMTokens, checkPushNotificationStatus } from '../../services/fcmService';
 
 const PushManager = () => {
   const [pushData, setPushData] = useState({
@@ -23,6 +24,8 @@ const PushManager = () => {
   const [pushHistory, setPushHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [fcmTokens, setFcmTokens] = useState([]);
+  const [permissionStatus, setPermissionStatus] = useState({});
 
   useEffect(() => {
     loadData();
@@ -31,15 +34,24 @@ const PushManager = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [roomsData, charactersData, historyData] = await Promise.all([
+      const [roomsData, charactersData, historyData, tokensData] = await Promise.all([
         import('../../services/adminDataService').then(m => m.getRoomsData()),
         import('../../services/adminDataService').then(m => m.getCharactersData()),
-        getPushHistory()
+        getPushHistory(),
+        getAllActiveFCMTokens()
       ]);
       
       setRooms(roomsData);
       setCharacters(charactersData);
       setPushHistory(historyData);
+      setFcmTokens(tokensData);
+      
+      // Permission status kontrol et
+      const status = checkPushNotificationStatus();
+      setPermissionStatus(status);
+      
+      console.log('FCM Token sayısı:', tokensData.length);
+      console.log('Permission Status:', status);
     } catch (error) {
       console.error('Veri yükleme hatası:', error);
     } finally {
@@ -113,7 +125,7 @@ const PushManager = () => {
       
     } catch (error) {
       console.error('Push gönderme hatası:', error);
-      alert('Push gönderilirken hata oluştu!');
+      alert(`Push gönderilirken hata oluştu: ${error.message || error || 'Bilinmeyen hata'}`);
     } finally {
       setSending(false);
     }
@@ -131,7 +143,18 @@ const PushManager = () => {
       status: 'sent'
     };
 
-    await savePushNotification(pushNotification);
+    // Push notification'ı kaydet ve ID'yi al
+    const saveResult = await savePushNotification(pushNotification);
+    console.log('Save result:', saveResult);
+    
+    // ID'yi push notification'a ekle
+    if (saveResult && saveResult.success && saveResult.id) {
+      pushNotification.id = saveResult.id;
+    } else {
+      // Eğer kaydetme başarısızsa, geçici bir ID oluştur
+      pushNotification.id = `temp_${Date.now()}`;
+      console.warn('Push notification kaydedilemedi, geçici ID kullanılıyor');
+    }
 
     // Push gönder
     let result;
@@ -143,8 +166,10 @@ const PushManager = () => {
       result = await sendPushToCharacter(pushData.targetId, pushNotification);
     }
 
-    if (result.success) {
-      alert('Push bildirimi başarıyla gönderildi!');
+    console.log('Push result:', result);
+    
+    if (result && result.success) {
+      alert(`Push bildirimi başarıyla gönderildi! (${result.tokenCount} kullanıcıya)`);
       setPushData({
         title: '',
         body: '',
@@ -155,7 +180,9 @@ const PushManager = () => {
       });
       loadData(); // Geçmişi yenile
     } else {
-      alert('Push gönderilirken hata oluştu: ' + result.error);
+      const errorMessage = result ? result.error : 'Bilinmeyen hata';
+      alert(`Push gönderilirken hata oluştu: ${errorMessage}`);
+      console.error('Push gönderme detayları:', result);
     }
   };
 
@@ -178,6 +205,58 @@ const PushManager = () => {
       <h2 style={{ fontSize: '14px', color: '#333', marginBottom: '20px' }}>
         📱 Push Bildirim Yöneticisi
       </h2>
+
+      {/* FCM Token Durumu */}
+      <PixelCard title="🔔 Notification Durumu" style={{ marginBottom: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+          <div style={{
+            backgroundColor: fcmTokens.length > 0 ? '#4CAF50' : '#f44336',
+            color: 'white',
+            padding: '15px',
+            borderRadius: '8px',
+            textAlign: 'center',
+            border: '2px solid #333'
+          }}>
+            <div style={{ fontSize: '24px', marginBottom: '5px' }}>👥</div>
+            <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{fcmTokens.length}</div>
+            <div style={{ fontSize: '12px' }}>Aktif FCM Token</div>
+          </div>
+          
+          <div style={{
+            backgroundColor: permissionStatus.permission === 'granted' ? '#4CAF50' : '#f44336',
+            color: 'white',
+            padding: '15px',
+            borderRadius: '8px',
+            textAlign: 'center',
+            border: '2px solid #333'
+          }}>
+            <div style={{ fontSize: '24px', marginBottom: '5px' }}>🔔</div>
+            <div style={{ fontSize: '14px', fontWeight: 'bold' }}>
+              {permissionStatus.permission === 'granted' ? 'İzin Verildi' : 'İzin Verilmedi'}
+            </div>
+            <div style={{ fontSize: '12px' }}>Notification İzni</div>
+          </div>
+        </div>
+        
+        {fcmTokens.length === 0 && (
+          <div style={{
+            backgroundColor: '#fff3cd',
+            border: '2px solid #ffc107',
+            borderRadius: '8px',
+            padding: '15px',
+            marginTop: '15px',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '18px', marginBottom: '10px' }}>⚠️</div>
+            <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+              Henüz notification izni veren kullanıcı yok!
+            </div>
+            <div style={{ fontSize: '14px', color: '#666' }}>
+              Kullanıcıların uygulamayı açıp notification izni vermesi gerekiyor.
+            </div>
+          </div>
+        )}
+      </PixelCard>
 
       <div style={{
         display: 'grid',

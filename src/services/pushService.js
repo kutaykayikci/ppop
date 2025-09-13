@@ -15,34 +15,47 @@ import { getRoomFCMTokens, getAllActiveFCMTokens } from './fcmService';
 // Firebase Cloud Messaging ile push gönder
 const sendFCMNotification = async (tokens, payload) => {
   try {
+    console.log('FCM Notification gönderiliyor:', { tokens: tokens.length, payload });
+    
     // Bu fonksiyon backend'de çalışacak
     // Frontend'den sadece Firestore'a push request kaydediyoruz
     const pushRequestRef = collection(db, 'push_requests');
-    await addDoc(pushRequestRef, {
+    const docRef = await addDoc(pushRequestRef, {
       tokens,
       payload,
       status: 'pending',
-      createdAt: new Date()
+      createdAt: new Date(),
+      tokenCount: tokens.length
     });
 
-    return { success: true };
+    console.log('Push request kaydedildi:', docRef.id);
+    return { success: true, requestId: docRef.id };
   } catch (error) {
     console.error('FCM push gönderme hatası:', error);
-    return { success: false, error: error.message };
+    return { 
+      success: false, 
+      error: error.message || 'Bilinmeyen hata',
+      details: error 
+    };
   }
 };
 
 // Push bildirimini tüm kullanıcılara gönder
 export const sendPushToAllUsers = async (pushData) => {
   try {
+    console.log('Push gönderme başlatılıyor...');
+    
     // Tüm aktif FCM token'ları al
     const tokens = await getAllActiveFCMTokens();
+    console.log('Bulunan FCM token\'lar:', tokens);
+    
     const tokenList = tokens.map(t => t.token);
 
     if (tokenList.length === 0) {
+      console.warn('Aktif FCM token bulunamadı');
       return {
         success: false,
-        error: 'Aktif FCM token bulunamadı'
+        error: 'Aktif FCM token bulunamadı. Kullanıcıların uygulamayı ana ekrana eklemesi ve notification izni vermesi gerekiyor.'
       };
     }
 
@@ -63,25 +76,33 @@ export const sendPushToAllUsers = async (pushData) => {
 
     // FCM push gönder
     const result = await sendFCMNotification(tokenList, fcmPayload);
+    console.log('FCM result:', result);
 
-    if (result.success) {
+    if (result && result.success) {
       // Local notification da gönder (fallback)
-      await sendPushNotification({
-        title: pushData.title,
-        body: pushData.body,
-        icon: pushData.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSIjOEI0NTEzIi8+CiAgPHRleHQgeD0iMTYiIHk9IjIyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjIwIj7wn5KpPC90ZXh0Pgo8L3N2Zz4K',
-        type: 'admin_push'
-      }, {
-        pushId: pushData.id,
-        targetType: 'all'
-      });
+      try {
+        await sendPushNotification({
+          title: pushData.title,
+          body: pushData.body,
+          icon: pushData.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSIjOEI0NTEzIi8+CiAgPHRleHQgeD0iMTYiIHk9IjIyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjIwIj7wn5KpPC90ZXh0Pgo8L3N2Zz4K',
+          type: 'admin_push'
+        }, {
+          pushId: pushData.id,
+          targetType: 'all'
+        });
+        console.log('Local notification da gönderildi');
+      } catch (localError) {
+        console.warn('Local notification hatası:', localError);
+      }
     }
 
     return {
-      success: result.success,
-      message: result.success ? 'Push tüm kullanıcılara gönderildi' : result.error,
-      sent: result.success,
-      tokenCount: tokenList.length
+      success: result ? result.success : false,
+      message: result ? (result.success ? 'Push tüm kullanıcılara gönderildi' : result.error) : 'Push gönderme başarısız',
+      sent: result ? result.success : false,
+      tokenCount: tokenList.length,
+      requestId: result ? result.requestId : null,
+      error: result ? result.error : 'Bilinmeyen hata'
     };
   } catch (error) {
     console.error('Tüm kullanıcılara push gönderme hatası:', error);
@@ -190,13 +211,8 @@ export const savePushNotification = async (pushData) => {
     const pushRef = collection(db, 'admin_pushes');
     const docRef = await addDoc(pushRef, {
       ...pushData,
-      createdAt: new Date(),
-      id: null // Firestore otomatik ID verecek
-    });
-    
-    // ID'yi güncelle
-    await updateDoc(docRef, {
-      id: docRef.id
+      createdAt: new Date()
+      // ID'yi burada eklemiyoruz, Firestore otomatik verecek
     });
     
     return {

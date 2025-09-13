@@ -5,10 +5,12 @@ import {
   query, 
   where, 
   deleteDoc, 
-  doc 
+  doc,
+  updateDoc
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { getFCMToken, onMessageListener } from '../firebase/config';
+import { checkNotificationPermission } from './notificationService';
 
 // FCM Token'ı kaydet
 export const saveFCMToken = async (userId, roomId, characterId) => {
@@ -137,29 +139,38 @@ export const initializePushNotifications = async (userId, roomId, characterId) =
   try {
     // Notification izni kontrol et
     if (!('Notification' in window)) {
-      throw new Error('Bu tarayıcı notification desteklemiyor');
+      console.warn('Bu tarayıcı notification desteklemiyor');
+      return { success: false, error: 'Notification desteklenmiyor' };
     }
 
     if (Notification.permission === 'denied') {
-      throw new Error('Notification izni reddedildi');
+      console.warn('Notification izni reddedildi');
+      return { success: false, error: 'Notification izni reddedildi' };
     }
 
     if (Notification.permission === 'default') {
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
-        throw new Error('Notification izni verilmedi');
+        console.warn('Notification izni verilmedi');
+        return { success: false, error: 'Notification izni verilmedi' };
       }
     }
 
     // Service Worker kontrol et
     if (!('serviceWorker' in navigator)) {
-      throw new Error('Service Worker desteklenmiyor');
+      console.warn('Service Worker desteklenmiyor');
+      return { success: false, error: 'Service Worker desteklenmiyor' };
     }
+
+    // Service Worker'ın hazır olmasını bekle
+    const registration = await navigator.serviceWorker.ready;
+    console.log('Service Worker hazır:', registration);
 
     // FCM Token'ı kaydet
     const result = await saveFCMToken(userId, roomId, characterId);
     
     if (result.success) {
+      console.log('FCM Token başarıyla kaydedildi');
       // Foreground mesajları dinle
       onMessageListener().then((payload) => {
         console.log('Foreground mesaj:', payload);

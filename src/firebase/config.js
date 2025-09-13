@@ -25,12 +25,22 @@ const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY;
 // FCM Token al
 export const getFCMToken = async () => {
   try {
+    // Service Worker'ın hazır olduğundan emin ol
+    if (!('serviceWorker' in navigator)) {
+      console.error('Service Worker desteklenmiyor');
+      return null;
+    }
+
+    // Service Worker registration'ı bekle
+    const registration = await navigator.serviceWorker.ready;
+    console.log('Service Worker hazır:', registration);
+
     const token = await getToken(messaging, {
       vapidKey: VAPID_KEY
     });
     
     if (token) {
-      console.log('FCM Token:', token);
+      console.log('FCM Token alındı:', token);
       return token;
     } else {
       console.log('No registration token available.');

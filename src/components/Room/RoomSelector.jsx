@@ -20,17 +20,19 @@ const RoomSelector = ({ onRoomSelected }) => {
 
   // Animasyonlu efektleri başlat
   useEffect(() => {
-    // Floating emojiler oluştur
-    const emojis = ['💩', '🚽', '🧻', '🪠', '💧', '🌟', '✨', '🎉'];
+    // Floating emojiler oluştur - çeşitli animasyon türleri ile
+    const emojis = ['💩', '🚽', '🧻', '🪠', '💧', '🌟', '✨', '🎉', '💫', '🌈', '🎊', '🎈'];
+    const animationTypes = ['delayed', 'spiral', 'bounce', 'wave'];
     const floatingEmojisArray = [];
     
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 12; i++) {
       floatingEmojisArray.push({
         id: i,
         emoji: emojis[Math.floor(Math.random() * emojis.length)],
         left: Math.random() * 100,
         top: Math.random() * 100,
-        delay: Math.random() * 6
+        delay: Math.random() * 8,
+        animationType: animationTypes[Math.floor(Math.random() * animationTypes.length)]
       });
     }
     
@@ -47,19 +49,21 @@ const RoomSelector = ({ onRoomSelected }) => {
     };
 
     const createParticle = (x, y) => {
+      const particleTypes = ['sparkle', 'trail'];
       const newParticle = {
         id: Date.now() + Math.random(),
         x: x,
         y: y,
-        color: `hsl(${Math.random() * 360}, 70%, 60%)`
+        color: `hsl(${Math.random() * 360}, 70%, 60%)`,
+        type: particleTypes[Math.floor(Math.random() * particleTypes.length)]
       };
       
       setParticles(prev => [...prev, newParticle]);
       
-      // Parçacığı 3 saniye sonra temizle
+      // Parçacığı 4-5 saniye sonra temizle
       setTimeout(() => {
         setParticles(prev => prev.filter(p => p.id !== newParticle.id));
-      }, 3000);
+      }, 4000 + Math.random() * 1000);
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -585,7 +589,7 @@ const RoomSelector = ({ onRoomSelected }) => {
       {floatingEmojis.map(emoji => (
         <div
           key={emoji.id}
-          className={`floating-emoji ${emoji.delay > 3 ? 'delayed' : ''}`}
+          className={`floating-emoji ${emoji.animationType}`}
           style={{
             left: `${emoji.left}%`,
             top: `${emoji.top}%`,
@@ -600,7 +604,7 @@ const RoomSelector = ({ onRoomSelected }) => {
       {particles.map(particle => (
         <div
           key={particle.id}
-          className="particle"
+          className={`particle ${particle.type}`}
           style={{
             left: particle.x,
             top: particle.y,
