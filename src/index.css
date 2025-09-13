@@ -1,0 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
+  min-height: 100vh;
+  color: #333;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Pixel tarzı butonlar */
+.pixel-button {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  padding: 12px 24px;
+  border: 3px solid #333;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.pixel-button:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.2);
+}
+
+.pixel-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+}
+
+.pixel-button.primary {
+  background: #ff6b6b;
+  color: #fff;
+  border-color: #e55a5a;
+}
+
+.pixel-button.secondary {
+  background: #4ecdc4;
+  color: #fff;
+  border-color: #45b7b8;
+}
+
+/* Pixel tarzı kartlar */
+.pixel-card {
+  background: #fff;
+  border: 3px solid #333;
+  border-radius: 8px;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  margin: 10px;
+}
+
+/* Pixel tarzı input */
+.pixel-input {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  padding: 12px;
+  border: 3px solid #333;
+  background: #fff;
+  color: #333;
+  border-radius: 4px;
+  box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.1);
+}
+
+.pixel-input:focus {
+  outline: none;
+  border-color: #ff6b6b;
+  box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(255, 107, 107, 0.3);
+}
+
+/* Animasyonlar */
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.bounce {
+  animation: bounce 1s infinite;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  body {
+    font-size: 10px;
+  }
+  
+  .pixel-button {
+    font-size: 8px;
+    padding: 10px 20px;
+  }
+  
+  .pixel-card {
+    padding: 15px;
+    margin: 5px;
+  }
+}
+
+/* Poop emoji büyütme */
+.poop-emoji {
+  font-size: 24px;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.poop-emoji:hover {
+  transform: scale(1.2);
+}
+
+/* Grid layout */
+.user-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  .user-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 10px;
+  }
+}
