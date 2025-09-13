@@ -30,6 +30,12 @@ const CharacterCreator = ({ roomId, onCharacterCreated }) => {
       console.log('Kalan cinsiyetler:', remainingGenders);
       setAvailableGenders(remainingGenders);
       
+      // Eğer 2 karakter de oluşturulmuşsa, direkt dashboard'a yönlendir
+      if (characters.length >= 2) {
+        window.location.href = `?room=${roomId}`;
+        return;
+      }
+      
       // availableGenders güncellendi, artık renderGenderSelection içinde otomatik seçim yapılacak
     } catch (error) {
       console.error('Room karakterlerini yükleme hatası:', error);
@@ -59,6 +65,15 @@ const CharacterCreator = ({ roomId, onCharacterCreated }) => {
       
       // Karakteri room'a ekle
       await addCharacterToRoom(roomId, character.id);
+      
+      // Room'daki karakterleri tekrar kontrol et
+      const updatedCharacters = await getRoomCharacters(roomId);
+      
+      if (updatedCharacters.length >= 2) {
+        // 2 karakter de oluşturulmuş, direkt dashboard'a yönlendir
+        window.location.href = `?room=${roomId}`;
+        return;
+      }
       
       onCharacterCreated(character);
     } catch (error) {
