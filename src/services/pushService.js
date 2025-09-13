@@ -18,7 +18,7 @@ export const sendPushToAllUsers = async (pushData) => {
     const result = await sendPushNotification({
       title: pushData.title,
       body: pushData.body,
-      icon: pushData.imageUrl || '/poop-emoji.svg',
+      icon: pushData.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSIjOEI0NTEzIi8+CiAgPHRleHQgeD0iMTYiIHk9IjIyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjIwIj7wn5KpPC90ZXh0Pgo8L3N2Zz4K',
       type: 'admin_push'
     }, {
       pushId: pushData.id,
@@ -47,7 +47,7 @@ export const sendPushToRoom = async (roomId, pushData) => {
     const result = await sendPushNotification({
       title: pushData.title,
       body: pushData.body,
-      icon: pushData.imageUrl || '/poop-emoji.svg',
+      icon: pushData.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSIjOEI0NTEzIi8+CiAgPHRleHQgeD0iMTYiIHk9IjIyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjIwIj7wn5KpPC90ZXh0Pgo8L3N2Zz4K',
       type: 'admin_push'
     }, {
       pushId: pushData.id,
@@ -77,7 +77,7 @@ export const sendPushToCharacter = async (characterId, pushData) => {
     const result = await sendPushNotification({
       title: pushData.title,
       body: pushData.body,
-      icon: pushData.imageUrl || '/poop-emoji.svg',
+      icon: pushData.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSIjOEI0NTEzIi8+CiAgPHRleHQgeD0iMTYiIHk9IjIyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjIwIj7wn5KpPC90ZXh0Pgo8L3N2Zz4K',
       type: 'admin_push'
     }, {
       pushId: pushData.id,
