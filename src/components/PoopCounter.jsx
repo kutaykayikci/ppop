@@ -10,6 +10,7 @@ import { checkAchievements, checkStreak } from '../services/achievementService';
 import { getAchievementMotivation, getDailyMotivation } from '../services/motivationService';
 import { POOP_THEMES, CHARACTER_COSTUMES, ROOM_DECORATIONS, COUNTER_THEMES, getUserTheme } from '../services/themeService';
 import { sendAchievementNotification, sendPartnerActivityNotification, sendPushNotification } from '../services/notificationService';
+import soundService from '../services/soundService';
 
 const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => {
   const [count, setCount] = useState(0);
@@ -118,6 +119,7 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
     
     setLoading(true);
     setAnimation('poop-explosion');
+    soundService.playPoop();
     
     // Parçacık efektini başlat
     createParticles();
@@ -142,6 +144,7 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
       
       if (newAchievements.length > 0) {
         setAchievements(newAchievements);
+        soundService.playAchievement();
         // İlk başarı için motivasyon mesajı göster
         const motivation = getAchievementMotivation(newAchievements[0]);
         setMotivationMessage(motivation);
@@ -166,6 +169,7 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
       
     } catch (error) {
       console.error('Poop ekleme hatası:', error);
+      soundService.playError();
       alert(`Hata: ${error.message || 'Poop eklenemedi!'}`);
       setAnimation('shake');
       setTimeout(() => setAnimation(''), 500);
@@ -276,6 +280,7 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
             padding: '15px 30px',
             animation: loading ? 'button-squash' : 'none'
           }}
+          className="glow-effect"
         >
           {loading ? 'Ekleniyor...' : '+1 Poop!'}
         </PixelButton>
@@ -298,7 +303,10 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
           gap: '5px'
         }}>
           <button
-            onClick={() => setShowNotificationSettings(true)}
+            onClick={() => {
+              soundService.playClick();
+              setShowNotificationSettings(true);
+            }}
             style={{
               background: 'none',
               border: 'none',
@@ -311,14 +319,19 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
               alignItems: 'center',
               justifyContent: 'center',
               width: '30px',
-              height: '30px'
+              height: '30px',
+              transition: 'all 0.2s ease'
             }}
+            className="glow-effect"
             title="Bildirim Ayarları"
           >
             🔔
           </button>
           <button
-            onClick={() => setShowThemeSelector(true)}
+            onClick={() => {
+              soundService.playClick();
+              setShowThemeSelector(true);
+            }}
             style={{
               background: 'none',
               border: 'none',
@@ -331,8 +344,10 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
               alignItems: 'center',
               justifyContent: 'center',
               width: '30px',
-              height: '30px'
+              height: '30px',
+              transition: 'all 0.2s ease'
             }}
+            className="glow-effect"
             title="Tema Seç"
           >
             🎨

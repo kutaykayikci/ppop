@@ -4,6 +4,7 @@ import { addCharacterToRoom } from '../../services/roomService';
 import ProfileSetup from '../Profile/ProfileSetup';
 import PartnerInvite from './PartnerInvite';
 import PixelButton from '../PixelButton';
+import soundService from '../../services/soundService';
 
 const CharacterCreator = ({ roomId, onBack }) => {
   console.log('CharacterCreator roomId:', roomId);
@@ -20,10 +21,64 @@ const CharacterCreator = ({ roomId, onBack }) => {
   const [profile, setProfile] = useState(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationDirection, setAnimationDirection] = useState('next');
+  const [floatingEmojis, setFloatingEmojis] = useState([]);
+  const [particles, setParticles] = useState([]);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     loadRoomCharacters();
   }, [roomId]);
+
+  // Animasyonlu efektleri başlat
+  useEffect(() => {
+    // Floating emojiler oluştur
+    const emojis = ['👤', '👥', '💕', '🎨', '✨', '🌟', '💫', '🎭'];
+    const floatingEmojisArray = [];
+    
+    for (let i = 0; i < 6; i++) {
+      floatingEmojisArray.push({
+        id: i,
+        emoji: emojis[Math.floor(Math.random() * emojis.length)],
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        delay: Math.random() * 6
+      });
+    }
+    
+    setFloatingEmojis(floatingEmojisArray);
+
+    // Mouse takip efekti
+    const handleMouseMove = (e) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+      
+      // Rastgele parçacık oluştur
+      if (Math.random() < 0.08) {
+        createParticle(e.clientX, e.clientY);
+      }
+    };
+
+    const createParticle = (x, y) => {
+      const newParticle = {
+        id: Date.now() + Math.random(),
+        x: x,
+        y: y,
+        color: `hsl(${Math.random() * 360}, 70%, 60%)`
+      };
+      
+      setParticles(prev => [...prev, newParticle]);
+      
+      // Parçacığı 3 saniye sonra temizle
+      setTimeout(() => {
+        setParticles(prev => prev.filter(p => p.id !== newParticle.id));
+      }, 3000);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
 
   const loadRoomCharacters = async () => {
     try {
@@ -156,9 +211,13 @@ const CharacterCreator = ({ roomId, onBack }) => {
         <div>
           <div style={{ marginBottom: '20px', textAlign: 'center' }}>
             <PixelButton
-              onClick={onBack}
+              onClick={() => {
+                soundService.playClick();
+                onBack();
+              }}
               variant="secondary"
               size="sm"
+              className="glow-effect"
             >
               ← Geri
             </PixelButton>
@@ -196,12 +255,14 @@ const CharacterCreator = ({ roomId, onBack }) => {
           
           <PixelButton
             onClick={() => {
+              soundService.playClick();
               setGender(availableGenders[0]);
               transitionToStep('customization', 'next');
             }}
             variant="primary"
             size="lg"
             style={{ width: '100%' }}
+            className="glow-effect"
           >
             Bu Cinsiyeti Seç →
           </PixelButton>
@@ -213,9 +274,13 @@ const CharacterCreator = ({ roomId, onBack }) => {
       <div>
         <div style={{ marginBottom: '20px', textAlign: 'center' }}>
           <PixelButton
-            onClick={onBack}
+            onClick={() => {
+              soundService.playClick();
+              onBack();
+            }}
             variant="secondary"
             size="sm"
+            className="glow-effect"
           >
             ← Geri
           </PixelButton>
@@ -242,12 +307,14 @@ const CharacterCreator = ({ roomId, onBack }) => {
             <PixelButton
               key={genderOption}
               onClick={() => {
+                soundService.playClick();
                 setGender(genderOption);
                 transitionToStep('customization', 'next');
               }}
               variant={gender === genderOption ? 'primary' : 'secondary'}
               size="lg"
               style={{ padding: '20px' }}
+              className="glow-effect"
             >
               <div style={{ fontSize: '24px', marginBottom: '5px' }}>
                 {genderOption === 'male' ? '👨' : '👩'}
@@ -506,27 +573,63 @@ const CharacterCreator = ({ roomId, onBack }) => {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#f0f0f0',
-      padding: '20px',
-      overflow: 'hidden'
-    }}>
-      <div style={{
-        backgroundColor: '#fff',
-        border: '3px solid #333',
-        borderRadius: '8px',
-        boxShadow: '6px 6px 0px rgba(0, 0, 0, 0.2)',
-        padding: '30px',
-        width: '100%',
-        maxWidth: '500px',
-        textAlign: 'center',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
+    <div 
+      className="animated-gradient"
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+        overflow: 'hidden',
+        position: 'relative'
+      }}
+    >
+      {/* Floating Emojiler */}
+      {floatingEmojis.map(emoji => (
+        <div
+          key={emoji.id}
+          className={`floating-emoji ${emoji.delay > 3 ? 'delayed' : ''}`}
+          style={{
+            left: `${emoji.left}%`,
+            top: `${emoji.top}%`,
+            animationDelay: `${emoji.delay}s`
+          }}
+        >
+          {emoji.emoji}
+        </div>
+      ))}
+
+      {/* Mouse Takip Parçacıkları */}
+      {particles.map(particle => (
+        <div
+          key={particle.id}
+          className="particle"
+          style={{
+            left: particle.x,
+            top: particle.y,
+            backgroundColor: particle.color
+          }}
+        />
+      ))}
+
+      <div 
+        className="tilt-card"
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          border: '3px solid #333',
+          borderRadius: '8px',
+          boxShadow: '6px 6px 0px rgba(0, 0, 0, 0.2)',
+          padding: '30px',
+          width: '100%',
+          maxWidth: '500px',
+          textAlign: 'center',
+          position: 'relative',
+          overflow: 'hidden',
+          backdropFilter: 'blur(10px)',
+          zIndex: 10
+        }}
+      >
         <div style={getAnimationStyles()}>
           {currentStep === 'gender' && renderGenderSelection()}
           {currentStep === 'customization' && renderCharacterCustomization()}

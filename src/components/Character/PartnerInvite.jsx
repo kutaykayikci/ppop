@@ -1,38 +1,96 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { checkRoomStatus } from '../../services/roomService';
 import PixelButton from '../PixelButton';
+import soundService from '../../services/soundService';
 
 const PartnerInvite = ({ room, character, onPartnerJoined }) => {
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
   const [partnerStatus, setPartnerStatus] = useState(null);
+  const [floatingEmojis, setFloatingEmojis] = useState([]);
+  const [particles, setParticles] = useState([]);
 
   const inviteUrl = `${window.location.origin}${window.location.pathname}?room=${room.id}&invite=true`;
   
+  // Animasyonlu efektleri başlat
+  useEffect(() => {
+    // Floating emojiler oluştur
+    const emojis = ['💕', '💖', '💗', '💘', '💝', '💞', '💟', '💌'];
+    const floatingEmojisArray = [];
+    
+    for (let i = 0; i < 5; i++) {
+      floatingEmojisArray.push({
+        id: i,
+        emoji: emojis[Math.floor(Math.random() * emojis.length)],
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        delay: Math.random() * 6
+      });
+    }
+    
+    setFloatingEmojis(floatingEmojisArray);
+
+    // Mouse takip efekti
+    const handleMouseMove = (e) => {
+      // Rastgele parçacık oluştur
+      if (Math.random() < 0.06) {
+        createParticle(e.clientX, e.clientY);
+      }
+    };
+
+    const createParticle = (x, y) => {
+      const newParticle = {
+        id: Date.now() + Math.random(),
+        x: x,
+        y: y,
+        color: `hsl(${Math.random() * 360}, 70%, 60%)`
+      };
+      
+      setParticles(prev => [...prev, newParticle]);
+      
+      // Parçacığı 3 saniye sonra temizle
+      setTimeout(() => {
+        setParticles(prev => prev.filter(p => p.id !== newParticle.id));
+      }, 3000);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+  
   const copyToClipboard = async () => {
     try {
+      soundService.playClick();
       await navigator.clipboard.writeText(inviteUrl);
       setCopied(true);
+      soundService.playSuccess();
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       console.error('Kopyalama hatası:', error);
+      soundService.playError();
     }
   };
 
   const checkPartnerStatus = async () => {
     setLoading(true);
+    soundService.playClick();
     try {
       const roomStatus = await checkRoomStatus(room.id);
       setPartnerStatus(roomStatus);
       
       if (roomStatus.isComplete) {
         // Partner katıldı, dashboard'a yönlendir
+        soundService.playAchievement();
         setTimeout(() => {
           onPartnerJoined();
         }, 1000);
       }
     } catch (error) {
       console.error('Partner durumu kontrol hatası:', error);
+      soundService.playError();
       setPartnerStatus({ error: 'Kontrol edilemedi' });
     } finally {
       setLoading(false);
@@ -40,24 +98,61 @@ const PartnerInvite = ({ room, character, onPartnerJoined }) => {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#f0f0f0',
-      padding: '20px'
-    }}>
-      <div style={{
-        backgroundColor: '#fff',
-        border: '3px solid #333',
-        borderRadius: '8px',
-        boxShadow: '6px 6px 0px rgba(0, 0, 0, 0.2)',
-        padding: '30px',
-        width: '100%',
-        maxWidth: '500px',
-        textAlign: 'center'
-      }}>
+    <div 
+      className="animated-gradient"
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
+    >
+      {/* Floating Emojiler */}
+      {floatingEmojis.map(emoji => (
+        <div
+          key={emoji.id}
+          className={`floating-emoji ${emoji.delay > 3 ? 'delayed' : ''}`}
+          style={{
+            left: `${emoji.left}%`,
+            top: `${emoji.top}%`,
+            animationDelay: `${emoji.delay}s`
+          }}
+        >
+          {emoji.emoji}
+        </div>
+      ))}
+
+      {/* Mouse Takip Parçacıkları */}
+      {particles.map(particle => (
+        <div
+          key={particle.id}
+          className="particle"
+          style={{
+            left: particle.x,
+            top: particle.y,
+            backgroundColor: particle.color
+          }}
+        />
+      ))}
+
+      <div 
+        className="tilt-card"
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          border: '3px solid #333',
+          borderRadius: '8px',
+          boxShadow: '6px 6px 0px rgba(0, 0, 0, 0.2)',
+          padding: '30px',
+          width: '100%',
+          maxWidth: '500px',
+          textAlign: 'center',
+          backdropFilter: 'blur(10px)',
+          zIndex: 10
+        }}
+      >
         <div style={{
           fontSize: '48px',
           marginBottom: '20px'
@@ -158,6 +253,7 @@ const PartnerInvite = ({ room, character, onPartnerJoined }) => {
             onClick={copyToClipboard}
             variant="secondary"
             size="sm"
+            className="glow-effect"
           >
             {copied ? 'Kopyalandı!' : 'Room ID Kopyala'}
           </PixelButton>
@@ -167,6 +263,7 @@ const PartnerInvite = ({ room, character, onPartnerJoined }) => {
             variant="primary"
             size="sm"
             disabled={loading}
+            className="glow-effect"
           >
             {loading ? 'Kontrol Ediliyor...' : 'Partner Katıldı mı?'}
           </PixelButton>

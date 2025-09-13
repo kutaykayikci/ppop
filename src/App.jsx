@@ -84,25 +84,56 @@ function App() {
 
   if (loading) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%)',
-        fontFamily: 'Arial, sans-serif'
-      }}>
-        <div style={{
-          backgroundColor: '#fff',
-          padding: '40px',
-          borderRadius: '10px',
-          textAlign: 'center',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
-        }}>
-          <h2 style={{ color: '#333', marginBottom: '20px' }}>
+      <div 
+        className="animated-gradient"
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontFamily: 'Arial, sans-serif',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+      >
+        {/* Floating Emojiler */}
+        {[...Array(6)].map((_, i) => (
+          <div
+            key={i}
+            className={`floating-emoji ${i % 2 === 0 ? 'delayed' : ''}`}
+            style={{
+              left: `${20 + i * 15}%`,
+              top: `${30 + (i % 3) * 20}%`,
+              animationDelay: `${i * 0.5}s`
+            }}
+          >
+            {['💩', '🚽', '🧻', '🪠', '💧', '🌟'][i]}
+          </div>
+        ))}
+
+        <div 
+          className="tilt-card"
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            padding: '40px',
+            borderRadius: '10px',
+            textAlign: 'center',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+            backdropFilter: 'blur(10px)',
+            border: '3px solid #333'
+          }}
+        >
+          <h2 style={{ 
+            color: '#333', 
+            marginBottom: '20px',
+            textShadow: '2px 2px 0px rgba(0, 0, 0, 0.1)'
+          }}>
             💩 Poop Count
           </h2>
-          <div style={{ fontSize: '18px', color: '#666' }}>
+          <div className="loading-emoji" style={{ fontSize: '32px', marginBottom: '20px' }}>
+            💩
+          </div>
+          <div className="loading-text" style={{ fontSize: '18px', color: '#666' }}>
             Yükleniyor...
           </div>
         </div>
@@ -111,11 +142,15 @@ function App() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%)',
-      fontFamily: 'Arial, sans-serif'
-    }}>
+    <div 
+      className="animated-gradient"
+      style={{
+        minHeight: '100vh',
+        fontFamily: 'Arial, sans-serif',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
+    >
       {currentView === 'room-selector' && (
         <RoomSelector onRoomSelected={handleRoomSelected} />
       )}

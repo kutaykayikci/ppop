@@ -4,6 +4,7 @@ import { getRoomProfiles } from '../../services/profileService';
 import { getPoopsByDateRange } from '../../firebase/poopService';
 import PoopCounter from '../PoopCounter';
 import PixelButton from '../PixelButton';
+import soundService from '../../services/soundService';
 
 const RoomDashboard = ({ room }) => {
   const [characters, setCharacters] = useState([]);
@@ -17,10 +18,61 @@ const RoomDashboard = ({ room }) => {
   });
   const [selectedPeriod, setSelectedPeriod] = useState('today');
   const [loading, setLoading] = useState(true);
+  const [floatingEmojis, setFloatingEmojis] = useState([]);
+  const [particles, setParticles] = useState([]);
 
   useEffect(() => {
     loadRoomData();
   }, [room.id]);
+
+  // Animasyonlu efektleri başlat
+  useEffect(() => {
+    // Floating emojiler oluştur
+    const emojis = ['💩', '🏆', '📊', '🎯', '⭐', '🔥', '💪', '🎉'];
+    const floatingEmojisArray = [];
+    
+    for (let i = 0; i < 8; i++) {
+      floatingEmojisArray.push({
+        id: i,
+        emoji: emojis[Math.floor(Math.random() * emojis.length)],
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        delay: Math.random() * 6
+      });
+    }
+    
+    setFloatingEmojis(floatingEmojisArray);
+
+    // Mouse takip efekti
+    const handleMouseMove = (e) => {
+      // Rastgele parçacık oluştur
+      if (Math.random() < 0.05) {
+        createParticle(e.clientX, e.clientY);
+      }
+    };
+
+    const createParticle = (x, y) => {
+      const newParticle = {
+        id: Date.now() + Math.random(),
+        x: x,
+        y: y,
+        color: `hsl(${Math.random() * 360}, 70%, 60%)`
+      };
+      
+      setParticles(prev => [...prev, newParticle]);
+      
+      // Parçacığı 3 saniye sonra temizle
+      setTimeout(() => {
+        setParticles(prev => prev.filter(p => p.id !== newParticle.id));
+      }, 3000);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
 
   useEffect(() => {
     if (characters.length > 0) {
@@ -196,29 +248,90 @@ const RoomDashboard = ({ room }) => {
 
   if (loading) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#f0f0f0'
-      }}>
-        <div style={{
-          backgroundColor: '#fff',
-          border: '3px solid #333',
-          borderRadius: '8px',
-          padding: '30px',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '24px', marginBottom: '20px' }}>⏳</div>
-          <div>Room verileri yükleniyor...</div>
+      <div 
+        className="animated-gradient"
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+      >
+        {/* Floating Emojiler */}
+        {floatingEmojis.map(emoji => (
+          <div
+            key={emoji.id}
+            className={`floating-emoji ${emoji.delay > 3 ? 'delayed' : ''}`}
+            style={{
+              left: `${emoji.left}%`,
+              top: `${emoji.top}%`,
+              animationDelay: `${emoji.delay}s`
+            }}
+          >
+            {emoji.emoji}
+          </div>
+        ))}
+
+        <div 
+          className="tilt-card"
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            border: '3px solid #333',
+            borderRadius: '8px',
+            padding: '30px',
+            textAlign: 'center',
+            backdropFilter: 'blur(10px)',
+            zIndex: 10
+          }}
+        >
+          <div className="loading-emoji" style={{ fontSize: '32px', marginBottom: '20px' }}>⏳</div>
+          <div className="loading-text">Room verileri yükleniyor...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: '100vh', padding: '0' }}>
+    <div 
+      className="animated-gradient"
+      style={{ 
+        minHeight: '100vh', 
+        padding: '0',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
+    >
+      {/* Floating Emojiler */}
+      {floatingEmojis.map(emoji => (
+        <div
+          key={emoji.id}
+          className={`floating-emoji ${emoji.delay > 3 ? 'delayed' : ''}`}
+          style={{
+            left: `${emoji.left}%`,
+            top: `${emoji.top}%`,
+            animationDelay: `${emoji.delay}s`,
+            zIndex: 1
+          }}
+        >
+          {emoji.emoji}
+        </div>
+      ))}
+
+      {/* Mouse Takip Parçacıkları */}
+      {particles.map(particle => (
+        <div
+          key={particle.id}
+          className="particle"
+          style={{
+            left: particle.x,
+            top: particle.y,
+            backgroundColor: particle.color,
+            zIndex: 2
+          }}
+        />
+      ))}
       {/* Header */}
       <header style={{
         backgroundColor: '#fff',
@@ -299,10 +412,14 @@ const RoomDashboard = ({ room }) => {
             {['today', 'yesterday', 'week', 'month', 'total'].map(period => (
               <PixelButton
                 key={period}
-                onClick={() => setSelectedPeriod(period)}
+                onClick={() => {
+                  soundService.playClick();
+                  setSelectedPeriod(period);
+                }}
                 variant={selectedPeriod === period ? 'primary' : 'secondary'}
                 size="sm"
                 style={{ margin: '0 5px' }}
+                className="glow-effect"
               >
                 {period === 'today' ? 'Bugün' : 
                  period === 'yesterday' ? 'Dün' :
