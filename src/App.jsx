@@ -1,6 +1,7 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { getRoomById } from './services/roomService';
 import { getRoomCharacters } from './services/characterService';
+import { initializePushNotifications } from './services/fcmService';
 
 // Lazy loading ile bileşenleri yükle
 const RoomSelector = lazy(() => import('./components/Room/RoomSelector'));
@@ -42,6 +43,25 @@ function App() {
       setIsWaiting(waiting === 'true');
       handleDirectRoomAccess(roomId);
     }
+  }, []);
+
+  // FCM Push Notifications başlat
+  useEffect(() => {
+    const initializeFCM = async () => {
+      try {
+        // Basit bir user ID oluştur (gerçek uygulamada auth'dan gelecek)
+        const userId = localStorage.getItem('userId') || `user_${Date.now()}`;
+        localStorage.setItem('userId', userId);
+        
+        // FCM'i başlat (room ve character bilgisi olmadan)
+        await initializePushNotifications(userId, null, null);
+        console.log('FCM Push Notifications başlatıldı');
+      } catch (error) {
+        console.error('FCM başlatma hatası:', error);
+      }
+    };
+
+    initializeFCM();
   }, []);
 
   const handleDirectRoomAccess = async (roomId) => {

@@ -4,31 +4,84 @@ import {
   getDocs, 
   query, 
   orderBy, 
-  limit 
+  limit,
+  updateDoc,
+  doc
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { sendPushNotification } from './notificationService';
+import { getRoomFCMTokens, getAllActiveFCMTokens } from './fcmService';
+
+// Firebase Cloud Messaging ile push gönder
+const sendFCMNotification = async (tokens, payload) => {
+  try {
+    // Bu fonksiyon backend'de çalışacak
+    // Frontend'den sadece Firestore'a push request kaydediyoruz
+    const pushRequestRef = collection(db, 'push_requests');
+    await addDoc(pushRequestRef, {
+      tokens,
+      payload,
+      status: 'pending',
+      createdAt: new Date()
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('FCM push gönderme hatası:', error);
+    return { success: false, error: error.message };
+  }
+};
 
 // Push bildirimini tüm kullanıcılara gönder
 export const sendPushToAllUsers = async (pushData) => {
   try {
-    // Gerçek uygulamada burada tüm kullanıcıların FCM token'larını alıp gönderirsin
-    // Şimdilik simüle ediyoruz
-    
-    const result = await sendPushNotification({
-      title: pushData.title,
-      body: pushData.body,
-      icon: pushData.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSIjOEI0NTEzIi8+CiAgPHRleHQgeD0iMTYiIHk9IjIyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjIwIj7wn5KpPC90ZXh0Pgo8L3N2Zz4K',
-      type: 'admin_push'
-    }, {
-      pushId: pushData.id,
-      targetType: 'all'
-    });
+    // Tüm aktif FCM token'ları al
+    const tokens = await getAllActiveFCMTokens();
+    const tokenList = tokens.map(t => t.token);
+
+    if (tokenList.length === 0) {
+      return {
+        success: false,
+        error: 'Aktif FCM token bulunamadı'
+      };
+    }
+
+    // FCM payload oluştur
+    const fcmPayload = {
+      notification: {
+        title: pushData.title,
+        body: pushData.body,
+        icon: '/poop-emoji.svg'
+      },
+      data: {
+        type: 'admin_push',
+        pushId: pushData.id,
+        targetType: 'all',
+        click_action: '/'
+      }
+    };
+
+    // FCM push gönder
+    const result = await sendFCMNotification(tokenList, fcmPayload);
+
+    if (result.success) {
+      // Local notification da gönder (fallback)
+      await sendPushNotification({
+        title: pushData.title,
+        body: pushData.body,
+        icon: pushData.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSIjOEI0NTEzIi8+CiAgPHRleHQgeD0iMTYiIHk9IjIyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjIwIj7wn5KpPC90ZXh0Pgo8L3N2Zz4K',
+        type: 'admin_push'
+      }, {
+        pushId: pushData.id,
+        targetType: 'all'
+      });
+    }
 
     return {
-      success: true,
-      message: 'Push tüm kullanıcılara gönderildi',
-      sent: true
+      success: result.success,
+      message: result.success ? 'Push tüm kullanıcılara gönderildi' : result.error,
+      sent: result.success,
+      tokenCount: tokenList.length
     };
   } catch (error) {
     console.error('Tüm kullanıcılara push gönderme hatası:', error);
@@ -42,23 +95,55 @@ export const sendPushToAllUsers = async (pushData) => {
 // Belirli bir odaya push gönder
 export const sendPushToRoom = async (roomId, pushData) => {
   try {
-    // Oda kullanıcılarını bul (gerçek uygulamada FCM token'ları ile)
-    
-    const result = await sendPushNotification({
-      title: pushData.title,
-      body: pushData.body,
-      icon: pushData.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSIjOEI0NTEzIi8+CiAgPHRleHQgeD0iMTYiIHk9IjIyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjIwIj7wn5KpPC90ZXh0Pgo8L3N2Zz4K',
-      type: 'admin_push'
-    }, {
-      pushId: pushData.id,
-      targetType: 'room',
-      targetId: roomId
-    });
+    // Oda kullanıcılarının FCM token'larını al
+    const tokens = await getRoomFCMTokens(roomId);
+    const tokenList = tokens.map(t => t.token);
+
+    if (tokenList.length === 0) {
+      return {
+        success: false,
+        error: `Oda ${roomId} için aktif FCM token bulunamadı`
+      };
+    }
+
+    // FCM payload oluştur
+    const fcmPayload = {
+      notification: {
+        title: pushData.title,
+        body: pushData.body,
+        icon: '/poop-emoji.svg'
+      },
+      data: {
+        type: 'admin_push',
+        pushId: pushData.id,
+        targetType: 'room',
+        targetId: roomId,
+        click_action: '/'
+      }
+    };
+
+    // FCM push gönder
+    const result = await sendFCMNotification(tokenList, fcmPayload);
+
+    if (result.success) {
+      // Local notification da gönder (fallback)
+      await sendPushNotification({
+        title: pushData.title,
+        body: pushData.body,
+        icon: pushData.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSIjOEI0NTEzIi8+CiAgPHRleHQgeD0iMTYiIHk9IjIyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjIwIj7wn5KpPC90ZXh0Pgo8L3N2Zz4K',
+        type: 'admin_push'
+      }, {
+        pushId: pushData.id,
+        targetType: 'room',
+        targetId: roomId
+      });
+    }
 
     return {
-      success: true,
-      message: `Push oda ${roomId} kullanıcılarına gönderildi`,
-      sent: true
+      success: result.success,
+      message: result.success ? `Push oda ${roomId} kullanıcılarına gönderildi` : result.error,
+      sent: result.success,
+      tokenCount: tokenList.length
     };
   } catch (error) {
     console.error('Oda kullanıcılarına push gönderme hatası:', error);
@@ -240,5 +325,4 @@ export const getPushStats = async () => {
   }
 };
 
-// Yardımcı fonksiyon - updateDoc import
-import { updateDoc, doc } from 'firebase/firestore';
+// updateDoc ve doc zaten yukarıda import edilmiş

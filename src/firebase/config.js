@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -14,3 +15,39 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+
+// FCM Messaging
+export const messaging = getMessaging(app);
+
+// VAPID Key - Firebase Console'dan alacaksınız
+const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY;
+
+// FCM Token al
+export const getFCMToken = async () => {
+  try {
+    const token = await getToken(messaging, {
+      vapidKey: VAPID_KEY
+    });
+    
+    if (token) {
+      console.log('FCM Token:', token);
+      return token;
+    } else {
+      console.log('No registration token available.');
+      return null;
+    }
+  } catch (error) {
+    console.error('FCM Token alma hatası:', error);
+    return null;
+  }
+};
+
+// Foreground mesajları dinle
+export const onMessageListener = () => {
+  return new Promise((resolve) => {
+    onMessage(messaging, (payload) => {
+      console.log('Foreground mesaj alındı:', payload);
+      resolve(payload);
+    });
+  });
+};
