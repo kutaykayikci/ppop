@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { createCharacter, characterPresets, getRoomCharacters } from '../../services/characterService';
 import { addCharacterToRoom } from '../../services/roomService';
+import ProfileSetup from '../Profile/ProfileSetup';
+import PartnerInvite from './PartnerInvite';
 import PixelButton from '../PixelButton';
 
-const CharacterCreator = ({ roomId, onCharacterCreated }) => {
+const CharacterCreator = ({ roomId, onBack }) => {
+  console.log('CharacterCreator roomId:', roomId);
   const [gender, setGender] = useState('');
   const [name, setName] = useState('');
   const [selectedEmoji, setSelectedEmoji] = useState('');
@@ -12,6 +15,9 @@ const CharacterCreator = ({ roomId, onCharacterCreated }) => {
   const [error, setError] = useState('');
   const [availableGenders, setAvailableGenders] = useState(['male', 'female']);
   const [roomCharacters, setRoomCharacters] = useState([]);
+  const [currentStep, setCurrentStep] = useState('gender'); // gender, customization, profile, partner-invite
+  const [createdCharacter, setCreatedCharacter] = useState(null);
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
     loadRoomCharacters();
@@ -54,6 +60,8 @@ const CharacterCreator = ({ roomId, onCharacterCreated }) => {
     setError('');
 
     try {
+      console.log('handleSubmit roomId:', roomId);
+      
       const characterData = {
         gender,
         name: name.trim(),
@@ -61,21 +69,16 @@ const CharacterCreator = ({ roomId, onCharacterCreated }) => {
         color: selectedColor
       };
 
+      console.log('characterData:', characterData);
       const character = await createCharacter(roomId, characterData);
       
       // Karakteri room'a ekle
       await addCharacterToRoom(roomId, character.id);
       
-      // Room'daki karakterleri tekrar kontrol et
-      const updatedCharacters = await getRoomCharacters(roomId);
-      
-      if (updatedCharacters.length >= 2) {
-        // 2 karakter de oluşturulmuş, direkt dashboard'a yönlendir
-        window.location.href = `?room=${roomId}`;
-        return;
-      }
-      
-      onCharacterCreated(character);
+      // Karakteri kaydet ve profil kurulumuna geç
+      console.log('Karakter oluşturuldu, profil kurulumuna geçiliyor:', character);
+      setCreatedCharacter(character);
+      setCurrentStep('profile');
     } catch (error) {
       console.error('Character oluşturma hatası:', error);
       setError(error.message);
@@ -136,6 +139,16 @@ const CharacterCreator = ({ roomId, onCharacterCreated }) => {
     if (availableGenders.length === 1) {
       return (
         <div>
+          <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+            <PixelButton
+              onClick={onBack}
+              variant="secondary"
+              size="sm"
+            >
+              ← Geri
+            </PixelButton>
+          </div>
+          
           <h2 style={{
             fontSize: '20px',
             color: '#333',
@@ -167,7 +180,10 @@ const CharacterCreator = ({ roomId, onCharacterCreated }) => {
           </div>
           
           <PixelButton
-            onClick={() => setGender(availableGenders[0])}
+            onClick={() => {
+              setGender(availableGenders[0]);
+              setCurrentStep('customization');
+            }}
             variant="primary"
             size="lg"
             style={{ width: '100%' }}
@@ -180,6 +196,16 @@ const CharacterCreator = ({ roomId, onCharacterCreated }) => {
 
     return (
       <div>
+        <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+          <PixelButton
+            onClick={onBack}
+            variant="secondary"
+            size="sm"
+          >
+            ← Geri
+          </PixelButton>
+        </div>
+        
         <h2 style={{
           fontSize: '20px',
           color: '#333',
@@ -200,7 +226,10 @@ const CharacterCreator = ({ roomId, onCharacterCreated }) => {
           {availableGenders.map(genderOption => (
             <PixelButton
               key={genderOption}
-              onClick={() => setGender(genderOption)}
+              onClick={() => {
+                setGender(genderOption);
+                setCurrentStep('customization');
+              }}
               variant={gender === genderOption ? 'primary' : 'secondary'}
               size="lg"
               style={{ padding: '20px' }}
@@ -216,11 +245,34 @@ const CharacterCreator = ({ roomId, onCharacterCreated }) => {
     );
   };
 
+  const handleProfileCreated = async (createdProfile) => {
+    console.log('Profil oluşturuldu, karakterleri kontrol ediliyor:', createdProfile);
+    
+    // Profil oluşturuldu, room'daki karakterleri kontrol et
+    const updatedCharacters = await getRoomCharacters(roomId);
+    console.log('Room karakterleri:', updatedCharacters);
+    
+    setProfile(createdProfile);
+    
+    if (updatedCharacters.length >= 2) {
+      // 2 karakter de oluşturulmuş, direkt dashboard'a yönlendir
+      console.log('2 karakter hazır, dashboard\'a yönlendiriliyor');
+      window.location.href = `?room=${roomId}`;
+    } else {
+      // İlk karakter oluşturuldu, partner davet ekranına geç
+      console.log('İlk karakter hazır, partner davet ekranına geçiliyor');
+      setCurrentStep('partner-invite');
+    }
+  };
+
   const renderCharacterCustomization = () => (
     <div>
       <div style={{ marginBottom: '20px', textAlign: 'center' }}>
         <PixelButton
-          onClick={() => setGender('')}
+          onClick={() => {
+            setGender('');
+            setCurrentStep('gender');
+          }}
           variant="secondary"
           size="sm"
         >
@@ -394,6 +446,35 @@ const CharacterCreator = ({ roomId, onCharacterCreated }) => {
     </div>
   );
 
+  // Profil kurulumu için ProfileSetup bileşenini doğrudan render et
+  console.log('CharacterCreator render - currentStep:', currentStep, 'createdCharacter:', createdCharacter);
+  
+  if (currentStep === 'profile' && createdCharacter) {
+    console.log('ProfileSetup render ediliyor');
+    return (
+      <ProfileSetup
+        roomId={roomId}
+        characterId={createdCharacter.id}
+        onProfileCreated={handleProfileCreated}
+      />
+    );
+  }
+
+  // Partner davet ekranı için PartnerInvite bileşenini render et
+  if (currentStep === 'partner-invite' && createdCharacter && profile) {
+    console.log('PartnerInvite render ediliyor');
+    return (
+      <PartnerInvite
+        room={{ id: roomId }}
+        character={createdCharacter}
+        onPartnerJoined={() => {
+          console.log('Partner katıldı, dashboard\'a yönlendiriliyor');
+          window.location.href = `?room=${roomId}`;
+        }}
+      />
+    );
+  }
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -413,7 +494,8 @@ const CharacterCreator = ({ roomId, onCharacterCreated }) => {
         maxWidth: '500px',
         textAlign: 'center'
       }}>
-        {!gender ? renderGenderSelection() : renderCharacterCustomization()}
+        {currentStep === 'gender' && renderGenderSelection()}
+        {currentStep === 'customization' && renderCharacterCustomization()}
       </div>
     </div>
   );

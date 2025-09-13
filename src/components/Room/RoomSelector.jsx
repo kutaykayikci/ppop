@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createRoom, joinRoom, getRoomById } from '../../services/roomService';
 import { getRoomCharacters } from '../../services/characterService';
+import { validateRoomId } from '../../utils/roomIdGenerator';
 import PixelButton from '../PixelButton';
 
 const RoomSelector = ({ onRoomSelected }) => {
@@ -35,6 +36,11 @@ const RoomSelector = ({ onRoomSelected }) => {
     e.preventDefault();
     if (!roomId.trim()) {
       setError('Room ID boş olamaz');
+      return;
+    }
+
+    if (!validateRoomId(roomId.trim())) {
+      setError('Room ID formatı geçersiz. 1905- ile başlamalı ve en az bir karakter içermelidir.');
       return;
     }
 
@@ -143,21 +149,42 @@ const RoomSelector = ({ onRoomSelected }) => {
           }}>
             Oda Adı (Benzersiz)
           </label>
-          <input
-            type="text"
-            value={uniqueName}
-            onChange={(e) => setUniqueName(e.target.value)}
-            placeholder="örn: kutayverumeysa"
-            required
-            style={{
-              width: '100%',
+          <div style={{
+            display: 'flex',
+            border: '3px solid #333',
+            borderRadius: '4px',
+            overflow: 'hidden',
+            backgroundColor: '#fff'
+          }}>
+            <div style={{
               padding: '12px',
-              border: '3px solid #333',
-              borderRadius: '4px',
+              backgroundColor: '#f8f9fa',
+              border: 'none',
               fontSize: '16px',
-              boxSizing: 'border-box'
-            }}
-          />
+              fontWeight: 'bold',
+              color: '#333',
+              display: 'flex',
+              alignItems: 'center',
+              borderRight: '1px solid #ddd'
+            }}>
+              1905-
+            </div>
+            <input
+              type="text"
+              value={uniqueName}
+              onChange={(e) => setUniqueName(e.target.value)}
+              placeholder="kutayverumeysa"
+              required
+              style={{
+                flex: 1,
+                padding: '12px',
+                border: 'none',
+                fontSize: '16px',
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
           <div style={{
             fontSize: '12px',
             color: '#666',
@@ -225,21 +252,45 @@ const RoomSelector = ({ onRoomSelected }) => {
           }}>
             Room ID
           </label>
-          <input
-            type="text"
-            value={roomId}
-            onChange={(e) => setRoomId(e.target.value)}
-            placeholder="örn: 1905-kutayverumeysa"
-            required
-            style={{
-              width: '100%',
+          <div style={{
+            display: 'flex',
+            border: '3px solid #333',
+            borderRadius: '4px',
+            overflow: 'hidden',
+            backgroundColor: '#fff'
+          }}>
+            <div style={{
               padding: '12px',
-              border: '3px solid #333',
-              borderRadius: '4px',
+              backgroundColor: '#f8f9fa',
+              border: 'none',
               fontSize: '16px',
-              boxSizing: 'border-box'
-            }}
-          />
+              fontWeight: 'bold',
+              color: '#333',
+              display: 'flex',
+              alignItems: 'center',
+              borderRight: '1px solid #ddd'
+            }}>
+              1905-
+            </div>
+            <input
+              type="text"
+              value={roomId.replace(/^1905-/, '')}
+              onChange={(e) => {
+                const value = e.target.value;
+                setRoomId(`1905-${value}`);
+              }}
+              placeholder="kutayverumeysa"
+              required
+              style={{
+                flex: 1,
+                padding: '12px',
+                border: 'none',
+                fontSize: '16px',
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
         </div>
 
         {error && (

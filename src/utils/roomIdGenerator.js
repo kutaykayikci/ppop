@@ -12,7 +12,7 @@ export const generateRoomId = (uniqueName) => {
 
 export const validateRoomId = (roomId) => {
   const pattern = /^1905-[a-z0-9-]+$/;
-  return pattern.test(roomId);
+  return pattern.test(roomId) && roomId.length > 5; // En az 1905-x formatında olmalı
 };
 
 export const extractUniqueName = (roomId) => {

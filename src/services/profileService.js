@@ -18,7 +18,6 @@ export const createProfile = async (profileData, roomId, characterId) => {
       firstName: profileData.firstName,
       lastName: profileData.lastName,
       age: profileData.age,
-      profilePhoto: profileData.profilePhoto, // base64 string or URL
       createdAt: serverTimestamp()
     };
     
@@ -69,27 +68,4 @@ export const updateProfile = async (profileId, updateData) => {
   }
 };
 
-// Profil fotoğrafı için yardımcı fonksiyonlar
-export const convertFileToBase64 = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-  });
-};
-
-export const validateProfilePhoto = (file) => {
-  const maxSize = 2 * 1024 * 1024; // 2MB
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-  
-  if (!allowedTypes.includes(file.type)) {
-    throw new Error('Sadece JPEG, PNG ve GIF formatları desteklenir');
-  }
-  
-  if (file.size > maxSize) {
-    throw new Error('Dosya boyutu 2MB\'dan küçük olmalıdır');
-  }
-  
-  return true;
-};
+// Profil fotoğrafı fonksiyonları kaldırıldı

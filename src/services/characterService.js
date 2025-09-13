@@ -10,8 +10,13 @@ import { db } from '../firebase/config';
 
 export const createCharacter = async (roomId, characterData) => {
   try {
+    // roomId kontrolü
+    if (!roomId) {
+      throw new Error('roomId gerekli!');
+    }
+    
     const character = {
-      roomId,
+      roomId: roomId,
       gender: characterData.gender, // 'male' or 'female'
       name: characterData.name,
       emoji: characterData.emoji,
@@ -20,6 +25,9 @@ export const createCharacter = async (roomId, characterData) => {
     };
     
     console.log('Character oluşturuluyor:', character);
+    console.log('roomId:', roomId);
+    console.log('characterData:', characterData);
+    
     const docRef = await addDoc(collection(db, 'characters'), character);
     console.log('Character başarıyla oluşturuldu, ID:', docRef.id);
     
