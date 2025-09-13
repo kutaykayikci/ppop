@@ -305,7 +305,7 @@ const CharacterCreator = ({ roomId, onBack }) => {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="örn: Kutay, Rümeysa"
+            placeholder="örn: Jack, Elizabeth"
             required
             style={{
               width: '100%',

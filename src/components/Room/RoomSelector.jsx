@@ -112,7 +112,7 @@ const RoomSelector = ({ onRoomSelected }) => {
         marginTop: '20px'
       }}>
         💡 İpucu: Oda adı benzersiz olmalıdır<br/>
-        Örnek: kutayverumeysa → 1905-kutayverumeysa
+        Örnek: jackandelizabeth → 1905-jackandelizabeth
       </div>
     </div>
   );
@@ -173,7 +173,7 @@ const RoomSelector = ({ onRoomSelected }) => {
               type="text"
               value={uniqueName}
               onChange={(e) => setUniqueName(e.target.value)}
-              placeholder="kutayverumeysa"
+              placeholder="jackandelizabeth"
               required
               style={{
                 flex: 1,
@@ -279,7 +279,7 @@ const RoomSelector = ({ onRoomSelected }) => {
                 const value = e.target.value;
                 setRoomId(`1905-${value}`);
               }}
-              placeholder="kutayverumeysa"
+              placeholder="jackandelizabeth"
               required
               style={{
                 flex: 1,

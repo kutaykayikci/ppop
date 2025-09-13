@@ -22,7 +22,7 @@ export const extractUniqueName = (roomId) => {
 
 // Örnek room ID'ler
 export const exampleRoomIds = [
-  '1905-kutayverumeysa',
+  '1905-jackandelizabeth',
   '1905-ahmetvefatma',
   '1905-canveayse',
   '1905-mehmetvezehra'

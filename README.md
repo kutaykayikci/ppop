@@ -4,7 +4,7 @@ Sevgilinizle eğlenceli bir şekilde günlük tuvalet alışkanlıklarınızı t
 
 ## 🎮 Özellikler
 
-- **İki Kişilik Takip**: Rümeysa ve Kutay için ayrı bölümler
+- **İki Kişilik Takip**: Elizabeth ve Jack için ayrı bölümler
 - **Günlük Sayım**: Her poop için +1 butonu ile anlık kayıt
 - **Saat Kaydetme**: Her poop zamanı otomatik olarak kaydedilir
 - **İstatistikler**: Günlük, haftalık ve toplam sayılar
@@ -60,7 +60,7 @@ http://localhost:5173
 ## 🔥 Firebase Konfigürasyonu
 
 Firebase projeniz hazır! Veriler `poops` koleksiyonunda saklanıyor:
-- `user`: "rümeysa" veya "kutay"
+- `user`: "elizabeth" veya "jack"
 - `timestamp`: Poop zamanı
 - `date`: YYYY-MM-DD formatında tarih
 
