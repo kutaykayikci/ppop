@@ -9,10 +9,12 @@ import {
 } from 'firebase/firestore';
 import { db } from './config';
 
-export const addPoopEntry = async (user, timestamp = null) => {
+export const addPoopEntry = async (roomId, characterId, profileId, timestamp = null) => {
   try {
     const poopData = {
-      user,
+      roomId,
+      characterId,
+      profileId,
       timestamp: timestamp || serverTimestamp(),
       date: new Date().toISOString().split('T')[0], // YYYY-MM-DD format
       createdAt: new Date().toISOString()
@@ -27,7 +29,8 @@ export const addPoopEntry = async (user, timestamp = null) => {
     console.error('Hata detayları:', {
       code: error.code,
       message: error.message,
-      user: user
+      roomId,
+      characterId
     });
     
     // Daha açıklayıcı hata mesajı
@@ -41,11 +44,11 @@ export const addPoopEntry = async (user, timestamp = null) => {
   }
 };
 
-export const getPoopsByDate = async (date) => {
+export const getPoopsByDate = async (roomId, date) => {
   try {
-    // Index gerektirmeyen basit sorgu
     const q = query(
       collection(db, 'poops'),
+      where('roomId', '==', roomId),
       where('date', '==', date)
     );
     
@@ -73,11 +76,11 @@ export const getPoopsByDate = async (date) => {
   }
 };
 
-export const getPoopsByDateRange = async (startDate, endDate) => {
+export const getPoopsByDateRange = async (roomId, startDate, endDate) => {
   try {
-    // Index gerektirmeyen basit sorgu
     const q = query(
       collection(db, 'poops'),
+      where('roomId', '==', roomId),
       where('date', '>=', startDate),
       where('date', '<=', endDate)
     );
@@ -111,7 +114,7 @@ export const getPoopsByDateRange = async (startDate, endDate) => {
   }
 };
 
-export const getTodayPoops = async () => {
+export const getTodayPoops = async (roomId) => {
   const today = new Date().toISOString().split('T')[0];
-  return await getPoopsByDate(today);
+  return await getPoopsByDate(roomId, today);
 };

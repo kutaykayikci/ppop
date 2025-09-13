@@ -3,21 +3,21 @@ import PixelButton from './PixelButton';
 import PixelCard from './PixelCard';
 import { addPoopEntry, getTodayPoops } from '../firebase/poopService';
 
-const PoopCounter = ({ user, userColor }) => {
+const PoopCounter = ({ character, profile, userColor, roomId }) => {
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [animation, setAnimation] = useState('');
 
   useEffect(() => {
     loadTodayCount();
-  }, []);
+  }, [roomId, character.id]);
 
   const loadTodayCount = async () => {
     try {
-      const todayPoops = await getTodayPoops();
-      const userPoops = todayPoops.filter(poop => poop.user === user);
-      setCount(userPoops.length);
-      console.log(`${user} için bugünkü poop sayısı:`, userPoops.length);
+      const todayPoops = await getTodayPoops(roomId);
+      const characterPoops = todayPoops.filter(poop => poop.characterId === character.id);
+      setCount(characterPoops.length);
+      console.log(`${character.name} için bugünkü poop sayısı:`, characterPoops.length);
     } catch (error) {
       console.error('Bugünkü poop sayısını yükleme hatası:', error);
       setCount(0);
@@ -31,8 +31,8 @@ const PoopCounter = ({ user, userColor }) => {
     setAnimation('bounce');
     
     try {
-      console.log(`${user} için poop ekleniyor...`);
-      const result = await addPoopEntry(user);
+      console.log(`${character.name} için poop ekleniyor...`);
+      const result = await addPoopEntry(roomId, character.id, profile.id);
       console.log('Poop başarıyla eklendi, ID:', result);
       
       // Veritabanından güncel sayıyı al
@@ -76,8 +76,19 @@ const PoopCounter = ({ user, userColor }) => {
           marginBottom: '20px',
           fontSize: '14px'
         }}>
-          {user} 💩
+          {character.name} {character.emoji}
         </h2>
+        
+        {profile && (
+          <div style={{
+            fontSize: '10px',
+            color: userColor.text,
+            marginBottom: '10px',
+            opacity: 0.8
+          }}>
+            {profile.firstName} {profile.lastName}
+          </div>
+        )}
         
         <div style={{ 
           fontSize: '48px', 
