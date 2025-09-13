@@ -87,7 +87,6 @@ export const REMINDER_TIMES = {
 // Bildirim izinlerini kontrol et
 export const checkNotificationPermission = async () => {
   if (!('Notification' in window)) {
-    console.log('Bu tarayıcı bildirimleri desteklemiyor');
     return false;
   }
 
@@ -145,7 +144,6 @@ export const sendNotification = async (template, customData = {}) => {
   const hasPermission = await checkNotificationPermission();
   
   if (!hasPermission) {
-    console.log('Bildirim izni yok');
     return false;
   }
 

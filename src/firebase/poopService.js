@@ -20,9 +20,7 @@ export const addPoopEntry = async (roomId, characterId, profileId, timestamp = n
       createdAt: new Date().toISOString()
     };
     
-    console.log('Poop verisi ekleniyor:', poopData);
     const docRef = await addDoc(collection(db, 'poops'), poopData);
-    console.log('Poop başarıyla eklendi, ID:', docRef.id);
     return docRef.id;
   } catch (error) {
     console.error('Poop ekleme hatası:', error);

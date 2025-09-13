@@ -31,9 +31,7 @@ export const createRoom = async (uniqueName) => {
       characters: []
     };
     
-    console.log('Room oluşturuluyor:', roomData);
     const docRef = await addDoc(collection(db, 'rooms'), roomData);
-    console.log('Room başarıyla oluşturuldu, ID:', docRef.id);
     
     return { 
       firestoreId: docRef.id, // Firestore document ID

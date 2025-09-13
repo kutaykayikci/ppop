@@ -24,12 +24,7 @@ export const createCharacter = async (roomId, characterData) => {
       createdAt: serverTimestamp()
     };
     
-    console.log('Character oluşturuluyor:', character);
-    console.log('roomId:', roomId);
-    console.log('characterData:', characterData);
-    
     const docRef = await addDoc(collection(db, 'characters'), character);
-    console.log('Character başarıyla oluşturuldu, ID:', docRef.id);
     
     return { id: docRef.id, ...character };
   } catch (error) {

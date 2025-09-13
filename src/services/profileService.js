@@ -21,9 +21,7 @@ export const createProfile = async (profileData, roomId, characterId) => {
       createdAt: serverTimestamp()
     };
     
-    console.log('Profile oluşturuluyor:', profile);
     const docRef = await addDoc(collection(db, 'profiles'), profile);
-    console.log('Profile başarıyla oluşturuldu, ID:', docRef.id);
     
     return { id: docRef.id, ...profile };
   } catch (error) {

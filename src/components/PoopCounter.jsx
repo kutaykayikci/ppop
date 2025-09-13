@@ -77,7 +77,6 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
       const todayPoops = await getTodayPoops(roomId);
       const characterPoops = todayPoops.filter(poop => poop.characterId === character.id);
       setCount(characterPoops.length);
-      console.log(`${character.name} için bugünkü poop sayısı:`, characterPoops.length);
     } catch (error) {
       console.error('Bugünkü poop sayısını yükleme hatası:', error);
       setCount(0);
@@ -125,9 +124,7 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
     createParticles();
     
     try {
-      console.log(`${character.name} için poop ekleniyor...`);
       const result = await addPoopEntry(roomId, character.id, profile.id);
-      console.log('Poop başarıyla eklendi, ID:', result);
       
       // Veritabanından güncel sayıyı al
       await loadTodayCount();

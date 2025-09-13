@@ -1,0 +1,76 @@
+{
+  "name": "Poop Count - Sevgililer Takibi",
+  "short_name": "Poop Count",
+  "description": "Sevgilinizle birlikte poop sayısını takip edin! Eğlenceli ve interaktif poop counter uygulaması.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#8B4513",
+  "theme_color": "#8B4513",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "tr",
+  "categories": ["entertainment", "games", "lifestyle"],
+  "icons": [
+    {
+      "src": "/poop-emoji.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/poop-emoji.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/poop-emoji.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/poop-emoji.svg",
+      "sizes": "1280x720",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "Poop Count Ana Sayfa"
+    },
+    {
+      "src": "/poop-emoji.svg",
+      "sizes": "750x1334",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "Poop Count Mobil Görünüm"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Yeni Poop Ekle",
+      "short_name": "Poop Ekle",
+      "description": "Hızlıca yeni poop ekle",
+      "url": "/?action=add",
+      "icons": [
+        {
+          "src": "/poop-emoji.svg",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "İstatistikler",
+      "short_name": "Stats",
+      "description": "Poop istatistiklerini görüntüle",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/poop-emoji.svg",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
+}

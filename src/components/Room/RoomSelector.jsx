@@ -99,7 +99,7 @@ const RoomSelector = ({ onRoomSelected }) => {
         window.deferredPrompt.prompt();
         window.deferredPrompt.userChoice.then((choiceResult) => {
           if (choiceResult.outcome === 'accepted') {
-            console.log('Kullanıcı PWA kurulumunu kabul etti');
+            // PWA kurulumu kabul edildi
           }
           window.deferredPrompt = null;
         });
@@ -623,8 +623,7 @@ const RoomSelector = ({ onRoomSelected }) => {
           textAlign: 'center',
           position: 'relative',
           zIndex: 10,
-          backdropFilter: 'blur(10px)',
-          backgroundColor: 'rgba(255, 255, 255, 0.95)'
+          backdropFilter: 'blur(10px)'
         }}
       >
         {loading && (

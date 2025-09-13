@@ -1,9 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import RoomSelector from './components/Room/RoomSelector';
-import CharacterCreator from './components/Character/CharacterCreator';
-import RoomDashboard from './components/Dashboard/RoomDashboard';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { getRoomById } from './services/roomService';
 import { getRoomCharacters } from './services/characterService';
+
+// Lazy loading ile bileşenleri yükle
+const RoomSelector = lazy(() => import('./components/Room/RoomSelector'));
+const CharacterCreator = lazy(() => import('./components/Character/CharacterCreator'));
+const RoomDashboard = lazy(() => import('./components/Dashboard/RoomDashboard'));
+
+// Loading component
+const LoadingSpinner = () => (
+  <div className="loading-overlay">
+    <div className="loading-container">
+      <div className="loading-emoji">💩</div>
+      <div className="loading-text">Yükleniyor...</div>
+    </div>
+  </div>
+);
 
 function App() {
   const [currentView, setCurrentView] = useState('room-selector');
@@ -33,23 +45,14 @@ function App() {
         const roomCharacters = await getRoomCharacters(roomId);
         setCharacters(roomCharacters);
         
-        console.log('Room erişimi:', {
-          roomId,
-          isWaiting,
-          charactersCount: roomCharacters.length,
-          characters: roomCharacters
-        });
         
         if (roomCharacters.length >= 2) {
-          console.log('2 karakter hazır, dashboard\'a yönlendiriliyor');
           setCurrentView('dashboard');
         } else if (isWaiting) {
           // URL'de waiting=true varsa bekleme ekranını göster
-          console.log('Bekleme ekranı gösteriliyor');
           setCurrentView('waiting');
         } else {
           // URL'de waiting parametresi yoksa karakter seçimi ekranını göster
-          console.log('Karakter seçimi ekranı gösteriliyor');
           setCurrentView('character-creator');
         }
       } else {
@@ -151,16 +154,17 @@ function App() {
         overflow: 'hidden'
       }}
     >
-      {currentView === 'room-selector' && (
-        <RoomSelector onRoomSelected={handleRoomSelected} />
-      )}
-      
-      {currentView === 'character-creator' && room && (
-        <CharacterCreator 
-          roomId={room.id}
-          onBack={handleBackToRoomSelector}
-        />
-      )}
+      <Suspense fallback={<LoadingSpinner />}>
+        {currentView === 'room-selector' && (
+          <RoomSelector onRoomSelected={handleRoomSelected} />
+        )}
+        
+        {currentView === 'character-creator' && room && (
+          <CharacterCreator 
+            roomId={room.id}
+            onBack={handleBackToRoomSelector}
+          />
+        )}
       
       {currentView === 'waiting' && room && (
         <div style={{
@@ -306,13 +310,14 @@ function App() {
         </div>
       )}
       
-      {currentView === 'dashboard' && room && characters.length >= 2 && (
-        <RoomDashboard 
-          room={room}
-          characters={characters}
-          onBack={handleBackToRoomSelector}
-        />
-      )}
+        {currentView === 'dashboard' && room && characters.length >= 2 && (
+          <RoomDashboard 
+            room={room}
+            characters={characters}
+            onBack={handleBackToRoomSelector}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }
