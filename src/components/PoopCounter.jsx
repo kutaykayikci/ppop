@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import PixelButton from './PixelButton';
 import PixelCard from './PixelCard';
+import AchievementNotification from './Achievement/AchievementNotification';
+import MotivationMessage from './Motivation/MotivationMessage';
+import ThemeSelector from './Theme/ThemeSelector';
+import NotificationSettings from './Notification/NotificationSettings';
 import { addPoopEntry, getTodayPoops } from '../firebase/poopService';
+import { checkAchievements, checkStreak } from '../services/achievementService';
+import { getAchievementMotivation, getDailyMotivation } from '../services/motivationService';
+import { POOP_THEMES, CHARACTER_COSTUMES, ROOM_DECORATIONS, COUNTER_THEMES, getUserTheme } from '../services/themeService';
+import { sendAchievementNotification, sendPartnerActivityNotification, sendPushNotification } from '../services/notificationService';
 
 const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => {
   const [count, setCount] = useState(0);
@@ -9,10 +17,59 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
   const [animation, setAnimation] = useState('');
   const [particles, setParticles] = useState([]);
   const [showCountJump, setShowCountJump] = useState(false);
+  const [achievements, setAchievements] = useState([]);
+  const [motivationMessage, setMotivationMessage] = useState(null);
+  const [streak, setStreak] = useState(0);
+  const [showThemeSelector, setShowThemeSelector] = useState(false);
+  const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+  const [userThemes, setUserThemes] = useState({
+    poop: 'classic',
+    costume: 'default',
+    room: 'basic',
+    counter: 'classic'
+  });
 
   useEffect(() => {
     loadTodayCount();
+    loadStreak();
+    loadUserThemes();
   }, [roomId, character.id]);
+
+  const loadUserThemes = async () => {
+    try {
+      const [poopTheme, costumeTheme, roomTheme, counterTheme] = await Promise.all([
+        getUserTheme(roomId, character.id, 'poop'),
+        getUserTheme(roomId, character.id, 'costume'),
+        getUserTheme(roomId, character.id, 'room'),
+        getUserTheme(roomId, character.id, 'counter')
+      ]);
+
+      setUserThemes({
+        poop: poopTheme || 'classic',
+        costume: costumeTheme || 'default',
+        room: roomTheme || 'basic',
+        counter: counterTheme || 'classic'
+      });
+    } catch (error) {
+      console.error('Kullanıcı temalarını yükleme hatası:', error);
+    }
+  };
+
+  const handleThemeChange = (themeType, themeId) => {
+    setUserThemes(prev => ({
+      ...prev,
+      [themeType]: themeId
+    }));
+  };
+
+  // Motivasyon mesajı göster
+  useEffect(() => {
+    if (count > 0 && count % 3 === 0) {
+      const motivation = getDailyMotivation();
+      setMotivationMessage(motivation);
+      setTimeout(() => setMotivationMessage(null), 4000);
+    }
+  }, [count]);
 
   const loadTodayCount = async () => {
     try {
@@ -26,12 +83,25 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
     }
   };
 
+  const loadStreak = async () => {
+    try {
+      const streakData = await checkStreak(roomId, character.id);
+      setStreak(streakData.streak);
+    } catch (error) {
+      console.error('Streak yükleme hatası:', error);
+      setStreak(0);
+    }
+  };
+
   const createParticles = () => {
+    const currentPoopTheme = POOP_THEMES[userThemes.poop];
+    const particleEmoji = currentPoopTheme ? currentPoopTheme.emoji : '💩';
+    
     const newParticles = [];
     for (let i = 0; i < 6; i++) {
       newParticles.push({
         id: Date.now() + i,
-        emoji: '💩',
+        emoji: particleEmoji,
         left: 50 + (Math.random() - 0.5) * 60,
         top: 50 + (Math.random() - 0.5) * 40,
         delay: Math.random() * 200
@@ -64,6 +134,31 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
       setShowCountJump(true);
       setTimeout(() => setShowCountJump(false), 1000);
       
+      // Başarıları kontrol et
+      const newAchievements = await checkAchievements(roomId, character.id, {
+        timestamp: new Date(),
+        characterId: character.id
+      });
+      
+      if (newAchievements.length > 0) {
+        setAchievements(newAchievements);
+        // İlk başarı için motivasyon mesajı göster
+        const motivation = getAchievementMotivation(newAchievements[0]);
+        setMotivationMessage(motivation);
+        setTimeout(() => setMotivationMessage(null), 5000);
+        
+        // Push bildirim gönder
+        await sendPushNotification({
+          title: '🏆 Yeni Başarı!',
+          body: `${newAchievements[0].name} başarısını kazandın! ${newAchievements[0].emoji}`,
+          icon: newAchievements[0].emoji,
+          type: 'achievement'
+        });
+      }
+      
+      // Streak'i güncelle
+      await loadStreak();
+      
       // İstatistikleri güncelle
       if (onPoopAdded) {
         onPoopAdded();
@@ -87,14 +182,18 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
     });
   };
 
+  // Oda temasını uygula
+  const currentRoomTheme = ROOM_DECORATIONS[userThemes.room];
+  const roomStyle = {
+    backgroundColor: currentRoomTheme?.backgroundColor || userColor.background,
+    borderColor: currentRoomTheme?.borderColor || userColor.border,
+    position: 'relative',
+    overflow: 'hidden'
+  };
+
   return (
     <PixelCard 
-      style={{ 
-        backgroundColor: userColor.background,
-        borderColor: userColor.border,
-        position: 'relative',
-        overflow: 'hidden'
-      }}
+      style={roomStyle}
     >
       {/* Parçacık efektleri */}
       {particles.map(particle => (
@@ -118,7 +217,7 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
           fontSize: '14px',
           animation: animation ? `${animation}` : 'none'
         }}>
-          {character.name} {character.emoji}
+          {character.name} {CHARACTER_COSTUMES[userThemes.costume]?.emoji || character.emoji}
         </h2>
         
         {profile && (
@@ -134,12 +233,28 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
         
         <div style={{ 
           fontSize: '48px', 
-          marginBottom: '20px',
+          marginBottom: '10px',
           position: 'relative',
           animation: showCountJump ? 'count-jump' : 'none'
         }}>
           {count}
         </div>
+
+        {/* Streak gösterimi */}
+        {streak > 0 && (
+          <div style={{
+            fontSize: '10px',
+            color: '#E74C3C',
+            marginBottom: '10px',
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '5px'
+          }}>
+            🔥 {streak} Günlük Seri
+          </div>
+        )}
         
         <div style={{ 
           fontSize: '10px', 
@@ -173,7 +288,95 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
         }}>
           Son: {formatTime()}
         </div>
+
+        {/* Ayarlar butonları */}
+        <div style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          display: 'flex',
+          gap: '5px'
+        }}>
+          <button
+            onClick={() => setShowNotificationSettings(true)}
+            style={{
+              background: 'none',
+              border: 'none',
+              fontSize: '14px',
+              cursor: 'pointer',
+              padding: '5px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(255,255,255,0.8)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '30px',
+              height: '30px'
+            }}
+            title="Bildirim Ayarları"
+          >
+            🔔
+          </button>
+          <button
+            onClick={() => setShowThemeSelector(true)}
+            style={{
+              background: 'none',
+              border: 'none',
+              fontSize: '16px',
+              cursor: 'pointer',
+              padding: '5px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(255,255,255,0.8)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '30px',
+              height: '30px'
+            }}
+            title="Tema Seç"
+          >
+            🎨
+          </button>
+        </div>
       </div>
+
+      {/* Başarı bildirimleri */}
+      {achievements.map((achievement, index) => (
+        <AchievementNotification
+          key={`${achievement.id}_${index}`}
+          achievement={achievement}
+          onClose={() => setAchievements(prev => prev.filter(a => a !== achievement))}
+        />
+      ))}
+
+      {/* Motivasyon mesajı */}
+      {motivationMessage && (
+        <MotivationMessage
+          message={motivationMessage}
+          type="achievement"
+          onClose={() => setMotivationMessage(null)}
+        />
+      )}
+
+      {/* Tema seçici */}
+      {showThemeSelector && (
+        <ThemeSelector
+          roomId={roomId}
+          characterId={character.id}
+          currentThemes={userThemes}
+          onThemeChange={handleThemeChange}
+          onClose={() => setShowThemeSelector(false)}
+        />
+      )}
+
+      {/* Bildirim ayarları */}
+      {showNotificationSettings && (
+        <NotificationSettings
+          roomId={roomId}
+          characterId={character.id}
+          onClose={() => setShowNotificationSettings(false)}
+        />
+      )}
     </PixelCard>
   );
 };
