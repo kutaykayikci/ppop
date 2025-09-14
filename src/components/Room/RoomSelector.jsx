@@ -3,6 +3,7 @@ import { createRoom, joinRoom, getRoomById } from '../../services/roomService';
 import { getRoomCharacters } from '../../services/characterService';
 import { validateRoomId } from '../../utils/roomIdGenerator';
 import PixelButton from '../PixelButton';
+import GlobalLeaderboard from '../Leaderboard/GlobalLeaderboard';
 
 const RoomSelector = ({ onRoomSelected, onNavigateToDashboard }) => {
   const [mode, setMode] = useState('select'); // select, create, join
@@ -16,6 +17,7 @@ const RoomSelector = ({ onRoomSelected, onNavigateToDashboard }) => {
   const [showProjectInfo, setShowProjectInfo] = useState(false);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
 
 
   // Animasyonlu efektleri başlat
@@ -288,11 +290,32 @@ const RoomSelector = ({ onRoomSelected, onNavigateToDashboard }) => {
           style={{ 
             width: '100%',
             position: 'relative',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            marginBottom: '15px'
           }}
           className="glow-effect"
         >
           🔑 Room ID ile Gir
+        </PixelButton>
+
+        <PixelButton
+          onClick={() => {
+            playSound('click');
+            setShowLeaderboard(true);
+          }}
+          variant="special"
+          size="lg"
+          style={{ 
+            width: '100%',
+            position: 'relative',
+            overflow: 'hidden',
+            background: 'linear-gradient(45deg, #ff6b6b, #4ecdc4)',
+            color: '#fff',
+            border: '2px solid #333'
+          }}
+          className="glow-effect"
+        >
+          🏆 Global Liderlik Tablosu
         </PixelButton>
       </div>
 
@@ -669,6 +692,15 @@ const RoomSelector = ({ onRoomSelected, onNavigateToDashboard }) => {
         {mode === 'create' && renderCreateForm()}
         {mode === 'join' && renderJoinForm()}
       </div>
+
+      {/* Global Liderlik Tablosu Modal */}
+      {showLeaderboard && (
+        <GlobalLeaderboard
+          roomId={null}
+          characterId={null}
+          onClose={() => setShowLeaderboard(false)}
+        />
+      )}
     </div>
   );
 };

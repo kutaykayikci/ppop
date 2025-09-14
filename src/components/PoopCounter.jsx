@@ -232,12 +232,18 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
           </div>
         )}
         
-        <div style={{ 
-          fontSize: '48px', 
-          marginBottom: '10px',
-          position: 'relative',
-          animation: showCountJump ? 'count-jump' : 'none'
-        }}>
+        <div 
+          className={`${userThemes.counter !== 'classic' ? `counter-${userThemes.counter}` : ''}`}
+          style={{ 
+            fontSize: '48px', 
+            marginBottom: '10px',
+            position: 'relative',
+            animation: showCountJump ? 'count-jump' : 'none',
+            padding: '10px',
+            borderRadius: '8px',
+            border: '2px solid #333'
+          }}
+        >
           {count}
         </div>
 
@@ -277,9 +283,9 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
             padding: '15px 30px',
             animation: loading ? 'button-squash' : 'none'
           }}
-          className="glow-effect"
+          className={`glow-effect ${userThemes.poop !== 'classic' ? `poop-button-${userThemes.poop}` : ''}`}
         >
-          {loading ? 'Ekleniyor...' : '+1 Poop!'}
+          {loading ? 'Ekleniyor...' : `${POOP_THEMES[userThemes.poop]?.emoji || '💩'} +1 Poop!`}
         </PixelButton>
         
         <div style={{ 

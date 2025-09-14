@@ -6,55 +6,80 @@ export const POOP_THEMES = {
     emoji: '💩',
     description: 'Klasik poop emoji',
     unlocked: true,
-    rarity: 'common'
+    rarity: 'common',
+    effect: 'none'
   },
   rainbow: {
     id: 'rainbow',
     name: 'Gökkuşağı',
     emoji: '🌈💩',
     description: 'Renkli poop emoji',
-    unlocked: false,
-    rarity: 'rare'
+    unlocked: true,
+    rarity: 'rare',
+    effect: 'rainbow'
   },
   sparkle: {
     id: 'sparkle',
     name: 'Parlak',
     emoji: '✨💩',
     description: 'Parlayan poop emoji',
-    unlocked: false,
-    rarity: 'rare'
+    unlocked: true,
+    rarity: 'rare',
+    effect: 'sparkle'
   },
   fire: {
     id: 'fire',
     name: 'Ateş',
     emoji: '🔥💩',
     description: 'Ateşli poop emoji',
-    unlocked: false,
-    rarity: 'epic'
+    unlocked: true,
+    rarity: 'epic',
+    effect: 'fire'
   },
   ice: {
     id: 'ice',
     name: 'Buz',
     emoji: '❄️💩',
     description: 'Buzlu poop emoji',
-    unlocked: false,
-    rarity: 'epic'
+    unlocked: true,
+    rarity: 'epic',
+    effect: 'ice'
   },
   golden: {
     id: 'golden',
     name: 'Altın',
     emoji: '🥇💩',
     description: 'Altın poop emoji',
-    unlocked: false,
-    rarity: 'legendary'
+    unlocked: true,
+    rarity: 'legendary',
+    effect: 'golden'
   },
   diamond: {
     id: 'diamond',
     name: 'Elmas',
     emoji: '💎💩',
     description: 'Elmas poop emoji',
-    unlocked: false,
-    rarity: 'legendary'
+    unlocked: true,
+    rarity: 'legendary',
+    effect: 'diamond'
+  },
+  neon: {
+    id: 'neon',
+    name: 'Neon',
+    emoji: '💫💩',
+    description: 'Neon ışıklı poop emoji',
+    unlocked: true,
+    rarity: 'legendary',
+    effect: 'neon'
+  },
+  cosmic: {
+    id: 'cosmic',
+    name: 'Kozmik',
+    emoji: '🌟💩',
+    description: 'Kozmik poop emoji',
+    unlocked: true,
+    rarity: 'legendary',
+    effect: 'cosmic'
   }
 };
 
@@ -73,48 +98,54 @@ export const CHARACTER_COSTUMES = {
     name: 'Süper Kahraman',
     emoji: '🦸‍♀️',
     description: 'Süper güçlü görünüm',
-    unlocked: false,
-    rarity: 'rare'
+    unlocked: true,
+    rarity: 'rare',
+    effect: 'superhero'
   },
   wizard: {
     id: 'wizard',
     name: 'Büyücü',
     emoji: '🧙‍♀️',
     description: 'Büyülü görünüm',
-    unlocked: false,
-    rarity: 'rare'
+    unlocked: true,
+    rarity: 'rare',
+    effect: 'wizard'
   },
   ninja: {
     id: 'ninja',
     name: 'Ninja',
     emoji: '🥷',
     description: 'Gizli savaşçı',
-    unlocked: false,
-    rarity: 'epic'
+    unlocked: true,
+    rarity: 'epic',
+    effect: 'ninja'
   },
   robot: {
     id: 'robot',
     name: 'Robot',
     emoji: '🤖',
     description: 'Gelecekçi görünüm',
-    unlocked: false,
-    rarity: 'epic'
+    unlocked: true,
+    rarity: 'epic',
+    effect: 'robot'
   },
   alien: {
     id: 'alien',
     name: 'Uzaylı',
     emoji: '👽',
     description: 'Uzaydan gelme',
-    unlocked: false,
-    rarity: 'legendary'
+    unlocked: true,
+    rarity: 'legendary',
+    effect: 'alien'
   },
   unicorn: {
     id: 'unicorn',
     name: 'Tek Boynuzlu',
     emoji: '🦄',
     description: 'Efsanevi yaratık',
-    unlocked: false,
-    rarity: 'legendary'
+    unlocked: true,
+    rarity: 'legendary',
+    effect: 'unicorn'
   }
 };
 
@@ -135,8 +166,9 @@ export const ROOM_DECORATIONS = {
     description: 'Sıcak ve rahat atmosfer',
     backgroundColor: '#fff3cd',
     borderColor: '#ffeaa7',
-    unlocked: false,
-    rarity: 'rare'
+    unlocked: true,
+    rarity: 'rare',
+    effect: 'cozy'
   },
   ocean: {
     id: 'ocean',
@@ -144,8 +176,9 @@ export const ROOM_DECORATIONS = {
     description: 'Mavi ve serin tema',
     backgroundColor: '#d1ecf1',
     borderColor: '#74b9ff',
-    unlocked: false,
-    rarity: 'rare'
+    unlocked: true,
+    rarity: 'rare',
+    effect: 'ocean'
   },
   forest: {
     id: 'forest',
@@ -153,8 +186,9 @@ export const ROOM_DECORATIONS = {
     description: 'Yeşil ve doğal tema',
     backgroundColor: '#d4edda',
     borderColor: '#00b894',
-    unlocked: false,
-    rarity: 'epic'
+    unlocked: true,
+    rarity: 'epic',
+    effect: 'forest'
   },
   sunset: {
     id: 'sunset',
@@ -162,8 +196,9 @@ export const ROOM_DECORATIONS = {
     description: 'Turuncu ve pembe tonlar',
     backgroundColor: '#ffeaa7',
     borderColor: '#fd79a8',
-    unlocked: false,
-    rarity: 'epic'
+    unlocked: true,
+    rarity: 'epic',
+    effect: 'sunset'
   },
   galaxy: {
     id: 'galaxy',
@@ -171,8 +206,9 @@ export const ROOM_DECORATIONS = {
     description: 'Kozmik ve gizemli',
     backgroundColor: '#2d3436',
     borderColor: '#6c5ce7',
-    unlocked: false,
-    rarity: 'legendary'
+    unlocked: true,
+    rarity: 'legendary',
+    effect: 'galaxy'
   },
   rainbow: {
     id: 'rainbow',
@@ -180,8 +216,9 @@ export const ROOM_DECORATIONS = {
     description: 'Renkli ve neşeli',
     backgroundColor: '#f8f9fa',
     borderColor: '#00cec9',
-    unlocked: false,
-    rarity: 'legendary'
+    unlocked: true,
+    rarity: 'legendary',
+    effect: 'rainbow'
   }
 };
 
@@ -202,8 +239,9 @@ export const COUNTER_THEMES = {
     backgroundColor: '#000000',
     textColor: '#00ff00',
     borderColor: '#00ff00',
-    unlocked: false,
-    rarity: 'rare'
+    unlocked: true,
+    rarity: 'rare',
+    effect: 'neon'
   },
   sunset: {
     id: 'sunset',
@@ -211,8 +249,9 @@ export const COUNTER_THEMES = {
     backgroundColor: '#ff6b6b',
     textColor: '#ffffff',
     borderColor: '#ff4757',
-    unlocked: false,
-    rarity: 'rare'
+    unlocked: true,
+    rarity: 'rare',
+    effect: 'sunset'
   },
   ocean: {
     id: 'ocean',
@@ -220,8 +259,9 @@ export const COUNTER_THEMES = {
     backgroundColor: '#74b9ff',
     textColor: '#ffffff',
     borderColor: '#0984e3',
-    unlocked: false,
-    rarity: 'epic'
+    unlocked: true,
+    rarity: 'epic',
+    effect: 'ocean'
   },
   forest: {
     id: 'forest',
@@ -229,8 +269,9 @@ export const COUNTER_THEMES = {
     backgroundColor: '#00b894',
     textColor: '#ffffff',
     borderColor: '#00a085',
-    unlocked: false,
-    rarity: 'epic'
+    unlocked: true,
+    rarity: 'epic',
+    effect: 'forest'
   },
   gold: {
     id: 'gold',
@@ -238,8 +279,9 @@ export const COUNTER_THEMES = {
     backgroundColor: '#fdcb6e',
     textColor: '#2d3436',
     borderColor: '#e17055',
-    unlocked: false,
-    rarity: 'legendary'
+    unlocked: true,
+    rarity: 'legendary',
+    effect: 'gold'
   },
   diamond: {
     id: 'diamond',
@@ -247,8 +289,9 @@ export const COUNTER_THEMES = {
     backgroundColor: '#ddd6fe',
     textColor: '#4c1d95',
     borderColor: '#8b5cf6',
-    unlocked: false,
-    rarity: 'legendary'
+    unlocked: true,
+    rarity: 'legendary',
+    effect: 'diamond'
   }
 };
 

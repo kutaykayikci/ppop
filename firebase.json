@@ -6,6 +6,35 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "headers": [
+      {
+        "source": "**/*.js",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/javascript"
+          }
+        ]
+      },
+      {
+        "source": "**/*.css",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "text/css"
+          }
+        ]
+      },
+      {
+        "source": "**/*.svg",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "image/svg+xml"
+          }
+        ]
+      }
+    ],
     "rewrites": [
       {
         "source": "**",

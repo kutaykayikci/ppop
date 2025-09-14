@@ -1,0 +1,395 @@
+/* Tema Efektleri */
+
+/* Neon Efekti */
+.theme-neon {
+  animation: neon-glow 2s ease-in-out infinite alternate;
+  text-shadow: 
+    0 0 5px #00ff00,
+    0 0 10px #00ff00,
+    0 0 15px #00ff00,
+    0 0 20px #00ff00;
+  box-shadow: 
+    0 0 5px #00ff00,
+    0 0 10px #00ff00,
+    0 0 15px #00ff00,
+    inset 0 0 5px #00ff00;
+}
+
+@keyframes neon-glow {
+  from {
+    text-shadow: 
+      0 0 5px #00ff00,
+      0 0 10px #00ff00,
+      0 0 15px #00ff00,
+      0 0 20px #00ff00;
+    box-shadow: 
+      0 0 5px #00ff00,
+      0 0 10px #00ff00,
+      0 0 15px #00ff00,
+      inset 0 0 5px #00ff00;
+  }
+  to {
+    text-shadow: 
+      0 0 2px #00ff00,
+      0 0 5px #00ff00,
+      0 0 8px #00ff00,
+      0 0 12px #00ff00;
+    box-shadow: 
+      0 0 2px #00ff00,
+      0 0 5px #00ff00,
+      0 0 8px #00ff00,
+      inset 0 0 2px #00ff00;
+  }
+}
+
+/* Rainbow Efekti */
+.theme-rainbow {
+  background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+  background-size: 400% 400%;
+  animation: rainbow-shift 3s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes rainbow-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Sparkle Efekti */
+.theme-sparkle {
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-sparkle::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.8) 50%, transparent 70%);
+  animation: sparkle 2s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes sparkle {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+/* Fire Efekti */
+.theme-fire {
+  background: linear-gradient(45deg, #ff6b35, #f7931e, #ffd23f);
+  animation: fire-flicker 1.5s ease-in-out infinite alternate;
+  box-shadow: 
+    0 0 20px #ff6b35,
+    0 0 40px #ff6b35,
+    0 0 60px #ff6b35;
+}
+
+@keyframes fire-flicker {
+  0% {
+    background: linear-gradient(45deg, #ff6b35, #f7931e, #ffd23f);
+    box-shadow: 
+      0 0 20px #ff6b35,
+      0 0 40px #ff6b35,
+      0 0 60px #ff6b35;
+  }
+  100% {
+    background: linear-gradient(45deg, #f7931e, #ffd23f, #ff6b35);
+    box-shadow: 
+      0 0 25px #f7931e,
+      0 0 50px #f7931e,
+      0 0 75px #f7931e;
+  }
+}
+
+/* Ice Efekti */
+.theme-ice {
+  background: linear-gradient(45deg, #74b9ff, #0984e3, #00cec9);
+  animation: ice-shimmer 2s linear infinite;
+  box-shadow: 
+    0 0 20px rgba(116, 185, 255, 0.5),
+    0 0 40px rgba(116, 185, 255, 0.3),
+    0 0 60px rgba(116, 185, 255, 0.1);
+}
+
+@keyframes ice-shimmer {
+  0% { background: linear-gradient(45deg, #74b9ff, #0984e3, #00cec9); }
+  50% { background: linear-gradient(45deg, #00cec9, #74b9ff, #0984e3); }
+  100% { background: linear-gradient(45deg, #0984e3, #00cec9, #74b9ff); }
+}
+
+/* Golden Efekti */
+.theme-golden {
+  background: linear-gradient(45deg, #ffd700, #ffed4e, #f1c40f);
+  animation: golden-glow 2s ease-in-out infinite alternate;
+  box-shadow: 
+    0 0 20px #ffd700,
+    0 0 40px #ffd700,
+    inset 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+@keyframes golden-glow {
+  0% {
+    background: linear-gradient(45deg, #ffd700, #ffed4e, #f1c40f);
+    box-shadow: 
+      0 0 20px #ffd700,
+      0 0 40px #ffd700,
+      inset 0 0 20px rgba(255, 215, 0, 0.3);
+  }
+  100% {
+    background: linear-gradient(45deg, #f1c40f, #ffd700, #ffed4e);
+    box-shadow: 
+      0 0 30px #ffd700,
+      0 0 60px #ffd700,
+      inset 0 0 30px rgba(255, 215, 0, 0.5);
+  }
+}
+
+/* Diamond Efekti */
+.theme-diamond {
+  background: linear-gradient(45deg, #ddd6fe, #a78bfa, #8b5cf6);
+  animation: diamond-shine 3s linear infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-diamond::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+  animation: diamond-sweep 2s linear infinite;
+}
+
+@keyframes diamond-shine {
+  0% { background: linear-gradient(45deg, #ddd6fe, #a78bfa, #8b5cf6); }
+  33% { background: linear-gradient(45deg, #a78bfa, #8b5cf6, #ddd6fe); }
+  66% { background: linear-gradient(45deg, #8b5cf6, #ddd6fe, #a78bfa); }
+  100% { background: linear-gradient(45deg, #ddd6fe, #a78bfa, #8b5cf6); }
+}
+
+@keyframes diamond-sweep {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Cosmic Efekti */
+.theme-cosmic {
+  background: linear-gradient(45deg, #2d3436, #6c5ce7, #a29bfe);
+  animation: cosmic-drift 4s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-cosmic::before {
+  content: '⭐';
+  position: absolute;
+  top: 20%;
+  left: 20%;
+  font-size: 20px;
+  animation: star-twinkle 2s ease-in-out infinite;
+}
+
+.theme-cosmic::after {
+  content: '✨';
+  position: absolute;
+  top: 60%;
+  right: 20%;
+  font-size: 16px;
+  animation: star-twinkle 2s ease-in-out infinite 1s;
+}
+
+@keyframes cosmic-drift {
+  0%, 100% { background: linear-gradient(45deg, #2d3436, #6c5ce7, #a29bfe); }
+  50% { background: linear-gradient(45deg, #6c5ce7, #a29bfe, #2d3436); }
+}
+
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* Poop Button Efektleri */
+.poop-button-neon {
+  background: #000 !important;
+  color: #00ff00 !important;
+  border-color: #00ff00 !important;
+  animation: neon-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes neon-pulse {
+  from {
+    box-shadow: 
+      0 0 5px #00ff00,
+      0 0 10px #00ff00,
+      0 0 15px #00ff00,
+      inset 0 0 5px #00ff00;
+  }
+  to {
+    box-shadow: 
+      0 0 2px #00ff00,
+      0 0 5px #00ff00,
+      0 0 8px #00ff00,
+      inset 0 0 2px #00ff00;
+  }
+}
+
+.poop-button-fire {
+  background: linear-gradient(45deg, #ff6b35, #f7931e) !important;
+  color: #fff !important;
+  border-color: #ff6b35 !important;
+  animation: fire-flicker 1.5s ease-in-out infinite alternate;
+}
+
+.poop-button-ice {
+  background: linear-gradient(45deg, #74b9ff, #0984e3) !important;
+  color: #fff !important;
+  border-color: #74b9ff !important;
+  animation: ice-shimmer 2s linear infinite;
+}
+
+.poop-button-golden {
+  background: linear-gradient(45deg, #ffd700, #ffed4e) !important;
+  color: #333 !important;
+  border-color: #ffd700 !important;
+  animation: golden-glow 2s ease-in-out infinite alternate;
+}
+
+.poop-button-rainbow {
+  background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3) !important;
+  background-size: 400% 400%;
+  animation: rainbow-shift 3s ease infinite;
+  color: #fff !important;
+  border: 2px solid #fff !important;
+}
+
+/* Counter Efektleri */
+.counter-neon {
+  background: #000 !important;
+  color: #00ff00 !important;
+  border-color: #00ff00 !important;
+  animation: neon-glow 2s ease-in-out infinite alternate;
+}
+
+.counter-fire {
+  background: linear-gradient(45deg, #ff6b35, #f7931e) !important;
+  color: #fff !important;
+  border-color: #ff6b35 !important;
+  animation: fire-flicker 1.5s ease-in-out infinite alternate;
+}
+
+.counter-ice {
+  background: linear-gradient(45deg, #74b9ff, #0984e3) !important;
+  color: #fff !important;
+  border-color: #74b9ff !important;
+  animation: ice-shimmer 2s linear infinite;
+}
+
+.counter-golden {
+  background: linear-gradient(45deg, #ffd700, #ffed4e) !important;
+  color: #333 !important;
+  border-color: #ffd700 !important;
+  animation: golden-glow 2s ease-in-out infinite alternate;
+}
+
+.counter-diamond {
+  background: linear-gradient(45deg, #ddd6fe, #a78bfa, #8b5cf6) !important;
+  color: #4c1d95 !important;
+  border-color: #8b5cf6 !important;
+  animation: diamond-shine 3s linear infinite;
+}
+
+/* Room Background Efektleri */
+.room-background-ocean {
+  background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%) !important;
+  position: relative;
+}
+
+.room-background-ocean::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.3)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.2)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.4)"/></svg>');
+  animation: wave 10s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes wave {
+  0% { transform: translateX(-100px); }
+  100% { transform: translateX(100px); }
+}
+
+.room-background-forest {
+  background: linear-gradient(135deg, #00b894 0%, #00a085 100%) !important;
+  position: relative;
+}
+
+.room-background-forest::before {
+  content: '🌿';
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  font-size: 30px;
+  animation: leaf-sway 3s ease-in-out infinite;
+}
+
+.room-background-forest::after {
+  content: '🍃';
+  position: absolute;
+  top: 20%;
+  right: 15%;
+  font-size: 25px;
+  animation: leaf-sway 3s ease-in-out infinite 1.5s;
+}
+
+@keyframes leaf-sway {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+
+.room-background-galaxy {
+  background: linear-gradient(135deg, #2d3436 0%, #6c5ce7 100%) !important;
+  position: relative;
+}
+
+.room-background-galaxy::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1) 1px, transparent 1px),
+              radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 1px, transparent 1px),
+              radial-gradient(circle at 40% 60%, rgba(255,255,255,0.1) 1px, transparent 1px);
+  animation: stars-twinkle 4s ease-in-out infinite;
+}
+
+@keyframes stars-twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .theme-neon,
+  .theme-fire,
+  .theme-ice,
+  .theme-golden,
+  .theme-diamond,
+  .theme-cosmic {
+    animation-duration: 3s;
+  }
+}
