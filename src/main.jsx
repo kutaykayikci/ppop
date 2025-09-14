@@ -51,14 +51,13 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// Güncelleme bildirimi göster
+// Otomatik güncelleme - kullanıcıya sormadan
 function showUpdateNotification() {
-  if (confirm('Yeni güncelleme mevcut! Sayfayı yenilemek ister misiniz?')) {
-    // Cache'i temizle ve sayfayı yenile
-    clearCache().then(() => {
-      window.location.reload(true);
-    });
-  }
+  // Arka planda otomatik cache temizleme ve güncelleme
+  clearCache().then(() => {
+    console.log('Cache temizlendi, sayfa yenileniyor...');
+    window.location.reload(true);
+  });
 }
 
 // Cache temizleme fonksiyonu
@@ -82,21 +81,53 @@ function clearCache() {
   });
 }
 
-// Sayfa yüklendiğinde cache kontrolü
+// Sayfa yüklendiğinde otomatik cache kontrolü
+window.addEventListener('load', () => {
+  // Her sayfa yüklenişinde cache'i kontrol et ve temizle
+  setTimeout(() => {
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      // SW'den versiyon bilgisini al
+      const messageChannel = new MessageChannel();
+      messageChannel.port1.onmessage = (event) => {
+        const currentVersion = event.data.version;
+        const storedVersion = localStorage.getItem('sw_version');
+        
+        // Versiyon değişmişse cache'i temizle
+        if (storedVersion && storedVersion !== currentVersion) {
+          console.log('Yeni SW versiyonu tespit edildi, cache temizleniyor...');
+          clearCache().then(() => {
+            localStorage.setItem('sw_version', currentVersion);
+            console.log('Cache temizlendi, versiyon güncellendi');
+          });
+        } else if (!storedVersion) {
+          localStorage.setItem('sw_version', currentVersion);
+        }
+      };
+      
+      navigator.serviceWorker.controller.postMessage(
+        { type: 'GET_VERSION' },
+        [messageChannel.port2]
+      );
+    }
+  }, 1000);
+});
+
+// Sayfa kapanırken cache'i temizle
 window.addEventListener('beforeunload', () => {
-  // Sayfa kapanırken cache'i temizle
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
     navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_CACHE' });
   }
 });
 
-// Manuel cache temizleme (debug için)
-window.clearAppCache = clearCache;
-window.forceUpdate = () => {
-  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-    navigator.serviceWorker.controller.postMessage({ type: 'FORCE_UPDATE' });
-  }
-};
+// Debug için (geliştiriciler için)
+if (process.env.NODE_ENV === 'development') {
+  window.clearAppCache = clearCache;
+  window.forceUpdate = () => {
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: 'FORCE_UPDATE' });
+    }
+  };
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

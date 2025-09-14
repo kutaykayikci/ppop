@@ -390,36 +390,6 @@ const RoomSelector = ({ onRoomSelected, onNavigateToDashboard }) => {
           📋 Linki Kopyala
         </PixelButton>
         
-        <button
-          onClick={() => {
-            playSound('click');
-            if (window.clearAppCache) {
-              window.clearAppCache().then(() => {
-                alert('Cache temizlendi! Sayfa yenileniyor...');
-                window.location.reload(true);
-              });
-            } else {
-              alert('Cache temizleme özelliği mevcut değil');
-            }
-          }}
-          style={{
-            background: 'none',
-            border: '2px solid #333',
-            borderRadius: '50%',
-            width: '40px',
-            height: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            fontSize: '16px',
-            transition: 'all 0.2s ease'
-          }}
-          className="glow-effect"
-          title="Cache Temizle"
-        >
-          🗑️
-        </button>
       </div>
     </div>
   );
