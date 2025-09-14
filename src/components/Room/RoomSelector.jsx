@@ -4,7 +4,7 @@ import { getRoomCharacters } from '../../services/characterService';
 import { validateRoomId } from '../../utils/roomIdGenerator';
 import PixelButton from '../PixelButton';
 
-const RoomSelector = ({ onRoomSelected }) => {
+const RoomSelector = ({ onRoomSelected, onNavigateToDashboard }) => {
   const [mode, setMode] = useState('select'); // select, create, join
   const [uniqueName, setUniqueName] = useState('');
   const [roomId, setRoomId] = useState('');
@@ -226,9 +226,8 @@ const RoomSelector = ({ onRoomSelected }) => {
       
       if (characters.length >= 2) {
         // 2 kişi de karakter oluşturmuş, direkt dashboard'a git
-        // Bu durumda App.jsx'teki handleDirectRoomAccess mantığını kullan
         playSound('success');
-        window.location.href = `?room=${roomId.trim()}`;
+        onNavigateToDashboard(room, characters);
         return;
       } else {
         // Henüz karakter eksik, standart akışa devam et

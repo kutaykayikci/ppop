@@ -103,6 +103,8 @@ function App() {
         const roomCharacters = await getRoomCharacters(roomId);
         setCharacters(roomCharacters);
         
+        // Mobilde daha iyi UX için kısa bir gecikme ekle
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         if (roomCharacters.length >= 2) {
           setCurrentView('dashboard');
@@ -276,7 +278,14 @@ function App() {
 
       <Suspense fallback={<LoadingSpinner />}>
         {currentView === 'room-selector' && (
-          <RoomSelector onRoomSelected={handleRoomSelected} />
+          <RoomSelector 
+            onRoomSelected={handleRoomSelected}
+            onNavigateToDashboard={(room, characters) => {
+              setRoom(room);
+              setCharacters(characters);
+              setCurrentView('dashboard');
+            }}
+          />
         )}
         
         {currentView === 'character-creator' && room && (
