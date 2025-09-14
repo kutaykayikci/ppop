@@ -13,6 +13,10 @@ export default defineConfig({
       brotliSize: true,
     })
   ],
+  // PWA ve Service Worker için
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production')
+  },
   build: {
     outDir: 'dist',
     // Minification ve optimizasyon
@@ -23,9 +27,11 @@ export default defineConfig({
         drop_debugger: true,
       },
     },
-    // Tree shaking için
+    // Tree shaking ve MIME type sorunları için
     rollupOptions: {
       output: {
+        // JavaScript modülleri için doğru MIME type
+        format: 'es',
         manualChunks: {
           // Vendor chunk'ları ayır
           vendor: ['react', 'react-dom'],
