@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getRoomCharacters } from '../../services/characterService';
 import { getRoomProfiles } from '../../services/profileService';
 import { getPoopsByDateRange } from '../../firebase/poopService';
+import { calculateRoomStatistics, getComparativeStatistics } from '../../services/roomStatisticsService';
 import PoopCounter from '../PoopCounter';
 import PixelButton from '../PixelButton';
 import soundService from '../../services/soundService';
@@ -16,6 +17,8 @@ const RoomDashboard = ({ room, onBack }) => {
     month: {},
     total: {}
   });
+  const [extraStats, setExtraStats] = useState({});
+  const [comparativeStats, setComparativeStats] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState('today');
   const [loading, setLoading] = useState(true);
   const [floatingEmojis, setFloatingEmojis] = useState([]);
@@ -24,6 +27,12 @@ const RoomDashboard = ({ room, onBack }) => {
   useEffect(() => {
     loadRoomData();
   }, [room.id]);
+
+  useEffect(() => {
+    if (characters.length > 0) {
+      loadStatistics();
+    }
+  }, [characters, selectedPeriod]);
 
   // Animasyonlu efektleri başlat
   useEffect(() => {
@@ -146,52 +155,31 @@ const RoomDashboard = ({ room, onBack }) => {
 
   const loadStatistics = async () => {
     try {
-
-      const today = new Date().toISOString().split('T')[0];
-      let startDate, endDate;
-
-      switch (selectedPeriod) {
-        case 'today':
-          startDate = endDate = today;
-          break;
-        case 'yesterday':
-          const yesterday = new Date();
-          yesterday.setDate(yesterday.getDate() - 1);
-          startDate = endDate = yesterday.toISOString().split('T')[0];
-          break;
-        case 'week':
-          const weekStart = new Date();
-          weekStart.setDate(weekStart.getDate() - weekStart.getDay()); // Bu haftanın pazartesi günü
-          startDate = weekStart.toISOString().split('T')[0];
-          endDate = today;
-          break;
-        case 'month':
-          const monthStart = new Date();
-          monthStart.setDate(1); // Ayın ilk günü
-          startDate = monthStart.toISOString().split('T')[0];
-          endDate = today;
-          break;
-        case 'total':
-          startDate = '2024-01-01'; // Başlangıç tarihi
-          endDate = today;
-          break;
-        default:
-          startDate = endDate = today;
-      }
-
-      const poops = await getPoopsByDateRange(room.id, startDate, endDate);
+      // Yeni istatistik servisini kullan
+      const statistics = await calculateRoomStatistics(room.id, characters, selectedPeriod);
       
-      // Karakter bazında istatistik hesapla
-      const newStats = {};
+      // Karakter bazında istatistikleri ayarla
+      const characterStats = {};
       characters.forEach(character => {
-        const characterPoops = poops.filter(poop => poop.characterId === character.id);
-        newStats[character.id] = characterPoops.length;
+        characterStats[character.id] = statistics.characterStats[character.id]?.count || 0;
       });
 
       setStats(prev => ({
         ...prev,
-        [selectedPeriod]: newStats
+        [selectedPeriod]: characterStats
       }));
+
+      // Ekstra istatistikleri ayarla
+      setExtraStats(statistics.extraStats);
+
+      // Karşılaştırmalı istatistikleri yükle (hafta ve ay için)
+      if (selectedPeriod === 'week' || selectedPeriod === 'month') {
+        const comparativeData = await getComparativeStatistics(room.id, characters, selectedPeriod);
+        setComparativeStats(comparativeData);
+      } else {
+        setComparativeStats(null);
+      }
+
     } catch (error) {
       console.error('İstatistik yükleme hatası:', error);
       // Hata durumunda 0 değerleri ata
@@ -203,6 +191,8 @@ const RoomDashboard = ({ room, onBack }) => {
         ...prev,
         [selectedPeriod]: errorStats
       }));
+      setExtraStats({});
+      setComparativeStats(null);
     }
   };
 
@@ -513,7 +503,8 @@ const RoomDashboard = ({ room, onBack }) => {
             backgroundColor: '#f0f0f0',
             padding: '15px',
             borderRadius: '8px',
-            border: '3px solid #ddd'
+            border: '3px solid #ddd',
+            marginBottom: '15px'
           }}>
             <div style={{ fontSize: '14px', marginBottom: '5px' }}>
               {getPeriodTitle()} Kazananı:
@@ -527,6 +518,164 @@ const RoomDashboard = ({ room, onBack }) => {
               </div>
             )}
           </div>
+
+          {/* Ekstra İstatistikler */}
+          {extraStats && Object.keys(extraStats).length > 0 && (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '10px',
+              marginBottom: '15px'
+            }}>
+              {/* Günlük Ortalama */}
+              {extraStats.dailyAverage !== undefined && (
+                <div style={{
+                  backgroundColor: '#e8f5e8',
+                  padding: '10px',
+                  borderRadius: '6px',
+                  border: '2px solid #4caf50',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '12px', color: '#2e7d32', marginBottom: '3px' }}>
+                    📊 Günlük Ortalama
+                  </div>
+                  <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#1b5e20' }}>
+                    {extraStats.dailyAverage}
+                  </div>
+                </div>
+              )}
+
+              {/* En Aktif Karakter */}
+              {extraStats.mostActiveCharacter && (
+                <div style={{
+                  backgroundColor: '#fff3e0',
+                  padding: '10px',
+                  borderRadius: '6px',
+                  border: '2px solid #ff9800',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '12px', color: '#e65100', marginBottom: '3px' }}>
+                    🏆 En Aktif
+                  </div>
+                  <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#bf360c' }}>
+                    {extraStats.mostActiveCharacter.emoji} {extraStats.mostActiveCharacter.name}
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#d84315' }}>
+                    {extraStats.mostActiveCharacter.count} poop
+                  </div>
+                </div>
+              )}
+
+              {/* En Aktif Gün */}
+              {extraStats.mostActiveDay && extraStats.mostActiveDay[0] !== 'Henüz yok' && (
+                <div style={{
+                  backgroundColor: '#e3f2fd',
+                  padding: '10px',
+                  borderRadius: '6px',
+                  border: '2px solid #2196f3',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '12px', color: '#1565c0', marginBottom: '3px' }}>
+                    📅 En Aktif Gün
+                  </div>
+                  <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#0d47a1' }}>
+                    {new Date(extraStats.mostActiveDay[0]).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#1976d2' }}>
+                    {extraStats.mostActiveDay[1]} poop
+                  </div>
+                </div>
+              )}
+
+              {/* Streak Bilgisi */}
+              {extraStats.streakInfo && (extraStats.streakInfo.current > 0 || extraStats.streakInfo.longest > 0) && (
+                <div style={{
+                  backgroundColor: '#fce4ec',
+                  padding: '10px',
+                  borderRadius: '6px',
+                  border: '2px solid #e91e63',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '12px', color: '#c2185b', marginBottom: '3px' }}>
+                    🔥 Streak
+                  </div>
+                  <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#880e4f' }}>
+                    Mevcut: {extraStats.streakInfo.current} gün
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#ad1457' }}>
+                    En uzun: {extraStats.streakInfo.longest} gün
+                  </div>
+                </div>
+              )}
+
+
+              {/* Aktif Gün Sayısı */}
+              {extraStats.activeDays !== undefined && extraStats.totalDays !== undefined && (
+                <div style={{
+                  backgroundColor: '#e0f2f1',
+                  padding: '10px',
+                  borderRadius: '6px',
+                  border: '2px solid #009688',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '12px', color: '#00695c', marginBottom: '3px' }}>
+                    📈 Aktivite Oranı
+                  </div>
+                  <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#004d40' }}>
+                    {Math.round((extraStats.activeDays / extraStats.totalDays) * 100)}%
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#00796b' }}>
+                    {extraStats.activeDays}/{extraStats.totalDays} gün
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Karşılaştırmalı İstatistikler */}
+          {comparativeStats && comparativeStats.comparison && (
+            <div style={{
+              backgroundColor: '#fff8e1',
+              padding: '15px',
+              borderRadius: '8px',
+              border: '3px solid #ffc107'
+            }}>
+              <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '10px', color: '#f57f17' }}>
+                📊 Önceki Dönemle Karşılaştırma
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '12px', color: '#e65100', marginBottom: '3px' }}>
+                    Toplam Değişim
+                  </div>
+                  <div style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 'bold',
+                    color: comparativeStats.comparison.totalChange >= 0 ? '#2e7d32' : '#d32f2f'
+                  }}>
+                    {comparativeStats.comparison.totalChange >= 0 ? '+' : ''}{comparativeStats.comparison.totalChange}
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#bf360c' }}>
+                    ({comparativeStats.comparison.totalChangePercent >= 0 ? '+' : ''}{comparativeStats.comparison.totalChangePercent}%)
+                  </div>
+                </div>
+                
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '12px', color: '#e65100', marginBottom: '3px' }}>
+                    Günlük Ortalama Değişim
+                  </div>
+                  <div style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 'bold',
+                    color: comparativeStats.comparison.dailyAverageChange >= 0 ? '#2e7d32' : '#d32f2f'
+                  }}>
+                    {comparativeStats.comparison.dailyAverageChange >= 0 ? '+' : ''}{comparativeStats.comparison.dailyAverageChange}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
 
