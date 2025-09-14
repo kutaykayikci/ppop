@@ -47,3 +47,5 @@ ui-debug.log
 # PWA
 sw.js
 workbox-*.js
+.env
+.env.production

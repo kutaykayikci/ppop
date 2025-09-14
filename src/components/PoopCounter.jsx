@@ -5,11 +5,14 @@ import AchievementNotification from './Achievement/AchievementNotification';
 import MotivationMessage from './Motivation/MotivationMessage';
 import ThemeSelector from './Theme/ThemeSelector';
 import NotificationSettings from './Notification/NotificationSettings';
+import AnimatedPopup from './Notification/AnimatedPopup';
 import { addPoopEntry, getTodayPoops } from '../firebase/poopService';
 import { checkAchievements, checkStreak } from '../services/achievementService';
 import { getAchievementMotivation, getDailyMotivation } from '../services/motivationService';
 import { POOP_THEMES, CHARACTER_COSTUMES, ROOM_DECORATIONS, COUNTER_THEMES, getUserTheme } from '../services/themeService';
 import { sendAchievementNotification, sendPartnerActivityNotification, sendPushNotification } from '../services/notificationService';
+import { sendPartnerActivityNotification as sendSmartPartnerNotification } from '../services/smartPushService';
+import { checkAndSaveNotificationPermission, savePermissionToLocalStorage } from '../services/permissionService';
 import soundService from '../services/soundService';
 
 const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => {
@@ -29,12 +32,32 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
     room: 'basic',
     counter: 'classic'
   });
+  const [showDailyPopup, setShowDailyPopup] = useState(false);
+  const [dailyPopupData, setDailyPopupData] = useState(null);
 
   useEffect(() => {
     loadTodayCount();
     loadStreak();
     loadUserThemes();
+    initializeNotificationPermission();
   }, [roomId, character.id]);
+
+  // Bildirim iznini kalıcı olarak kaydet
+  const initializeNotificationPermission = async () => {
+    try {
+      const userId = localStorage.getItem('userId') || `user_${Date.now()}`;
+      localStorage.setItem('userId', userId);
+      
+      const result = await checkAndSaveNotificationPermission(userId, character.id, roomId);
+      
+      if (result.success) {
+        savePermissionToLocalStorage(userId, result.permission);
+        console.log('Bildirim izni kalıcı olarak kaydedildi:', result.permission);
+      }
+    } catch (error) {
+      console.error('Bildirim izni kaydetme hatası:', error);
+    }
+  };
 
   const loadUserThemes = async () => {
     try {
@@ -155,9 +178,36 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
           type: 'achievement'
         });
       }
+
+      // Partner aktivitesi bildirimi gönder (akıllı push)
+      try {
+        const partnerNotification = await sendSmartPartnerNotification(
+          roomId, 
+          character.id, 
+          character.name, 
+          character.emoji
+        );
+        
+        if (partnerNotification.success) {
+          console.log(`Partner bildirimi gönderildi: ${partnerNotification.sent}/${partnerNotification.total} başarılı`);
+        }
+      } catch (error) {
+        console.error('Partner bildirimi hatası:', error);
+      }
       
       // Streak'i güncelle
       await loadStreak();
+      
+      // Günlük popup göster (sadece ilk poop'ta)
+      if (count === 1) {
+        setDailyPopupData({
+          title: "🎉 Bugün Poop Yaptık!",
+          message: `${character.name} ilk poop'unu yaptı! Harika başlangıç! 🚀`,
+          icon: "💩",
+          type: "success"
+        });
+        setShowDailyPopup(true);
+      }
       
       // İstatistikleri güncelle
       if (onPoopAdded) {
@@ -373,6 +423,22 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
           message={motivationMessage}
           type="achievement"
           onClose={() => setMotivationMessage(null)}
+        />
+      )}
+
+      {/* Günlük Popup */}
+      {showDailyPopup && dailyPopupData && (
+        <AnimatedPopup
+          title={dailyPopupData.title}
+          message={dailyPopupData.message}
+          icon={dailyPopupData.icon}
+          type={dailyPopupData.type}
+          duration={5000}
+          show={showDailyPopup}
+          onClose={() => {
+            setShowDailyPopup(false);
+            setDailyPopupData(null);
+          }}
         />
       )}
 
