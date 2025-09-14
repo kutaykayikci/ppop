@@ -38,7 +38,7 @@ export default defineConfig({
           firebase: ['firebase/app', 'firebase/firestore', 'firebase/auth'],
           utils: ['date-fns']
         },
-        // Asset dosyaları için optimizasyon
+        // Asset dosyaları için optimizasyon - Cache busting için hash
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name.split('.')
           const ext = info[info.length - 1]
@@ -61,7 +61,10 @@ export default defineConfig({
     // CSS code splitting
     cssCodeSplit: true,
     // Asset inline threshold (1kb altındaki dosyalar inline olur)
-    assetsInlineLimit: 1024
+    assetsInlineLimit: 1024,
+    // Cache busting için timestamp ekle
+    assetsDir: 'assets',
+    emptyOutDir: true
   },
   // Development optimizasyonları
   server: {
