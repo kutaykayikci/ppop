@@ -11,9 +11,6 @@ import { checkAchievements, checkStreak } from '../services/achievementService';
 import { getAchievementMotivation, getDailyMotivation } from '../services/motivationService';
 import { POOP_THEMES, CHARACTER_COSTUMES, ROOM_DECORATIONS, COUNTER_THEMES, getUserTheme } from '../services/themeService';
 import { sendAchievementNotification, sendPartnerActivityNotification, sendPushNotification } from '../services/notificationService';
-import { sendPartnerActivityNotification as sendSmartPartnerNotification } from '../services/smartPushService';
-import { sendDailyPopupWebNotification } from '../services/webNotificationService';
-import { checkAndSaveNotificationPermission, savePermissionToLocalStorage } from '../services/permissionService';
 import soundService from '../services/soundService';
 
 const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => {
@@ -40,25 +37,7 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
     loadTodayCount();
     loadStreak();
     loadUserThemes();
-    initializeNotificationPermission();
   }, [roomId, character.id]);
-
-  // Bildirim iznini kalıcı olarak kaydet
-  const initializeNotificationPermission = async () => {
-    try {
-      const userId = localStorage.getItem('userId') || `user_${Date.now()}`;
-      localStorage.setItem('userId', userId);
-      
-      const result = await checkAndSaveNotificationPermission(userId, character.id, roomId);
-      
-      if (result.success) {
-        savePermissionToLocalStorage(userId, result.permission);
-        console.log('Bildirim izni kalıcı olarak kaydedildi:', result.permission);
-      }
-    } catch (error) {
-      console.error('Bildirim izni kaydetme hatası:', error);
-    }
-  };
 
   const loadUserThemes = async () => {
     try {
@@ -180,28 +159,12 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
         });
       }
 
-      // Partner aktivitesi bildirimi gönder (akıllı push)
-      try {
-        const partnerNotification = await sendSmartPartnerNotification(
-          roomId, 
-          character.id, 
-          character.name, 
-          character.emoji
-        );
-        
-        if (partnerNotification.success) {
-          console.log(`Partner bildirimi gönderildi: ${partnerNotification.sent}/${partnerNotification.total} başarılı`);
-        }
-      } catch (error) {
-        console.error('Partner bildirimi hatası:', error);
-      }
       
       // Streak'i güncelle
       await loadStreak();
       
       // Günlük popup göster (sadece ilk poop'ta)
       if (count === 1) {
-        // Hem UI popup hem de web notification gönder
         setDailyPopupData({
           title: "🎉 Bugün Poop Yaptık!",
           message: `${character.name} ilk poop'unu yaptı! Harika başlangıç! 🚀`,
@@ -209,13 +172,6 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
           type: "success"
         });
         setShowDailyPopup(true);
-
-        // Web notification da gönder
-        try {
-          await sendDailyPopupWebNotification(character.name);
-        } catch (error) {
-          console.error('Günlük popup notification hatası:', error);
-        }
       }
       
       // İstatistikleri güncelle

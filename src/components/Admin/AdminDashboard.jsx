@@ -3,7 +3,6 @@ import PixelCard from '../PixelCard';
 import PixelButton from '../PixelButton';
 import { adminSignOut } from '../../services/adminAuthService';
 import { getRoomsData, getCharactersData, getPoopsData } from '../../services/adminDataService';
-import PushManager from './PushManager';
 
 const AdminDashboard = ({ user, onLogout, onBack }) => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -178,8 +177,7 @@ const AdminDashboard = ({ user, onLogout, onBack }) => {
         {[
           { id: 'overview', name: '📊 Genel', icon: '📊' },
           { id: 'rooms', name: '🏠 Odalar', icon: '🏠' },
-          { id: 'poops', name: '💩 Poops', icon: '💩' },
-          { id: 'push', name: '📱 Push', icon: '📱' }
+          { id: 'poops', name: '💩 Poops', icon: '💩' }
         ].map(tab => (
           <button
             key={tab.id}
@@ -465,9 +463,6 @@ const AdminDashboard = ({ user, onLogout, onBack }) => {
           </div>
         )}
 
-        {activeTab === 'push' && (
-          <PushManager />
-        )}
       </div>
     </div>
   );
