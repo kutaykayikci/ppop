@@ -6,7 +6,7 @@ import PoopCounter from '../PoopCounter';
 import PixelButton from '../PixelButton';
 import soundService from '../../services/soundService';
 
-const RoomDashboard = ({ room }) => {
+const RoomDashboard = ({ room, onBack }) => {
   const [characters, setCharacters] = useState([]);
   const [profiles, setProfiles] = useState([]);
   const [stats, setStats] = useState({
@@ -356,8 +356,29 @@ const RoomDashboard = ({ room }) => {
         borderBottom: '3px solid #333',
         padding: '15px 20px',
         textAlign: 'center',
-        boxShadow: '0 4px 0px rgba(0, 0, 0, 0.2)'
+        boxShadow: '0 4px 0px rgba(0, 0, 0, 0.2)',
+        position: 'relative'
       }}>
+        {/* Ana Sayfa Butonu */}
+        <div style={{
+          position: 'absolute',
+          left: '20px',
+          top: '50%',
+          transform: 'translateY(-50%)'
+        }}>
+          <PixelButton
+            onClick={() => {
+              soundService.playClick();
+              onBack();
+            }}
+            variant="secondary"
+            size="sm"
+            className="glow-effect"
+          >
+            🏠 Ana Sayfa
+          </PixelButton>
+        </div>
+
         <h1 style={{
           fontSize: '18px',
           color: '#333',

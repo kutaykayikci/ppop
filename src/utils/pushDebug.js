@@ -90,3 +90,4 @@ export const debugPushNotifications = async () => {
 
 // Global olarak erişilebilir yap
 window.debugPushNotifications = debugPushNotifications;
+

@@ -149,6 +149,21 @@ function App() {
     window.history.replaceState({}, document.title, window.location.pathname);
   };
 
+  const loadRoomCharactersAndNavigate = async () => {
+    if (!room) return;
+    
+    try {
+      const roomCharacters = await getRoomCharacters(room.id);
+      setCharacters(roomCharacters);
+      
+      if (roomCharacters.length >= 2) {
+        setCurrentView('dashboard');
+      }
+    } catch (error) {
+      console.error('Room karakterlerini yükleme hatası:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div 
@@ -268,6 +283,10 @@ function App() {
           <CharacterCreator 
             roomId={room.id}
             onBack={handleBackToRoomSelector}
+            onNavigateToDashboard={() => {
+              // Room karakterlerini yeniden yükle ve dashboard'a geç
+              loadRoomCharactersAndNavigate();
+            }}
           />
         )}
       
@@ -418,7 +437,6 @@ function App() {
         {currentView === 'dashboard' && room && characters.length >= 2 && (
           <RoomDashboard 
             room={room}
-            characters={characters}
             onBack={handleBackToRoomSelector}
           />
         )}

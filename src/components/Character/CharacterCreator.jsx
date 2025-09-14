@@ -6,7 +6,7 @@ import PartnerInvite from './PartnerInvite';
 import PixelButton from '../PixelButton';
 import soundService from '../../services/soundService';
 
-const CharacterCreator = ({ roomId, onBack }) => {
+const CharacterCreator = ({ roomId, onBack, onNavigateToDashboard }) => {
   const [gender, setGender] = useState('');
   const [name, setName] = useState('');
   const [selectedEmoji, setSelectedEmoji] = useState('');
@@ -91,7 +91,7 @@ const CharacterCreator = ({ roomId, onBack }) => {
       
       // Eğer 2 karakter de oluşturulmuşsa, direkt dashboard'a yönlendir
       if (characters.length >= 2) {
-        window.location.href = `?room=${roomId}`;
+        onNavigateToDashboard();
         return;
       }
       
@@ -329,7 +329,7 @@ const CharacterCreator = ({ roomId, onBack }) => {
     
     if (updatedCharacters.length >= 2) {
       // 2 karakter de oluşturulmuş, direkt dashboard'a yönlendir
-      window.location.href = `?room=${roomId}`;
+      onNavigateToDashboard();
     } else {
       // İlk karakter oluşturuldu, partner davet ekranına geç
       transitionToStep('partner-invite', 'next');
@@ -536,7 +536,7 @@ const CharacterCreator = ({ roomId, onBack }) => {
         room={{ id: roomId }}
         character={createdCharacter}
         onPartnerJoined={() => {
-          window.location.href = `?room=${roomId}`;
+          onNavigateToDashboard();
         }}
       />
     );
