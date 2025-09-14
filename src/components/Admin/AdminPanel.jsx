@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLogin from './AdminLogin';
 import AdminDashboard from './AdminDashboard';
-import PushManager from './PushManager';
 import { checkAdminAuth } from '../../services/adminAuthService';
 
 const AdminPanel = ({ onBack }) => {
