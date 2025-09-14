@@ -3,6 +3,7 @@ import PixelCard from '../PixelCard';
 import PixelButton from '../PixelButton';
 import { sendBulkNotification, getPushStatistics } from '../../services/smartPushService';
 import { getAllNotificationPermissions } from '../../services/permissionService';
+import { sendWebNotification, checkNotificationPermission, requestNotificationPermission } from '../../services/webNotificationService';
 
 const PushManager = () => {
   const [pushForm, setPushForm] = useState({
@@ -15,10 +16,18 @@ const PushManager = () => {
   const [pushStats, setPushStats] = useState(null);
   const [permissionStats, setPermissionStats] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [notificationStatus, setNotificationStatus] = useState(null);
 
   useEffect(() => {
     loadStatistics();
+    checkNotificationStatus();
   }, []);
+
+  const checkNotificationStatus = () => {
+    const status = checkNotificationPermission();
+    setNotificationStatus(status);
+    console.log('Notification durumu:', status);
+  };
 
   const loadStatistics = async () => {
     try {
@@ -105,6 +114,45 @@ const PushManager = () => {
     }));
   };
 
+  const testNotification = async () => {
+    try {
+      const result = await sendWebNotification(
+        '🧪 Test Bildirimi',
+        'Bu bir test bildirimidir! Sistem çalışıyor! 🎉',
+        {
+          icon: '🧪',
+          tag: 'test-notification'
+        }
+      );
+      
+      if (result.success) {
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000);
+      } else {
+        alert(`Test bildirimi başarısız: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Test bildirimi hatası:', error);
+      alert(`Hata: ${error.message}`);
+    }
+  };
+
+  const requestPermission = async () => {
+    try {
+      const result = await requestNotificationPermission();
+      if (result.success) {
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000);
+        checkNotificationStatus(); // Durumu yenile
+      } else {
+        alert(`İzin isteği başarısız: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('İzin isteği hatası:', error);
+      alert(`Hata: ${error.message}`);
+    }
+  };
+
   return (
     <div style={{ padding: '20px' }}>
       <h2 style={{ 
@@ -116,6 +164,72 @@ const PushManager = () => {
       }}>
         📱 Push Bildirim Yöneticisi
       </h2>
+
+      {/* Notification Durumu ve Test Butonları */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+        gap: '15px',
+        marginBottom: '30px'
+      }}>
+        <PixelCard title="🔔 Notification Durumu">
+          {notificationStatus ? (
+            <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
+              <div><strong>Durum:</strong> {notificationStatus.message}</div>
+              <div><strong>İzin:</strong> {notificationStatus.permission}</div>
+              <div><strong>Destekleniyor:</strong> {notificationStatus.supported ? '✅' : '❌'}</div>
+              {notificationStatus.browserInfo && (
+                <>
+                  <div><strong>iOS:</strong> {notificationStatus.browserInfo.isIOS ? '✅' : '❌'}</div>
+                  <div><strong>Safari:</strong> {notificationStatus.browserInfo.isSafari ? '✅' : '❌'}</div>
+                </>
+              )}
+            </div>
+          ) : (
+            <div>Yükleniyor...</div>
+          )}
+        </PixelCard>
+
+        <PixelCard title="🧪 Test Araçları">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <PixelButton
+              onClick={testNotification}
+              style={{
+                backgroundColor: '#4CAF50',
+                color: 'white',
+                fontSize: '12px',
+                padding: '8px 16px'
+              }}
+            >
+              🧪 Test Bildirimi Gönder
+            </PixelButton>
+            
+            <PixelButton
+              onClick={requestPermission}
+              style={{
+                backgroundColor: '#2196F3',
+                color: 'white',
+                fontSize: '12px',
+                padding: '8px 16px'
+              }}
+            >
+              🔔 İzin İste
+            </PixelButton>
+            
+            <PixelButton
+              onClick={checkNotificationStatus}
+              style={{
+                backgroundColor: '#FF9800',
+                color: 'white',
+                fontSize: '12px',
+                padding: '8px 16px'
+              }}
+            >
+              🔄 Durumu Yenile
+            </PixelButton>
+          </div>
+        </PixelCard>
+      </div>
 
       {/* İstatistikler */}
       <div style={{ 
