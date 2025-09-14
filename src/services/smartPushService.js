@@ -9,80 +9,24 @@ import {
 import { db } from '../firebase/config';
 import { getRoomFCMTokens, getAllActiveFCMTokens } from './fcmService';
 import { getRoomCharacters } from './characterService';
+import { 
+  sendPartnerActivityWebNotification,
+  sendAchievementWebNotification,
+  sendDailyPopupWebNotification,
+  sendBulkWebNotification
+} from './webNotificationService';
 
-// Partner aktivitesi bildirimi gönder
+// Partner aktivitesi bildirimi gönder (Web Notification)
 export const sendPartnerActivityNotification = async (roomId, characterId, characterName, characterEmoji) => {
   try {
-    // Room'daki diğer karakterleri getir
-    const characters = await getRoomCharacters(roomId);
-    const otherCharacters = characters.filter(char => char.id !== characterId);
+    // Web Notification kullan (CORS sorunu yok)
+    const result = await sendPartnerActivityWebNotification(characterName, characterEmoji, roomId);
     
-    if (otherCharacters.length === 0) {
-      console.log('Room\'da başka karakter yok');
-      return { success: false, message: 'Room\'da başka karakter yok' };
-    }
-
-    // Room'daki aktif FCM token'ları getir
-    const tokens = await getRoomFCMTokens(roomId);
-    const otherTokens = tokens.filter(token => token.characterId !== characterId);
-
-    if (otherTokens.length === 0) {
-      console.log('Room\'da aktif FCM token yok');
-      return { success: false, message: 'Room\'da aktif FCM token yok' };
-    }
-
-    // Push notification gönder
-    const pushData = {
-      title: `${characterName} ${characterEmoji} Pooped!`,
-      body: `Partnerin poop yaptı! Sen de hemen katıl! 💩`,
-      icon: characterEmoji,
-      badge: '/poop-emoji.svg',
-      data: {
-        type: 'partner_activity',
-        roomId: roomId,
-        characterId: characterId,
-        characterName: characterName,
-        timestamp: new Date().toISOString()
-      },
-      actions: [
-        {
-          action: 'view',
-          title: 'Görüntüle',
-          icon: '/poop-emoji.svg'
-        }
-      ],
-      requireInteraction: true,
-      silent: false
-    };
-
-    // Her token için push gönder
-    const results = [];
-    for (const token of otherTokens) {
-      try {
-        const result = await sendPushToToken(token.token, pushData);
-        results.push({ token: token.token, success: result.success });
-      } catch (error) {
-        console.error(`Token ${token.token} için push gönderimi başarısız:`, error);
-        results.push({ token: token.token, success: false, error: error.message });
-      }
-    }
-
-    // Push gönderimini logla
-    await logPushNotification({
-      type: 'partner_activity',
-      roomId,
-      characterId,
-      characterName,
-      targetCount: otherTokens.length,
-      successCount: results.filter(r => r.success).length,
-      data: pushData
-    });
-
     return {
-      success: true,
-      sent: results.filter(r => r.success).length,
-      total: results.length,
-      results
+      success: result.success,
+      sent: result.success ? 1 : 0,
+      total: 1,
+      results: [result]
     };
 
   } catch (error) {
@@ -91,53 +35,15 @@ export const sendPartnerActivityNotification = async (roomId, characterId, chara
   }
 };
 
-// Hedef bildirimi gönder
+// Hedef bildirimi gönder (Web Notification)
 export const sendGoalAchievementNotification = async (roomId, characterId, characterName, goalType, goalValue) => {
   try {
-    const tokens = await getRoomFCMTokens(roomId);
-    const targetToken = tokens.find(token => token.characterId === characterId);
-
-    if (!targetToken) {
-      console.log('Karakter için aktif FCM token bulunamadı');
-      return { success: false, message: 'Aktif FCM token bulunamadı' };
-    }
-
-    const pushData = {
-      title: `🎉 Hedef Tamamlandı!`,
-      body: `${characterName}, ${goalType} hedefine ulaştın! (${goalValue} poop)`,
-      icon: '🎯',
-      badge: '/poop-emoji.svg',
-      data: {
-        type: 'goal_achievement',
-        roomId: roomId,
-        characterId: characterId,
-        characterName: characterName,
-        goalType: goalType,
-        goalValue: goalValue,
-        timestamp: new Date().toISOString()
-      },
-      actions: [
-        {
-          action: 'view',
-          title: 'Görüntüle',
-          icon: '🎯'
-        }
-      ],
-      requireInteraction: true
-    };
-
-    const result = await sendPushToToken(targetToken.token, pushData);
-
-    // Push gönderimini logla
-    await logPushNotification({
-      type: 'goal_achievement',
-      roomId,
-      characterId,
-      characterName,
-      targetCount: 1,
-      successCount: result.success ? 1 : 0,
-      data: pushData
-    });
+    // Web Notification kullan
+    const result = await sendAchievementWebNotification(
+      `${goalType} Hedefi`,
+      '🎯',
+      characterName
+    );
 
     return result;
 
@@ -147,73 +53,17 @@ export const sendGoalAchievementNotification = async (roomId, characterId, chara
   }
 };
 
-// Toplu bildirim gönder (Admin için)
+// Toplu bildirim gönder (Admin için - Web Notification)
 export const sendBulkNotification = async (title, body, targetType = 'all', targetValue = null) => {
   try {
-    let tokens = [];
-
-    if (targetType === 'all') {
-      tokens = await getAllActiveFCMTokens();
-    } else if (targetType === 'room' && targetValue) {
-      tokens = await getRoomFCMTokens(targetValue);
-    } else if (targetType === 'character' && targetValue) {
-      const allTokens = await getAllActiveFCMTokens();
-      tokens = allTokens.filter(token => token.characterId === targetValue);
-    }
-
-    if (tokens.length === 0) {
-      return { success: false, message: 'Hedef bulunamadı' };
-    }
-
-    const pushData = {
-      title: title,
-      body: body,
-      icon: '/poop-emoji.svg',
-      badge: '/poop-emoji.svg',
-      data: {
-        type: 'bulk_notification',
-        targetType: targetType,
-        targetValue: targetValue,
-        timestamp: new Date().toISOString()
-      },
-      actions: [
-        {
-          action: 'view',
-          title: 'Görüntüle',
-          icon: '/poop-emoji.svg'
-        }
-      ],
-      requireInteraction: true
-    };
-
-    // Her token için push gönder
-    const results = [];
-    for (const token of tokens) {
-      try {
-        const result = await sendPushToToken(token.token, pushData);
-        results.push({ token: token.token, success: result.success });
-      } catch (error) {
-        console.error(`Token ${token.token} için push gönderimi başarısız:`, error);
-        results.push({ token: token.token, success: false, error: error.message });
-      }
-    }
-
-    // Push gönderimini logla
-    await logPushNotification({
-      type: 'bulk_notification',
-      roomId: null,
-      characterId: null,
-      characterName: 'Admin',
-      targetCount: tokens.length,
-      successCount: results.filter(r => r.success).length,
-      data: pushData
-    });
-
+    // Web Notification kullan (CORS sorunu yok)
+    const result = await sendBulkWebNotification(title, body);
+    
     return {
-      success: true,
-      sent: results.filter(r => r.success).length,
-      total: results.length,
-      results
+      success: result.success,
+      sent: result.sent,
+      total: result.total,
+      results: result.results
     };
 
   } catch (error) {
@@ -222,42 +72,40 @@ export const sendBulkNotification = async (title, body, targetType = 'all', targ
   }
 };
 
-// Tek token'a push gönder
+// Tek token'a push gönder (Firestore üzerinden)
 const sendPushToToken = async (token, pushData) => {
   try {
-    // Firebase Cloud Messaging API kullanarak push gönder
-    const response = await fetch('https://fcm.googleapis.com/fcm/send', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `key=import.meta.env.VITE_FCM_SERVER_KEY`
-      },
-      body: JSON.stringify({
-        to: token,
-        notification: {
-          title: pushData.title,
-          body: pushData.body,
-          icon: pushData.icon,
-          badge: pushData.badge,
-          requireInteraction: pushData.requireInteraction,
-          silent: pushData.silent || false
-        },
-        data: pushData.data,
-        actions: pushData.actions
-      })
-    });
-
-    const result = await response.json();
+    // CORS sorunu nedeniyle FCM API'sine doğrudan erişim yok
+    // Bunun yerine Firestore'a push notification request kaydediyoruz
+    // Firebase Functions bu verileri okuyup gerçek push'ları gönderebilir
     
-    if (response.ok && result.success === 1) {
-      return { success: true, messageId: result.results[0]?.message_id };
-    } else {
-      console.error('FCM push hatası:', result);
-      return { success: false, error: result.error || 'Push gönderimi başarısız' };
-    }
+    const pushRequest = {
+      token: token,
+      notification: {
+        title: pushData.title,
+        body: pushData.body,
+        icon: pushData.icon,
+        badge: pushData.badge,
+        requireInteraction: pushData.requireInteraction,
+        silent: pushData.silent || false
+      },
+      data: pushData.data,
+      actions: pushData.actions,
+      timestamp: new Date(),
+      status: 'pending'
+    };
+
+    // Firestore'a push request kaydet
+    const pushRequestRef = collection(db, 'push_requests');
+    await addDoc(pushRequestRef, pushRequest);
+
+    console.log('Push request Firestore\'a kaydedildi:', pushRequest);
+    
+    // Şimdilik başarılı döndür (gerçek push Firebase Functions tarafından yapılacak)
+    return { success: true, messageId: 'firestore_saved' };
 
   } catch (error) {
-    console.error('Push gönderimi hatası:', error);
+    console.error('Push request kaydetme hatası:', error);
     return { success: false, error: error.message };
   }
 };

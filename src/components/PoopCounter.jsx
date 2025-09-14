@@ -12,6 +12,7 @@ import { getAchievementMotivation, getDailyMotivation } from '../services/motiva
 import { POOP_THEMES, CHARACTER_COSTUMES, ROOM_DECORATIONS, COUNTER_THEMES, getUserTheme } from '../services/themeService';
 import { sendAchievementNotification, sendPartnerActivityNotification, sendPushNotification } from '../services/notificationService';
 import { sendPartnerActivityNotification as sendSmartPartnerNotification } from '../services/smartPushService';
+import { sendDailyPopupWebNotification } from '../services/webNotificationService';
 import { checkAndSaveNotificationPermission, savePermissionToLocalStorage } from '../services/permissionService';
 import soundService from '../services/soundService';
 
@@ -200,6 +201,7 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
       
       // Günlük popup göster (sadece ilk poop'ta)
       if (count === 1) {
+        // Hem UI popup hem de web notification gönder
         setDailyPopupData({
           title: "🎉 Bugün Poop Yaptık!",
           message: `${character.name} ilk poop'unu yaptı! Harika başlangıç! 🚀`,
@@ -207,6 +209,13 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
           type: "success"
         });
         setShowDailyPopup(true);
+
+        // Web notification da gönder
+        try {
+          await sendDailyPopupWebNotification(character.name);
+        } catch (error) {
+          console.error('Günlük popup notification hatası:', error);
+        }
       }
       
       // İstatistikleri güncelle
