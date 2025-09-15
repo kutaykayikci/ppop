@@ -1,5 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
+:root {
+  --color-primary: #ff6b6b;
+  --color-secondary: #4ecdc4;
+  --color-text: #333333;
+  --color-text-muted: #666666;
+  --color-border: #333333;
+  --color-bg: #ffffff;
+  --shadow-md: 6px 6px 0px rgba(0,0,0,0.2);
+  --radius-md: 8px;
+  --spacing-sm: 10px;
+  --spacing-md: 20px;
+}
+
 * {
   margin: 0;
   padding: 0;

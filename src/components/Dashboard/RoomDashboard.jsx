@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { getRoomCharacters } from '../../services/characterService';
-import { getRoomProfiles } from '../../services/profileService';
-import { getPoopsByDateRange } from '../../firebase/poopService';
-import { calculateRoomStatistics, getComparativeStatistics } from '../../services/roomStatisticsService';
-import PoopCounter from '../PoopCounter';
-import PixelButton from '../PixelButton';
-import soundService from '../../services/soundService';
+import { useParams, useNavigate } from 'react-router-dom';
+import { getRoomCharacters } from '@/services/characterService';
+import { getRoomProfiles } from '@/services/profileService';
+import { getPoopsByDateRange } from '@/firebase/poopService';
+import { calculateRoomStatistics, getComparativeStatistics } from '@/services/roomStatisticsService';
+import { getRoomById } from '@/services/roomService';
+import PoopCounter from '@/components/PoopCounter';
+import LeagueWidget from '@/components/Dashboard/LeagueWidget';
+import OnboardingModal from '@/components/Onboarding/OnboardingModal';
+import PixelButton from '@/components/PixelButton';
+import NotFound from '@/components/common/NotFound';
+import soundService from '@/services/soundService';
 
-const RoomDashboard = ({ room, onBack }) => {
+const RoomDashboard = () => {
+  const { roomId } = useParams();
+  const navigate = useNavigate();
+  const [room, setRoom] = useState({ id: roomId, name: roomId });
   const [characters, setCharacters] = useState([]);
   const [profiles, setProfiles] = useState([]);
   const [stats, setStats] = useState({
@@ -21,12 +29,35 @@ const RoomDashboard = ({ room, onBack }) => {
   const [comparativeStats, setComparativeStats] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState('today');
   const [loading, setLoading] = useState(true);
+  const [roomNotFound, setRoomNotFound] = useState(false);
   const [floatingEmojis, setFloatingEmojis] = useState([]);
   const [particles, setParticles] = useState([]);
+  const [globalConfetti, setGlobalConfetti] = useState([]);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
-    loadRoomData();
-  }, [room.id]);
+    const init = async () => {
+      try {
+        const r = await getRoomById(roomId);
+        if (r) {
+          setRoom(r);
+          await loadRoomData();
+          const seen = localStorage.getItem('onboarding_seen');
+          if (!seen) setShowOnboarding(true);
+        } else {
+          // Oda bulunamadı
+          setRoomNotFound(true);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Room yükleme hatası:', error);
+        setRoomNotFound(true);
+        setLoading(false);
+      }
+    };
+    init();
+  }, [roomId]);
 
   useEffect(() => {
     if (characters.length > 0) {
@@ -246,13 +277,57 @@ const RoomDashboard = ({ room, onBack }) => {
   };
 
   const getUserProfile = (characterId) => {
-    return profiles.find(profile => profile.characterId === characterId);
+    const profile = profiles.find(profile => profile.characterId === characterId);
+    if (!profile) {
+      // Varsayılan profile oluştur
+      return {
+        id: `temp_${characterId}`,
+        characterId: characterId,
+        name: 'Geçici Kullanıcı',
+        createdAt: new Date().toISOString()
+      };
+    }
+    return profile;
   };
+
+  // Oda ismini mobil için kısaltma fonksiyonu
+  const getDisplayRoomName = () => {
+    const maxLength = isMobile ? 15 : 25;
+    
+    if (room.name.length <= maxLength) {
+      return room.name;
+    }
+    
+    // Uzun isimleri kısalt
+    return room.name.substring(0, maxLength - 3) + '...';
+  };
+
+  // Window resize dinleyicisi
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handlePoopAdded = () => {
     // Yeni poop eklendiğinde istatistikleri yenile
     loadStatistics();
+    // Basit global konfeti tetikle
+    const burst = [];
+    for (let i=0;i<18;i++) {
+      burst.push({ id: Date.now()+Math.random(), left: Math.random()*100, top: -10, color: `hsl(${Math.random()*360},70%,60%)`, size: 4+Math.random()*6, rot: Math.random()*360, delay: Math.random()*300 })
+    }
+    setGlobalConfetti(prev => [...prev, ...burst])
+    setTimeout(()=> setGlobalConfetti(prev => prev.slice(burst.length)), 1800)
   };
+
+  // 404 durumu - oda bulunamadı
+  if (roomNotFound) {
+    return <NotFound roomId={roomId} type="room" />;
+  }
 
   if (loading) {
     return (
@@ -282,24 +357,93 @@ const RoomDashboard = ({ room, onBack }) => {
           </div>
         ))}
 
+        {/* Fancy Loader */}
         <div 
           className="tilt-card"
           style={{
             backgroundColor: 'rgba(255, 255, 255, 0.95)',
             border: '3px solid #333',
-            borderRadius: '8px',
-            padding: '30px',
+            borderRadius: '12px',
+            padding: '32px',
             textAlign: 'center',
             backdropFilter: 'blur(10px)',
-            zIndex: 10
+            zIndex: 10,
+            boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
           }}
         >
-          <div className="loading-emoji" style={{ fontSize: '32px', marginBottom: '20px' }}>⏳</div>
-          <div className="loading-text">Room verileri yükleniyor...</div>
+          <div style={{ position: 'relative', width: 140, height: 140, margin: '0 auto 16px' }}>
+            {/* Dış halka */}
+            <div style={{
+              position: 'absolute', inset: 0, borderRadius: '50%',
+              border: '3px dashed #333',
+              animation: 'spin 4s linear infinite',
+              opacity: 0.3
+            }} />
+
+            {/* Emoji yörüngeleri */}
+            <div style={{ position: 'absolute', inset: 0, animation: 'spin 6s linear infinite' }}>
+              <div style={{ position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)' }}>💩</div>
+              <div style={{ position: 'absolute', bottom: -8, left: '50%', transform: 'translateX(-50%)' }}>✨</div>
+              <div style={{ position: 'absolute', left: -6, top: '50%', transform: 'translateY(-50%)' }}>🎉</div>
+              <div style={{ position: 'absolute', right: -6, top: '50%', transform: 'translateY(-50%)' }}>⭐</div>
+            </div>
+
+            {/* İç parlama efekti */}
+            <div style={{
+              position: 'absolute', inset: 12, borderRadius: '50%',
+              background: 'radial-gradient(circle at 30% 30%, rgba(255,215,0,0.25), transparent 60%)',
+              filter: 'blur(6px)',
+              animation: 'pulse 1.6s ease-in-out infinite'
+            }} />
+
+            {/* Merkez ikon */}
+            <div style={{
+              position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <div style={{
+                width: 64, height: 64, borderRadius: '12px',
+                border: '3px solid #333', backgroundColor: '#fff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '4px 4px 0 #333',
+                animation: 'pop 1.2s ease-in-out infinite'
+              }}>
+                💩
+              </div>
+            </div>
+          </div>
+
+          <div className="loading-text" style={{ fontWeight: 'bold', color: '#333', marginBottom: 10 }}>
+            Room verileri yükleniyor...
+          </div>
+          {/* İlerleme çubuğu */}
+          <div style={{
+            height: 8, border: '2px solid #333', borderRadius: 8, overflow: 'hidden',
+            background: '#f2f2f2', width: 220, margin: '0 auto'
+          }}>
+            <div style={{
+              height: '100%', width: '40%', background: 'linear-gradient(90deg, #FF6B6B, #FFD93D)',
+              animation: 'progress 1.8s ease-in-out infinite'
+            }} />
+          </div>
+
+          {/* Keyframes */}
+          <style>{`
+            @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+            @keyframes pop { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+            @keyframes progress {
+              0% { transform: translateX(-100%); }
+              50% { transform: translateX(10%); }
+              100% { transform: translateX(120%); }
+            }
+          `}</style>
         </div>
       </div>
     );
   }
+
+  // Empty state: no characters/profiles
+  const isEmpty = characters.length === 0
 
   return (
     <div 
@@ -340,62 +484,130 @@ const RoomDashboard = ({ room, onBack }) => {
           }}
         />
       ))}
+      {/* Global Konfeti */}
+      <div style={{ position:'absolute', inset:0, pointerEvents:'none', zIndex: 3 }}>
+        {globalConfetti.map(c => (
+          <div key={c.id} style={{ position:'absolute', left:`${c.left}%`, top:`${c.top}%`, width:c.size, height:c.size, backgroundColor:c.color, transform:`rotate(${c.rot}deg)`, borderRadius:2, animation:'global-fall 1.6s ease-in forwards', animationDelay:`${c.delay}ms` }} />
+        ))}
+      </div>
+      <style>{`@keyframes global-fall { 0% { transform: translateY(0) rotate(0); opacity:1 } 100% { transform: translateY(100vh) rotate(360deg); opacity:0 } }`}</style>
       {/* Header */}
       <header style={{
-        backgroundColor: '#fff',
-        borderBottom: '3px solid #333',
+        backgroundColor: 'var(--color-bg)',
+        borderBottom: `3px solid var(--color-border)`,
         padding: '15px 20px',
         textAlign: 'center',
         boxShadow: '0 4px 0px rgba(0, 0, 0, 0.2)',
-        position: 'relative'
+        position: 'relative',
+        minHeight: '80px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
       }}>
-        {/* Ana Sayfa Butonu */}
+        {/* Ana Sayfa Butonu - Mobil Uyumlu */}
         <div style={{
           position: 'absolute',
-          left: '20px',
+          left: '10px',
           top: '50%',
-          transform: 'translateY(-50%)'
+          transform: 'translateY(-50%)',
+          zIndex: 10
         }}>
           <PixelButton
             onClick={() => {
               soundService.playClick();
-              onBack();
+              navigate('/');
             }}
             variant="secondary"
             size="sm"
             className="glow-effect"
+            style={{
+              fontSize: '10px',
+              padding: '6px 10px',
+              minWidth: 'auto'
+            }}
           >
-            🏠 Ana Sayfa
+            🏠
           </PixelButton>
         </div>
 
-        <h1 style={{
-          fontSize: '18px',
-          color: '#333',
-          margin: '0',
-          textShadow: '2px 2px 0px rgba(0, 0, 0, 0.1)'
-        }}>
-          💩 Poop Count - {room.name} 💩
-        </h1>
+        {/* Başlık ve Room ID - Mobil Uyumlu */}
         <div style={{
-          fontSize: '14px',
-          color: '#333',
-          marginTop: '5px',
-          fontWeight: 'bold',
-          backgroundColor: '#f0f0f0',
-          padding: '5px 10px',
-          borderRadius: '4px',
-          border: '2px solid #333',
-          display: 'inline-block'
+          paddingLeft: '50px',
+          paddingRight: '20px',
+          maxWidth: 'calc(100vw - 100px)',
+          width: '100%'
         }}>
-          Room ID: {room.id}
+          <h1 
+            style={{
+              fontSize: isMobile ? '12px' : '18px',
+              color: 'var(--color-text)',
+              margin: '0',
+              textShadow: '2px 2px 0px rgba(0, 0, 0, 0.1)',
+              lineHeight: '1.2',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              maxWidth: '100%',
+              cursor: room.name.length > (isMobile ? 15 : 25) ? 'help' : 'default'
+            }}
+            title={room.name.length > (isMobile ? 15 : 25) ? `Tam oda ismi: ${room.name}` : ''}
+          >
+            💩 Poop Count - {getDisplayRoomName()} 💩
+          </h1>
+          <div style={{
+            fontSize: isMobile ? '9px' : '12px',
+            color: 'var(--color-text-muted)',
+            marginTop: '3px',
+            fontWeight: 'bold',
+            backgroundColor: '#f8f8f8',
+            padding: '3px 8px',
+            borderRadius: '4px',
+            border: '1px solid #ddd',
+            display: 'inline-block',
+            maxWidth: '100%',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}>
+            ID: {room.id}
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
       <main style={{ padding: '0', flex: 1 }}>
+        {/* Empty State */}
+        {isEmpty && (
+          <div style={{ maxWidth: 720, margin: '30px auto 0' }}>
+            <div style={{
+              background:'#fff', border:'3px solid #333', borderRadius:12,
+              padding:20, textAlign:'center', boxShadow:'6px 6px 0 rgba(0,0,0,0.1)'
+            }}>
+              <div style={{ fontSize:28, marginBottom:8 }}>👋</div>
+              <div style={{ fontWeight:'bold', marginBottom:6 }}>Hadi başlayalım!</div>
+              <div style={{ fontSize:12, opacity:0.8, marginBottom:12 }}>Odanıza bir karakter ekleyin ve ilk hedefinizi belirleyin.</div>
+              <div style={{ display:'flex', gap:8, justifyContent:'center' }}>
+                <PixelButton onClick={()=>navigate('/')}>Oda Seç</PixelButton>
+                <PixelButton variant="secondary" onClick={()=>navigate('/')}>Hedef Belirle</PixelButton>
+              </div>
+            </div>
+          </div>
+        )}
+        {showOnboarding && (
+          <OnboardingModal 
+            onClose={()=>{ setShowOnboarding(false); localStorage.setItem('onboarding_seen','1') }}
+            onPrimary={()=>{ localStorage.setItem('onboarding_seen','1'); navigate('/') }}
+          />
+        )}
         {/* Poop Counters */}
-        <div className="user-grid">
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: characters.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '20px',
+          padding: '20px',
+          maxWidth: '1200px',
+          margin: '0 auto'
+        }}>
           {characters.map(character => {
             const profile = getUserProfile(character.id);
             const userColor = {
@@ -421,10 +633,10 @@ const RoomDashboard = ({ room, onBack }) => {
 
         {/* Statistics */}
         <div style={{ 
-          backgroundColor: '#fff',
-          border: '3px solid #333',
-          borderRadius: '8px',
-          boxShadow: '6px 6px 0px rgba(0, 0, 0, 0.2)',
+          backgroundColor: 'var(--color-bg)',
+          border: `3px solid var(--color-border)`,
+          borderRadius: 'var(--radius-md)',
+          boxShadow: 'var(--shadow-md)',
           margin: '20px',
           padding: '20px',
           textAlign: 'center'
@@ -677,6 +889,11 @@ const RoomDashboard = ({ room, onBack }) => {
             </div>
           )}
         </div>
+
+        {/* Haftalık Oda Ligi */}
+        {characters.length > 0 && (
+          <LeagueWidget roomId={room.id} characters={characters} />
+        )}
       </main>
 
       {/* Footer */}

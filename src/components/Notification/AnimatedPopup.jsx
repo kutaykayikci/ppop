@@ -7,7 +7,11 @@ const AnimatedPopup = ({
   type = 'info', 
   duration = 4000, 
   onClose,
-  show = true 
+  show = true,
+  actions = [],
+  onAction,
+  position = 'top-right',
+  sound = true
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -16,6 +20,11 @@ const AnimatedPopup = ({
     if (show) {
       setIsVisible(true);
       setIsAnimating(true);
+      
+      // Ses efekti çal
+      if (sound) {
+        playNotificationSound(type);
+      }
       
       // Animasyon tamamlandıktan sonra
       setTimeout(() => setIsAnimating(false), 300);
@@ -29,7 +38,7 @@ const AnimatedPopup = ({
         return () => clearTimeout(timer);
       }
     }
-  }, [show, duration]);
+  }, [show, duration, sound, type]);
 
   const handleClose = () => {
     setIsAnimating(false);
@@ -39,11 +48,58 @@ const AnimatedPopup = ({
     }, 300);
   };
 
+  // Ses efekti çal
+  const playNotificationSound = (type) => {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      // Tip'e göre farklı frekanslar
+      const frequencies = {
+        success: [523, 659, 784], // C-E-G
+        warning: [440, 392], // A-G
+        error: [392, 349], // G-F
+        info: [523, 659], // C-E
+        partner: [659, 784, 1047], // E-G-C
+        achievement: [784, 1047, 1319, 1568] // G-C-E-G
+      };
+      
+      const freq = frequencies[type] || frequencies.info;
+      
+      if (Array.isArray(freq)) {
+        freq.forEach((frequency, index) => {
+          setTimeout(() => {
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+          }, index * 100);
+        });
+      }
+      
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (error) {
+      console.log('Ses çalma hatası:', error);
+    }
+  };
+
   const getPopupStyle = () => {
+    // Pozisyon hesapla
+    const positionStyles = {
+      'top-right': { top: '20px', right: '20px', transform: isAnimating ? 'translateX(0)' : 'translateX(100%)' },
+      'top-left': { top: '20px', left: '20px', transform: isAnimating ? 'translateX(0)' : 'translateX(-100%)' },
+      'bottom-right': { bottom: '20px', right: '20px', transform: isAnimating ? 'translateX(0)' : 'translateX(100%)' },
+      'bottom-left': { bottom: '20px', left: '20px', transform: isAnimating ? 'translateX(0)' : 'translateX(-100%)' }
+    };
+    
+    const posStyle = positionStyles[position] || positionStyles['top-right'];
+    
     const baseStyle = {
       position: 'fixed',
-      top: '20px',
-      right: '20px',
       zIndex: 10000,
       maxWidth: '350px',
       minWidth: '300px',
@@ -52,11 +108,11 @@ const AnimatedPopup = ({
       boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
       backdropFilter: 'blur(10px)',
       border: '2px solid #333',
-      transform: isAnimating ? 'translateX(0)' : 'translateX(100%)',
       opacity: isAnimating ? 1 : 0,
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       cursor: 'pointer',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      ...posStyle
     };
 
     switch (type) {
@@ -164,6 +220,48 @@ const AnimatedPopup = ({
           )}
         </div>
         
+        {/* Aksiyon butonları */}
+        {actions.length > 0 && (
+          <div style={{
+            display: 'flex',
+            gap: '8px',
+            marginTop: '10px'
+          }}>
+            {actions.map((action, index) => (
+              <button
+                key={index}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onAction) {
+                    onAction(action.id, action.data);
+                  }
+                  if (action.closeOnClick !== false) {
+                    handleClose();
+                  }
+                }}
+                style={{
+                  background: 'rgba(255,255,255,0.2)',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  color: '#fff',
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.background = 'rgba(255,255,255,0.3)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.background = 'rgba(255,255,255,0.2)';
+                }}
+              >
+                {action.label}
+              </button>
+            ))}
+          </div>
+        )}
+        
         {/* Kapat butonu */}
         <button
           onClick={(e) => {
@@ -210,7 +308,7 @@ const AnimatedPopup = ({
       )}
       
       {/* CSS Animasyonları */}
-      <style jsx>{`
+      <style>{`
         @keyframes bounce {
           0%, 20%, 53%, 80%, 100% {
             transform: translate3d(0,0,0);

@@ -1,13 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
+import App from '@/App.jsx'
 import './index.css'
 import './styles/themeEffects.css'
 
 // Service Worker Registration with Cache Busting
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    // Ana service worker'ı kaydet
+    // Tek Service Worker kaydı
     navigator.serviceWorker.register('/sw.js', {
       updateViaCache: 'none' // SW dosyasını cache'leme
     })
@@ -24,12 +24,7 @@ if ('serviceWorker' in navigator) {
             }
           });
         });
-        
-        // Firebase messaging service worker'ı kaydet
-        return navigator.serviceWorker.register('/firebase-messaging-sw.js');
-      })
-      .then((registration) => {
-        console.log('Firebase Messaging Service Worker registered successfully');
+        return registration;
       })
       .catch((error) => {
         console.error('Service Worker registration failed:', error);
@@ -134,3 +129,36 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <App />
   </React.StrictMode>,
 )
+
+// A2HS (Add to Home Screen) - Custom prompt via popup
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const key = 'a2hs_prompt_shown';
+  if (localStorage.getItem(key)) return;
+  localStorage.setItem(key, '1');
+  import('@/services/popupManagerService').then(({ createPopup, POPUP_TYPES }) => {
+    createPopup({
+      type: POPUP_TYPES.INFO,
+      title: '📱 Uygulamayı Yükle',
+      message: 'Ana ekrana ekleyerek daha hızlı erişin.',
+      actions: [
+        { id: 'install', label: 'Yükle', data: {}, closeOnClick: true },
+        { id: 'later', label: 'Daha Sonra', data: {}, closeOnClick: true }
+      ],
+      onAction: async (id) => {
+        if (id === 'install' && deferredPrompt) {
+          const { outcome } = await deferredPrompt.prompt();
+          deferredPrompt = null;
+          console.log('A2HS outcome:', outcome);
+        }
+      }
+    })
+  })
+})
+
+// Notification strategy weekly summary (local-only)
+import('@/services/notificationStrategyService').then(({ scheduleWeeklySummary }) => {
+  try { scheduleWeeklySummary(); } catch {}
+})

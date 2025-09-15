@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { createRoom, joinRoom, getRoomById } from '../../services/roomService';
-import { getRoomCharacters } from '../../services/characterService';
-import { validateRoomId } from '../../utils/roomIdGenerator';
-import PixelButton from '../PixelButton';
-import GlobalLeaderboard from '../Leaderboard/GlobalLeaderboard';
+import { useNavigate } from 'react-router-dom';
+import { createRoom, getRoomById } from '@/services/roomService';
+import { getRoomCharacters } from '@/services/characterService';
+import { validateRoomId } from '@/utils/roomIdGenerator';
+import PixelButton from '@/components/PixelButton';
+import GlobalLeaderboard from '@/components/Leaderboard/GlobalLeaderboard';
 
-const RoomSelector = ({ onRoomSelected, onNavigateToDashboard }) => {
+const RoomSelector = () => {
+  const navigate = useNavigate();
   const [mode, setMode] = useState('select'); // select, create, join
   const [uniqueName, setUniqueName] = useState('');
   const [roomId, setRoomId] = useState('');
@@ -123,10 +125,11 @@ const RoomSelector = ({ onRoomSelected, onNavigateToDashboard }) => {
         });
       } else {
         // Fallback: Manuel talimatlar
-        alert('Ana sayfaya eklemek için:\n\nChrome: Menü > Ana sayfaya ekle\nSafari: Paylaş > Ana ekrana ekle\nFirefox: Menü > Sayfayı kaydet > Ana ekrana ekle');
+        // TODO: Replace with popup notification
+        // alert kaldırıldı; Popup ile kullanıcıya yönergeler gösterilebilir
       }
     } else {
-      alert('Bu tarayıcı ana sayfaya ekleme özelliğini desteklemiyor.');
+      // TODO: Replace with popup notification
     }
   };
 
@@ -135,7 +138,7 @@ const RoomSelector = ({ onRoomSelected, onNavigateToDashboard }) => {
     const url = window.location.href;
     try {
       await navigator.clipboard.writeText(url);
-      alert('Link kopyalandı! 📋');
+      // TODO: Replace with popup notification
     } catch (error) {
       console.error('Link kopyalanamadı:', error);
       // Fallback: Textarea ile kopyalama
@@ -145,7 +148,7 @@ const RoomSelector = ({ onRoomSelected, onNavigateToDashboard }) => {
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
-      alert('Link kopyalandı! 📋');
+      // TODO: Replace with popup notification
     }
   };
 
@@ -189,7 +192,7 @@ const RoomSelector = ({ onRoomSelected, onNavigateToDashboard }) => {
     try {
       const room = await createRoom(uniqueName.trim());
       playSound('success');
-      onRoomSelected(room);
+      navigate(`/rooms/${room.id}`);
     } catch (error) {
       console.error('Room oluşturma hatası:', error);
       setError(error.message);
@@ -229,12 +232,12 @@ const RoomSelector = ({ onRoomSelected, onNavigateToDashboard }) => {
       if (characters.length >= 2) {
         // 2 kişi de karakter oluşturmuş, direkt dashboard'a git
         playSound('success');
-        onNavigateToDashboard(room, characters);
+        navigate(`/dashboard/${room.id}`);
         return;
       } else {
-        // Henüz karakter eksik, standart akışa devam et
+        // Henüz karakter eksik, karakter oluşturma sayfasına git
         playSound('success');
-        onRoomSelected(room);
+        navigate(`/rooms/${room.id}`);
       }
     } catch (error) {
       console.error('Room\'a katılma hatası:', error);
@@ -652,10 +655,10 @@ const RoomSelector = ({ onRoomSelected, onNavigateToDashboard }) => {
       <div 
         className="tilt-card"
         style={{
-          backgroundColor: '#fff',
-          border: '3px solid #333',
-          borderRadius: '8px',
-          boxShadow: '6px 6px 0px rgba(0, 0, 0, 0.2)',
+          backgroundColor: 'var(--color-bg)',
+          border: `3px solid var(--color-border)`,
+          borderRadius: 'var(--radius-md)',
+          boxShadow: 'var(--shadow-md)',
           padding: '30px',
           width: '100%',
           maxWidth: '400px',

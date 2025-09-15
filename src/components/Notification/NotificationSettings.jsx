@@ -5,8 +5,7 @@ import {
   getNotificationSettings, 
   saveNotificationSettings,
   scheduleDailyReminders,
-  clearReminders,
-  checkNotificationPermission
+  clearReminders
 } from '../../services/notificationService';
 
 const NotificationSettings = ({ roomId, characterId, onClose }) => {
@@ -21,12 +20,10 @@ const NotificationSettings = ({ roomId, characterId, onClose }) => {
       evening: false
     }
   });
-  const [hasPermission, setHasPermission] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadSettings();
-    checkPermissions();
   }, [roomId, characterId]);
 
   const loadSettings = async () => {
@@ -40,10 +37,7 @@ const NotificationSettings = ({ roomId, characterId, onClose }) => {
     }
   };
 
-  const checkPermissions = async () => {
-    const permission = await checkNotificationPermission();
-    setHasPermission(permission);
-  };
+  // Artık push izni kontrolüne gerek yok
 
   const handleSettingChange = (setting, value) => {
     setSettings(prev => ({
@@ -80,16 +74,7 @@ const NotificationSettings = ({ roomId, characterId, onClose }) => {
     }
   };
 
-  const requestPermission = async () => {
-    const permission = await checkNotificationPermission();
-    setHasPermission(permission);
-    
-    if (permission) {
-      alert('Bildirim izni verildi! Artık hatırlatıcılar alabilirsin.');
-    } else {
-      alert('Bildirim izni reddedildi. Ayarlardan izni tekrar verebilirsin.');
-    }
-  };
+  // Artık push izni istemeye gerek yok
 
   if (loading) {
     return (
@@ -161,52 +146,34 @@ const NotificationSettings = ({ roomId, characterId, onClose }) => {
           </button>
         </div>
 
-        {/* İzin durumu */}
+        {/* Popup Bildirim Durumu */}
         <div style={{
           padding: '10px',
-          backgroundColor: hasPermission ? '#d4edda' : '#f8d7da',
-          border: `2px solid ${hasPermission ? '#c3e6cb' : '#f5c6cb'}`,
+          backgroundColor: '#d4edda',
+          border: '2px solid #c3e6cb',
           borderRadius: '4px',
           marginBottom: '20px'
         }}>
           <div style={{
             fontSize: '10px',
-            color: hasPermission ? '#155724' : '#721c24',
+            color: '#155724',
             fontWeight: 'bold',
             marginBottom: '5px'
           }}>
-            {hasPermission ? '✅ Bildirim İzni Verildi' : '❌ Bildirim İzni Gerekli'}
+            ✅ Popup Bildirimler Aktif
           </div>
           <div style={{
             fontSize: '8px',
-            color: hasPermission ? '#155724' : '#721c24'
+            color: '#155724'
           }}>
-            {hasPermission 
-              ? 'Bildirimler aktif ve çalışıyor'
-              : 'Bildirim alabilmek için izin vermelisin'
-            }
+            Popup bildirimler herhangi bir izin gerektirmez ve her zaman çalışır
           </div>
-          {!hasPermission && (
-            <PixelButton
-              onClick={requestPermission}
-              style={{
-                marginTop: '10px',
-                fontSize: '8px',
-                padding: '8px 16px',
-                backgroundColor: '#007bff',
-                borderColor: '#0056b3',
-                color: '#fff'
-              }}
-            >
-              İzin Ver
-            </PixelButton>
-          )}
         </div>
 
-        {/* Bildirim ayarları */}
+        {/* Popup Bildirim Ayarları */}
         <div style={{ marginBottom: '20px' }}>
           <h3 style={{ fontSize: '12px', marginBottom: '15px', color: '#333' }}>
-            📱 Bildirim Türleri
+            🔔 Popup Bildirim Türleri
           </h3>
           
           {[

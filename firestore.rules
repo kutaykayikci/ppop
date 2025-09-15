@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isRoomMember(roomId) {
+      // Basit örnek: herkese açık (gerçekte auth bağlanmalı)
+      return true;
+    }
+
+    match /poops/{poopId} {
+      allow read: if true;
+      allow create: if request.resource.data.roomId is string
+        && request.resource.data.characterId is string
+        && request.resource.data.date is string;
+    }
+
+    match /profiles/{profileId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    match /rooms/{roomId}/{document=**} {
+      allow read: if isRoomMember(roomId);
+      allow write: if isRoomMember(roomId);
+    }
+
+    match /rewards/{rewardId} {
+      allow read: if true;
+      allow create: if request.time < timestamp.date(9999, 1, 1);
+    }
+  }
+}
+
+

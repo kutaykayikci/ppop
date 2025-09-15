@@ -1,18 +1,20 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { visualizer } from 'rollup-plugin-visualizer'
+import { fileURLToPath, URL } from 'node:url'
+
+const analyzer = process.env.ANALYZE === 'true'
 
 export default defineConfig({
   plugins: [
     react(),
-    // Bundle analyzer - sadece build sırasında çalışır
-    visualizer({
-      filename: 'dist/bundle-analysis.html',
-      open: true,
-      gzipSize: true,
-      brotliSize: true,
-    })
+    ...(analyzer ? [visualizer({ filename: 'dist/bundle-analysis.html', open: true, gzipSize: true, brotliSize: true })] : [])
   ],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  },
   // PWA ve Service Worker için
   define: {
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production')

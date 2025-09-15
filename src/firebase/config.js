@@ -1,26 +1,28 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
+// Firebase messaging dinamik import ile kullanılacak (bundle diyet)
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyB3v0ebnm6HMJTM84vY8IVrSkmfXpZxDw0",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "poopcount-1a556.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "poopcount-1a556",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "poopcount-1a556.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "644753590566",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:644753590566:web:311b83690ceaaa2c9919e7"
-};
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
+}
+
+// Zorunlu env kontrolleri
+if (Object.values(firebaseConfig).some(v => !v)) {
+  throw new Error('Missing Firebase environment variables. Please configure VITE_FIREBASE_* envs.')
+}
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 
-// FCM Messaging
-export const messaging = getMessaging(app);
-
 // VAPID Key - Firebase Console'dan alacaksınız
-const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY || "YOUR_VAPID_KEY_HERE";
+const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY
 
 // FCM Token al
 export const getFCMToken = async () => {
@@ -35,6 +37,8 @@ export const getFCMToken = async () => {
     const registration = await navigator.serviceWorker.ready;
     console.log('Service Worker hazır:', registration);
 
+    const { getMessaging, getToken } = await import('firebase/messaging')
+    const messaging = getMessaging(app)
     const token = await getToken(messaging, {
       vapidKey: VAPID_KEY
     });
@@ -55,9 +59,12 @@ export const getFCMToken = async () => {
 // Foreground mesajları dinle
 export const onMessageListener = () => {
   return new Promise((resolve) => {
-    onMessage(messaging, (payload) => {
-      console.log('Foreground mesaj alındı:', payload);
-      resolve(payload);
-    });
+    import('firebase/messaging').then(({ getMessaging, onMessage }) => {
+      const messaging = getMessaging(app)
+      onMessage(messaging, (payload) => {
+        console.log('Foreground mesaj alındı:', payload);
+        resolve(payload);
+      });
+    })
   });
 };

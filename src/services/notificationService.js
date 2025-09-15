@@ -102,75 +102,69 @@ export const checkNotificationPermission = async () => {
   return false;
 };
 
-// Push bildirim gönder
+// Popup bildirim gönder (sadece popup, push izni gerekmez)
 export const sendPushNotification = async (template, customData = {}) => {
   try {
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
-      const registration = await navigator.serviceWorker.ready;
-      
-      await registration.showNotification(template.title, {
-        body: template.body,
-        icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSIjOEI0NTEzIi8+CiAgPHRleHQgeD0iMTYiIHk9IjIyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjIwIj7wn5KpPC90ZXh0Pgo8L3N2Zz4K',
-        badge: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSIjOEI0NTEzIi8+CiAgPHRleHQgeD0iMTYiIHk9IjIyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjIwIj7wn5KpPC90ZXh0Pgo8L3N2Zz4K',
-        tag: template.type,
-        requireInteraction: false,
-        data: {
-          type: template.type,
-          timestamp: new Date().toISOString(),
-          ...customData
-        },
-        actions: [
-          {
-            action: 'open',
-            title: 'Aç',
-            icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSIjOEI0NTEzIi8+CiAgPHRleHQgeD0iMTYiIHk9IjIyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjIwIj7wn5KpPC90ZXh0Pgo8L3N2Zz4K'
-          }
-        ]
-      });
-      
-      return true;
-    } else {
-      // Fallback to regular notification
-      return await sendNotification(template, customData);
-    }
-  } catch (error) {
-    console.error('Push bildirim gönderme hatası:', error);
-    return await sendNotification(template, customData);
-  }
-};
-
-// Bildirim gönder
-export const sendNotification = async (template, customData = {}) => {
-  const hasPermission = await checkNotificationPermission();
-  
-  if (!hasPermission) {
-    return false;
-  }
-
-  try {
-    const notification = new Notification(template.title, {
-      body: template.body,
-      icon: '/poop-emoji.svg', // PWA icon
-      badge: '/poop-emoji.svg',
-      tag: template.type,
-      data: {
-        type: template.type,
-        timestamp: new Date().toISOString(),
-        ...customData
+    // Popup manager'ı import et
+    const { createPopup, POPUP_TYPES } = await import('./popupManagerService');
+    
+    // Popup tipini belirle (require yerine ESM import'tan gelen sabitler)
+    const popupType = getPopupTypeFromTemplate(template, POPUP_TYPES);
+    
+    // Popup olarak göster
+    createPopup({
+      type: popupType,
+      title: template.title,
+      message: template.body,
+      duration: 5000,
+      data: customData,
+      actions: template.actions || [],
+      onAction: (actionId, actionData) => {
+        // Aksiyon işlemleri
+        if (template.onAction) {
+          template.onAction(actionId, actionData);
+        }
       }
     });
-
-    // Bildirimi 5 saniye sonra kapat
-    setTimeout(() => {
-      notification.close();
-    }, 5000);
-
+    
     return true;
   } catch (error) {
-    console.error('Bildirim gönderme hatası:', error);
+    console.error('Popup bildirim gönderme hatası:', error);
     return false;
   }
 };
+
+// Template tipinden popup tipini belirle
+const getPopupTypeFromTemplate = (template, POPUP_TYPES) => {
+  switch (template.type) {
+    case 'achievement':
+      return POPUP_TYPES.ACHIEVEMENT;
+    case 'motivation':
+      return POPUP_TYPES.MOTIVATION;
+    case 'partner_activity':
+      return POPUP_TYPES.PARTNER;
+    case 'daily_reminder':
+      return POPUP_TYPES.DAILY_REMINDER;
+    case 'room_activity':
+      return POPUP_TYPES.ROOM_ACTIVITY;
+    case 'character_update':
+      return POPUP_TYPES.CHARACTER_UPDATE;
+    case 'error':
+      return POPUP_TYPES.ERROR;
+    case 'warning':
+      return POPUP_TYPES.WARNING;
+    case 'success':
+      return POPUP_TYPES.SUCCESS;
+    default:
+      return POPUP_TYPES.INFO;
+  }
+};
+
+// Native bildirim gönder (fallback - artık kullanılmıyor)
+export const sendNotification = async (template, customData = {}) => {
+  // Popup-only stratejisi: eski API'yi koruyarak popup göster
+  return await sendPushNotification(template, customData)
+}
 
 // Günlük hatırlatıcıları ayarla
 export const scheduleDailyReminders = (roomId, characterId) => {

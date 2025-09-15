@@ -9,7 +9,24 @@ export const MOTIVATION_MESSAGES = {
     { text: "Harika gidiyorsun! 🚀", emoji: "🚀" },
     { text: "Mükemmel performans! ✨", emoji: "✨" },
     { text: "Sen gerçek bir kahramansın! 🦸‍♀️", emoji: "🦸‍♀️" },
-    { text: "İnanılmaz! 🤩", emoji: "🤩" }
+    { text: "İnanılmaz! 🤩", emoji: "🤩" },
+    { text: "Akşamda ne güzel! 🌆", emoji: "🌆" },
+    { text: "Harika bir gün! ☀️", emoji: "☀️" },
+    { text: "Sen gerçek bir yıldızsın! ⭐", emoji: "⭐" },
+    { text: "Muhteşem bir performans! 🌟", emoji: "🌟" },
+    { text: "Bugün harika gidiyorsun! 🎯", emoji: "🎯" },
+    { text: "Sen gerçek bir efsanesin! 🏔️", emoji: "🏔️" },
+    { text: "Mükemmel bir gün! 💎", emoji: "💎" },
+    { text: "Sen gerçek bir kahraman! 🦸‍♂️", emoji: "🦸‍♂️" },
+    { text: "Harika bir başarı! 🎊", emoji: "🎊" },
+    { text: "Sen gerçek bir şampiyon! 👑", emoji: "👑" },
+    { text: "İnanılmaz bir gün! 🎆", emoji: "🎆" },
+    { text: "Sen gerçek bir yıldız! 🌠", emoji: "🌠" },
+    { text: "Bugün muhteşemsin! 🎨", emoji: "🎨" },
+    { text: "Sen gerçek bir sanatçısın! 🎭", emoji: "🎭" },
+    { text: "Harika bir performans! 🎪", emoji: "🎪" },
+    { text: "Sen gerçek bir efsane! 🏆", emoji: "🏆" },
+    { text: "Bugün senin günün! 🌈", emoji: "🌈" }
   ],
 
   // Başarı kutlamaları

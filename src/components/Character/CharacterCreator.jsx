@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { createCharacter, characterPresets, getRoomCharacters } from '../../services/characterService';
-import { addCharacterToRoom } from '../../services/roomService';
-import ProfileSetup from '../Profile/ProfileSetup';
+import { useParams, useNavigate } from 'react-router-dom';
+import { createCharacter, characterPresets, getRoomCharacters } from '@/services/characterService';
+import { addCharacterToRoom } from '@/services/roomService';
+import ProfileSetup from '@/components/Profile/ProfileSetup';
 import PartnerInvite from './PartnerInvite';
-import PixelButton from '../PixelButton';
-import soundService from '../../services/soundService';
+import PixelButton from '@/components/PixelButton';
+import soundService from '@/services/soundService';
 
-const CharacterCreator = ({ roomId, onBack, onNavigateToDashboard }) => {
+const CharacterCreator = () => {
+  const { roomId } = useParams();
+  const navigate = useNavigate();
   const [gender, setGender] = useState('');
   const [name, setName] = useState('');
   const [selectedEmoji, setSelectedEmoji] = useState('');
@@ -91,7 +94,7 @@ const CharacterCreator = ({ roomId, onBack, onNavigateToDashboard }) => {
       
       // Eğer 2 karakter de oluşturulmuşsa, direkt dashboard'a yönlendir
       if (characters.length >= 2) {
-        onNavigateToDashboard();
+        navigate(`/dashboard/${roomId}`);
         return;
       }
       
@@ -206,7 +209,7 @@ const CharacterCreator = ({ roomId, onBack, onNavigateToDashboard }) => {
             <PixelButton
               onClick={() => {
                 soundService.playClick();
-                onBack();
+                navigate('/');
               }}
               variant="secondary"
               size="sm"
@@ -269,7 +272,7 @@ const CharacterCreator = ({ roomId, onBack, onNavigateToDashboard }) => {
           <PixelButton
             onClick={() => {
               soundService.playClick();
-              onBack();
+              navigate('/');
             }}
             variant="secondary"
             size="sm"
@@ -329,7 +332,7 @@ const CharacterCreator = ({ roomId, onBack, onNavigateToDashboard }) => {
     
     if (updatedCharacters.length >= 2) {
       // 2 karakter de oluşturulmuş, direkt dashboard'a yönlendir
-      onNavigateToDashboard();
+      navigate(`/dashboard/${roomId}`);
     } else {
       // İlk karakter oluşturuldu, partner davet ekranına geç
       transitionToStep('partner-invite', 'next');

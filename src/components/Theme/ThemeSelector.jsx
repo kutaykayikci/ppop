@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import PixelCard from '../PixelButton';
+import PixelCard from '../PixelCard';
 import PixelButton from '../PixelButton';
 import { 
   POOP_THEMES, 
