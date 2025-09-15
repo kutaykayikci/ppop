@@ -33,6 +33,19 @@
             "value": "image/svg+xml"
           }
         ]
+      },
+      {
+        "source": "**/*.woff2",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "font/woff2"
+          },
+          {
+            "key": "Access-Control-Allow-Origin",
+            "value": "*"
+          }
+        ]
       }
     ],
     "rewrites": [
