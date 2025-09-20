@@ -216,7 +216,7 @@ const RoomWaiting = () => {
               </span>
             </div>
             <div>
-              <strong>Oyuncular:</strong> {room?.users?.length || 0} / {room?.maxUsers ?? 5}
+              <strong>Oyuncular:</strong> {room?.users?.length || 0} / {room?.maxUsers || 5}
             </div>
           </div>
 

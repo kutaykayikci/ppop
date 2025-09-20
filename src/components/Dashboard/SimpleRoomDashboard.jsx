@@ -173,8 +173,11 @@ const SimpleRoomDashboard = () => {
   // Kullanıcıları karakter verileriyle birleştiren fonksiyon
   const enrichUsersWithCharacters = async (users, roomId) => {
     try {
-      const charactersData = await getRoomCharacters(roomId);
+      console.log('🔍 DEBUG - enrichUsersWithCharacters:');
+      console.log('users:', users);
+      console.log('roomId:', roomId);
       
+      // Sadece kullanıcıları döndür, karakter verilerini ayrı tut
       return users.map((user, index) => {
           // ÖZEL: Current user için global karakter durumunu kontrol et
           const isCurrentUser = user.uid === userProfile?.uid;
@@ -194,46 +197,24 @@ const SimpleRoomDashboard = () => {
             };
           }
 
-          // Eğer characterReady=false ama karakterler varsa, otomatik eşleştir
-          if (!user.characterReady && charactersData.length > index) {
-            const autoAssignedCharacter = charactersData[index];
-            if (autoAssignedCharacter) {
-              return {
-                ...user,
-                characterReady: true,
-                characterId: autoAssignedCharacter.id,
-                character: autoAssignedCharacter
-              };
-            }
-          }
-          
-          // Eğer karakter yok ama kullanıcı var, varsayılan karakter oluştur
+          // Eğer characterReady=false ise, kullanıcıyı olduğu gibi bırak
+          // (Karakter seçimi yapması gerekiyor)
           if (!user.characterReady) {
-            const defaultCharacter = {
-              id: `auto-${user.uid}`,
-              name: user.displayName,
-              gender: index % 2 === 0 ? 'male' : 'female', // Alternatif cinsiyet
-              color: ['#ff6b6b', '#4ecdc4', '#45b7b8', '#96ceb4', '#feca57'][index % 5], // Döngüsel renkler
-              emoji: index % 2 === 0 ? '👨' : '👩'
-            };
-            
             return {
               ...user,
-              characterReady: true,
-              characterId: defaultCharacter.id,
-              character: defaultCharacter
+              characterReady: false, // Açıkça false yap
+              character: null,
+              characterId: null
             };
           }
           
           // Normal flow: characterId ile eşleştir
           if (user.characterReady && user.characterId) {
-            const userCharacter = charactersData.find(char => char.id === user.characterId);
-            if (userCharacter) {
-              return {
-                ...user,
-                character: userCharacter
-              };
-            }
+            // Karakter verilerini ayrı yükle
+            return {
+              ...user,
+              character: user.character || null
+            };
           }
           
           return user;

@@ -135,7 +135,7 @@ const UserDashboard = ({ onCreateRoom, onJoinRoom }) => {
                   <span className="room-name">{room.id}</span>
                   <div className="room-stats">
                     <span className="room-poop">💩 {room.userPoopCount || 0}</span>
-                    <span className="room-members">👥 {room.users?.length || 0}/5</span>
+                    <span className="room-members">👥 {room.users?.length || 0}/{room.maxUsers || room.capacity || 5}</span>
                     <span className={`room-status ${room.status}`}>
                       {room.status === 'active' ? '🟢 Aktif' : 
                        room.status === 'waiting_for_partner' ? '🟡 Bekliyor' : '⭕ Tamamlandi'}
