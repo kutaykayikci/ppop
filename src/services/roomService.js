@@ -383,7 +383,7 @@ export const checkRoomStatus = async (roomId) => {
       characters: room.characters || [],
       users: room.users || [],
       isComplete: room.characterCount >= (room.users?.length || 0),
-      maxUsers: room.maxUsers || 5,
+      maxUsers: room.maxUsers ?? 5,
       totalPoopCount: room.totalPoopCount || 0
     };
   } catch (error) {
