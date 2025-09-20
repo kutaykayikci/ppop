@@ -1,18 +1,12 @@
 // Room ID generator utility
 export const generateRoomId = (uniqueName) => {
-  // Temizleme: sadece harf, rakam ve tire
-  const cleaned = uniqueName
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, '')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
-  
-  return `1905-${cleaned}`;
+  // Kullanıcının girdiği ismi olduğu gibi kullan
+  return `1905-${uniqueName}`;
 };
 
 export const validateRoomId = (roomId) => {
-  const pattern = /^1905-[a-z0-9-]+$/;
-  return pattern.test(roomId) && roomId.length > 5; // En az 1905-x formatında olmalı
+  // 1905- ile başlamalı ve en az bir karakter daha içermeli
+  return roomId.startsWith('1905-') && roomId.length > 5;
 };
 
 export const extractUniqueName = (roomId) => {

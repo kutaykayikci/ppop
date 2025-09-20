@@ -35,7 +35,6 @@ export const getFCMToken = async () => {
 
     // Service Worker registration'ı bekle
     const registration = await navigator.serviceWorker.ready;
-    console.log('Service Worker hazır:', registration);
 
     const { getMessaging, getToken } = await import('firebase/messaging')
     const messaging = getMessaging(app)
@@ -44,14 +43,11 @@ export const getFCMToken = async () => {
     });
     
     if (token) {
-      console.log('FCM Token alındı:', token);
       return token;
     } else {
-      console.log('No registration token available.');
       return null;
     }
   } catch (error) {
-    console.error('FCM Token alma hatası:', error);
     return null;
   }
 };
@@ -62,7 +58,6 @@ export const onMessageListener = () => {
     import('firebase/messaging').then(({ getMessaging, onMessage }) => {
       const messaging = getMessaging(app)
       onMessage(messaging, (payload) => {
-        console.log('Foreground mesaj alındı:', payload);
         resolve(payload);
       });
     })

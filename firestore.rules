@@ -1,31 +1,68 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Kullanıcının authenticate olup olmadığını kontrol et
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Kullanıcının kendi verilerine erişim kontrolü
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // Odaya üye olup olmadığını kontrol et
     function isRoomMember(roomId) {
-      // Basit örnek: herkese açık (gerçekte auth bağlanmalı)
-      return true;
+      return isAuthenticated();
     }
 
-    match /poops/{poopId} {
-      allow read: if true;
-      allow create: if request.resource.data.roomId is string
-        && request.resource.data.characterId is string
-        && request.resource.data.date is string;
+    // Kullanıcı profilleri
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
     }
 
-    match /profiles/{profileId} {
-      allow read: if true;
-      allow write: if true;
+    // Odalar - ana koleksiyon
+    match /rooms/{roomId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.createdBy;
+      allow update: if isAuthenticated() && (
+        request.auth.uid == resource.data.createdBy
+      );
+      allow delete: if isAuthenticated() && request.auth.uid == resource.data.createdBy;
     }
 
+    // Oda alt koleksiyonları
     match /rooms/{roomId}/{document=**} {
-      allow read: if isRoomMember(roomId);
-      allow write: if isRoomMember(roomId);
+      allow read, write: if isRoomMember(roomId);
     }
 
-    match /rewards/{rewardId} {
-      allow read: if true;
-      allow create: if request.time < timestamp.date(9999, 1, 1);
+    // Poop kayıtları
+    match /poops/{poopId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+                      isOwner(request.resource.data.userId) &&
+                      request.resource.data.roomId is string &&
+                      request.resource.data.characterId is string;
+      allow update, delete: if isAuthenticated() && isOwner(resource.data.userId);
+    }
+
+    // Global leaderboard - sadece okuma
+    match /leaderboard/{document} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Sadece server tarafından güncellenebilir
+    }
+
+    // Achievements - sadece kullanıcının kendi başarımları
+    match /achievements/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+
+    // Admin koleksiyonu - sadece admin'ler
+    match /admin/{document=**} {
+      allow read, write: if isAuthenticated() && 
+                          request.auth.token.admin == true;
     }
   }
 }

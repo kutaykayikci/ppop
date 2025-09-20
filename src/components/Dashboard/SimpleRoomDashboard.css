@@ -1,0 +1,710 @@
+.simple-dashboard-container {
+  min-height: 100vh;
+  background: linear-gradient(-45deg, #ff6b6b, #4ecdc4, #45b7b8, #96ceb4, #feca57, #ff9ff3, #ff6b6b, #4ecdc4);
+  background-size: 400% 400%;
+  animation: gradient-shift 12s ease infinite, gradient-pulse 8s ease-in-out infinite;
+  padding: 0;
+  position: relative;
+  overflow-x: hidden;
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 100% 25%; }
+  50% { background-position: 100% 75%; }
+  75% { background-position: 0% 25%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes gradient-pulse {
+  0%, 100% {
+    background-size: 400% 400%;
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    background-size: 500% 500%;
+    filter: hue-rotate(30deg);
+  }
+}
+
+.simple-dashboard-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  animation: float 20s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) translateX(0px); }
+  25% { transform: translateY(-10px) translateX(5px); }
+  50% { transform: translateY(-5px) translateX(-5px); }
+  75% { transform: translateY(5px) translateX(10px); }
+  100% { transform: translateY(0px) translateX(0px); }
+}
+
+.dashboard-header {
+  background: var(--color-bg);
+  border-bottom: 3px solid var(--color-border);
+  padding: 15px 20px;
+  text-align: center;
+  box-shadow: 0 4px 0px rgba(0, 0, 0, 0.2);
+  position: relative;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.room-info h1 {
+  margin: 0 0 8px 0;
+  color: var(--color-text);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 20px;
+  text-shadow: none;
+}
+
+.room-info p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+}
+
+.dashboard-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Loading Screen */
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  color: #fff;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-screen p {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Error Screen */
+.error-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  text-align: center;
+  color: #fff;
+}
+
+.error-screen h2 {
+  margin: 0 0 16px 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 18px;
+  color: #fff;
+}
+
+.error-screen p {
+  margin: 0 0 24px 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* User Info Card */
+.user-info-card {
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.user-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  border: 3px solid #333;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.user-details h3 {
+  margin: 0 0 12px 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #333;
+}
+
+.poop-action {
+  text-align: center;
+}
+
+.user-info-card h3 {
+  margin: 0 0 16px 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
+}
+
+.user-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 12px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.stat-icon {
+  font-size: 24px;
+  filter: drop-shadow(1px 1px 0px rgba(0, 0, 0, 0.2));
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-value {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.stat-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  opacity: 0.9;
+}
+
+/* Stats Card */
+.stats-card {
+  background: #fff;
+  border: 3px solid #333;
+  border-radius: 8px;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  margin: 10px;
+}
+
+.stats-card.expanded {
+  margin-bottom: 20px;
+}
+
+.stats-card h3 {
+  margin: 0 0 16px 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: var(--color-text);
+  text-align: center;
+}
+
+.period-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.period-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  padding: 12px 24px;
+  border: 3px solid #333;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.period-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.2);
+}
+
+.period-btn.active {
+  background: #4ecdc4;
+  color: #fff;
+  border-color: #45b7b8;
+}
+
+.period-icon {
+  font-size: 16px;
+}
+
+.period-label {
+  font-size: 8px;
+  text-align: center;
+}
+
+.period-value {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Section Headers */
+.room-stats-section,
+.members-section,
+.extra-stats-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.room-stats-section h4,
+.members-section h4,
+.extra-stats-section h4 {
+  margin: 0 0 16px 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: #333;
+  text-align: center;
+}
+
+/* Users Cards Section */
+.users-cards-section {
+  margin-top: 20px;
+}
+
+.users-cards-section h3 {
+  margin: 0 0 20px 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px;
+  color: #333;
+  text-align: center;
+  text-shadow: none;
+}
+
+.users-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.user-card {
+  background: #fff;
+  border: 3px solid #333;
+  border-radius: 8px;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  margin: 10px;
+  transition: all 0.1s ease;
+}
+
+.user-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.2);
+}
+
+.user-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.user-card-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  border: 3px solid #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.user-card-info {
+  flex: 1;
+}
+
+.user-card-info h4 {
+  margin: 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: #333;
+  font-weight: bold;
+}
+
+.creator-badge-small {
+  font-size: 12px;
+  filter: drop-shadow(1px 1px 0px rgba(0, 0, 0, 0.2));
+}
+
+.user-stats-tabs {
+  margin-top: 8px;
+}
+
+.tab-buttons {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
+}
+
+.tab-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  padding: 6px 8px;
+  border: 2px solid #333;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.tab-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2);
+}
+
+.tab-btn.active {
+  background: #4ecdc4;
+  color: #fff;
+  border-color: #45b7b8;
+}
+
+.tab-icon {
+  font-size: 10px;
+}
+
+.tab-label {
+  font-size: 5px;
+  text-align: center;
+}
+
+.tab-value {
+  font-size: 8px;
+  font-weight: bold;
+}
+
+/* Room Info Card */
+.room-info-card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.room-info-card h3 {
+  margin: 0 0 16px 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #333;
+  text-align: center;
+}
+
+.room-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.room-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  border: 3px solid #333;
+  transition: all 0.1s ease;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.2);
+  margin: 10px;
+}
+
+.room-stat-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.2);
+}
+
+.room-stat-icon {
+  font-size: 20px;
+  filter: drop-shadow(1px 1px 0px rgba(0, 0, 0, 0.1));
+}
+
+.room-stat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.room-stat-value {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #333;
+  font-weight: bold;
+}
+
+.room-stat-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: #666;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card .stat-icon {
+  font-size: 20px;
+  filter: drop-shadow(1px 1px 0px rgba(0, 0, 0, 0.1));
+}
+
+.stat-card .stat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-card .stat-value {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #333;
+  font-weight: bold;
+}
+
+.stat-card .stat-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: #666;
+}
+
+/* Poop Action Card */
+.poop-action-card {
+  text-align: center;
+}
+
+.poop-action-card h3 {
+  margin: 0 0 12px 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #333;
+}
+
+.poop-action-card p {
+  margin: 0 0 20px 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: #666;
+}
+
+.poop-button {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 12px !important;
+  padding: 16px 32px !important;
+  border: 3px solid #333 !important;
+  background: #ff6b6b !important;
+  color: #fff !important;
+  cursor: pointer;
+  transition: all 0.1s ease !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2) !important;
+  border-radius: 4px !important;
+}
+
+.poop-button:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.2) !important;
+}
+
+.poop-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Members Card */
+.members-card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.members-card h3 {
+  margin: 0 0 16px 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #333;
+  text-align: center;
+}
+
+.members-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.member-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  background: #fff;
+  border-radius: 8px;
+  border: 3px solid #333;
+  transition: all 0.1s ease;
+  text-align: center;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.2);
+  margin: 10px;
+}
+
+.member-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.2);
+}
+
+.member-card-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  border: 2px solid #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.member-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.member-card-name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: #333;
+  font-weight: bold;
+}
+
+.member-card-poops {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 6px;
+  color: #666;
+}
+
+.creator-badge-small {
+  font-size: 12px;
+  filter: drop-shadow(1px 1px 0px rgba(0, 0, 0, 0.2));
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .simple-dashboard-container {
+    padding: 10px;
+  }
+  
+  .dashboard-header {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .dashboard-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .user-profile {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .user-stats {
+    flex-direction: column;
+  }
+  
+  .period-selector {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+  }
+  
+  .members-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .room-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .users-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tab-buttons {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .stats-card.expanded {
+    grid-column: 1;
+  }
+}

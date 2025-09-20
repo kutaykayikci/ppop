@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { createCharacter, characterPresets, getRoomCharacters } from '@/services/characterService';
-import { addCharacterToRoom } from '@/services/roomService';
+import { addCharacterToRoom, getRoomById, getNextCharacterTurn, markUserCharacterReady } from '@/services/roomService';
+import { useAppStore } from '@/store/appStore';
 import ProfileSetup from '@/components/Profile/ProfileSetup';
 import PartnerInvite from './PartnerInvite';
 import PixelButton from '@/components/PixelButton';
@@ -10,6 +11,8 @@ import soundService from '@/services/soundService';
 const CharacterCreator = () => {
   const { roomId } = useParams();
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAppStore();
+  
   const [gender, setGender] = useState('');
   const [name, setName] = useState('');
   const [selectedEmoji, setSelectedEmoji] = useState('');
@@ -18,7 +21,7 @@ const CharacterCreator = () => {
   const [error, setError] = useState('');
   const [availableGenders, setAvailableGenders] = useState(['male', 'female']);
   const [roomCharacters, setRoomCharacters] = useState([]);
-  const [currentStep, setCurrentStep] = useState('gender'); // gender, customization, profile, partner-invite
+  const [currentStep, setCurrentStep] = useState('auth-check'); // auth-check, waiting-turn, gender, customization, profile, partner-invite
   const [createdCharacter, setCreatedCharacter] = useState(null);
   const [profile, setProfile] = useState(null);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -26,6 +29,69 @@ const CharacterCreator = () => {
   const [floatingEmojis, setFloatingEmojis] = useState([]);
   const [particles, setParticles] = useState([]);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  
+  // YENİ: Çoklu kullanıcı states
+  const [room, setRoom] = useState(null);
+  const [characterTurn, setCharacterTurn] = useState(null);
+  const [isMyTurn, setIsMyTurn] = useState(false);
+
+  // Auth ve room kontrolü
+  useEffect(() => {
+    checkAuthAndRoom();
+  }, [roomId, user, isAuthenticated]);
+
+  const checkAuthAndRoom = async () => {
+    try {
+      // Auth kontrolü
+      if (!isAuthenticated || !user) {
+        navigate('/');
+        return;
+      }
+
+      // Oda bilgilerini yükle
+      const roomData = await getRoomById(roomId);
+      if (!roomData) {
+        setError('Oda bulunamadi');
+        return;
+      }
+
+      setRoom(roomData);
+
+      // Kullanıcının bu odada olup olmadığını kontrol et
+      const userInRoom = roomData.users?.find(u => u.uid === user.uid);
+      if (!userInRoom) {
+        setError('Bu odaya erisim yetkiniz yok');
+        return;
+      }
+
+      // Kullanıcının karakteri zaten hazır mı?
+          if (userInRoom.characterReady) {
+            navigate(`/dashboard/${roomId}`);
+            return;
+          }
+
+          // Kullanıcının karakteri hazır değilse karakter setup'e yönlendir
+          if (!userProfile?.character?.ready) {
+            navigate('/character-setup');
+            return;
+          }
+
+      // Karakter sırasını kontrol et
+      const turnInfo = await getNextCharacterTurn(roomId);
+      setCharacterTurn(turnInfo);
+      setIsMyTurn(turnInfo.nextUser?.uid === user.uid);
+
+      if (turnInfo.nextUser?.uid === user.uid) {
+        setCurrentStep('gender');
+      } else {
+        setCurrentStep('waiting-turn');
+      }
+
+        } catch (error) {
+          // Kullanıcı dostu hata mesajı
+          setError('Oda bilgileri yuklenemedi. Lutfen tekrar deneyin');
+        }
+  };
 
   useEffect(() => {
     loadRoomCharacters();
@@ -142,6 +208,9 @@ const CharacterCreator = () => {
       // Karakteri room'a ekle
       await addCharacterToRoom(roomId, character.id);
       
+      // Kullanıcıyı character ready olarak işaretle
+      await markUserCharacterReady(roomId, user.uid, character.id);
+      
       // Karakteri kaydet ve profil kurulumuna geç
       setCreatedCharacter(character);
       transitionToStep('profile', 'next');
@@ -152,6 +221,46 @@ const CharacterCreator = () => {
       setLoading(false);
     }
   };
+
+  const renderWaitingTurn = () => (
+    <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+      <h2 style={{ fontSize: '20px', color: '#333', marginBottom: '20px' }}>
+        ⏳ Siran Bekleniyor
+      </h2>
+      
+      <div style={{ 
+        background: 'linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%)',
+        color: '#fff',
+        padding: '20px',
+        borderRadius: '8px',
+        marginBottom: '20px',
+        border: '2px solid #333'
+      }}>
+        <p style={{ margin: '0 0 10px 0', fontSize: '14px' }}>
+          {characterTurn?.nextUser?.displayName || 'Bir kullanici'} karakterini olusturuyor...
+        </p>
+        <p style={{ margin: 0, fontSize: '12px', opacity: 0.9 }}>
+          {characterTurn?.readyCount || 0} / {characterTurn?.totalUsers || 0} kullanici hazir
+        </p>
+      </div>
+
+      <div style={{ marginBottom: '20px' }}>
+        <p style={{ fontSize: '12px', color: '#666', lineHeight: '1.5' }}>
+          Diğer kullanicilar karakterlerini tamamlayinca<br />
+          siran sana gelecek. Lutfen bekle! 🎮
+        </p>
+      </div>
+
+      <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+        <PixelButton onClick={() => navigate('/')} variant="secondary">
+          ← Ana Sayfa
+        </PixelButton>
+        <PixelButton onClick={checkAuthAndRoom}>
+          🔄 Yenile
+        </PixelButton>
+      </div>
+    </div>
+  );
 
   const renderGenderSelection = () => {
     // Mevcut karakterleri göster
@@ -619,6 +728,7 @@ const CharacterCreator = () => {
         }}
       >
         <div style={getAnimationStyles()}>
+          {currentStep === 'waiting-turn' && renderWaitingTurn()}
           {currentStep === 'gender' && renderGenderSelection()}
           {currentStep === 'customization' && renderCharacterCustomization()}
         </div>

@@ -7,16 +7,19 @@ import {
   updateDoc,
   query, 
   where,
-  serverTimestamp 
+  serverTimestamp,
+  arrayUnion,
+  arrayRemove
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { generateRoomId, validateRoomId } from '../utils/roomIdGenerator';
+import { getFirebaseErrorMessage, logError } from '../utils/errorUtils';
 
-export const createRoom = async (uniqueName) => {
+// Kullanıcı ile oda oluştur (YENİ)
+export const createRoomWithUser = async (uniqueName, userId, userDisplayName, maxUsers = 5) => {
   try {
     const roomId = generateRoomId(uniqueName);
     
-    // Room ID'nin benzersiz olduğunu kontrol et
     const existingRoom = await getRoomById(roomId);
     if (existingRoom) {
       throw new Error('Bu oda adı zaten kullanımda. Farklı bir isim deneyin.');
@@ -26,22 +29,47 @@ export const createRoom = async (uniqueName) => {
       id: roomId,
       name: uniqueName,
       createdAt: serverTimestamp(),
+      createdBy: userId,
       status: 'waiting_for_partner', // waiting_for_partner, active, completed
       characterCount: 0,
-      characters: []
+      characters: [],
+      maxUsers: maxUsers, // Seçilen kapasite
+      // YENİ: Kullanıcı yönetimi
+      users: [{
+        uid: userId,
+        displayName: userDisplayName,
+        joinedAt: new Date(),
+        poopCount: 0,
+        isCreator: true,
+        characterId: null,
+        characterReady: false
+      }],
+      totalPoopCount: 0,
+      characterQueue: [], // Karakter oluşturma sırası
+      currentCharacterTurn: 0 // Şu anda karakter oluşturan kullanıcı indexi
     };
     
     const docRef = await addDoc(collection(db, 'rooms'), roomData);
     
+    // Kullanıcının profline oda ekle
+    await updateDoc(doc(db, 'users', userId), {
+      joinedRooms: arrayUnion(roomId)
+    });
+    
     return { 
-      firestoreId: docRef.id, // Firestore document ID
-      id: roomData.id,       // Room'un kendi ID'si
+      firestoreId: docRef.id,
+      id: roomData.id,
       ...roomData 
     };
   } catch (error) {
-    console.error('Room oluşturma hatası:', error);
-    throw error;
+    logError(error, 'createRoomWithUser');
+    throw new Error(getFirebaseErrorMessage(error));
   }
+};
+
+// Eski fonksiyon - geriye uyumluluk için
+export const createRoom = async (uniqueName) => {
+  throw new Error('createRoom deprecated. Use createRoomWithUser instead.');
 };
 
 export const getRoomById = async (roomId) => {
@@ -73,27 +101,100 @@ export const getRoomById = async (roomId) => {
   }
 };
 
-export const joinRoom = async (roomId) => {
+// Odaya kullanıcı katıl (YENİ)
+export const joinRoomWithUser = async (roomId, userId, userDisplayName) => {
   try {
     const room = await getRoomById(roomId);
-    
     if (!room) {
-      throw new Error('Oda bulunamadı. Room ID\'yi kontrol edin.');
+      throw new Error('Oda bulunamadı');
     }
-    
-    // Room durumu kontrolü - waiting_for_partner veya active olabilir
-    if (room.status === 'completed') {
-      throw new Error('Bu oda tamamlanmış.');
+
+    // Oda dolu mu?
+    if (room.users && room.users.length >= room.maxUsers) {
+      throw new Error('Oda dolu! Maksimum 5 kişi katılabilir.');
     }
-    
-    return room;
+
+    // Kullanıcı zaten bu odada mı?
+    const isUserInRoom = room.users?.some(user => user.uid === userId);
+    if (isUserInRoom) {
+      return room; // Zaten odada, başarılı dön
+    }
+
+    const newUser = {
+      uid: userId,
+      displayName: userDisplayName,
+      joinedAt: new Date(),
+      poopCount: 0,
+      isCreator: false,
+      characterId: null,
+      characterReady: false
+    };
+
+    // Kullanıcıyı odaya ekle
+    await updateDoc(doc(db, 'rooms', room.firestoreId), {
+      users: arrayUnion(newUser)
+    });
+
+    // Oda durumunu güncelle
+    const newUserCount = (room.users?.length || 0) + 1;
+    let newStatus = room.status;
+    if (newUserCount >= 2 && room.status === 'waiting_for_partner') {
+      newStatus = 'active';
+      await updateDoc(doc(db, 'rooms', room.firestoreId), {
+        status: newStatus
+      });
+    }
+
+    // Kullanıcının profline oda ekle
+    await updateDoc(doc(db, 'users', userId), {
+      joinedRooms: arrayUnion(roomId)
+    });
+
+    return await getRoomById(roomId);
   } catch (error) {
-    console.error('Room\'a katılma hatası:', error);
-    throw error;
+    logError(error, 'joinRoomWithUser');
+    throw new Error(getFirebaseErrorMessage(error));
   }
 };
 
-// getUserRooms fonksiyonu artık gerekli değil, kaldırıldı
+// Eski fonksiyon - geriye uyumluluk için
+export const joinRoom = async (roomId) => {
+  throw new Error('joinRoom deprecated. Use joinRoomWithUser instead.');
+};
+
+// Kullanıcının odalarını getir (YENİ)
+export const getUserRooms = async (userId) => {
+  try {
+    const q = query(
+      collection(db, 'rooms'), 
+      where('users', 'array-contains-any', [{uid: userId}])
+    );
+    
+    // Daha basit yaklaşım - tüm odaları çek ve filtrele
+    const allRoomsQuery = query(collection(db, 'rooms'));
+    const querySnapshot = await getDocs(allRoomsQuery);
+    const rooms = [];
+    
+    querySnapshot.forEach((doc) => {
+      const roomData = doc.data();
+      const userInRoom = roomData.users?.find(user => user.uid === userId);
+      
+      if (userInRoom) {
+        rooms.push({
+          firestoreId: doc.id,
+          ...roomData,
+          userPoopCount: userInRoom?.poopCount || 0,
+          userCharacterReady: userInRoom?.characterReady || false
+        });
+      }
+    });
+    
+    return rooms;
+  } catch (error) {
+    logError(error, 'getUserRooms');
+    return [];
+  }
+};
 
 export const updateRoomStatus = async (roomId, status) => {
   try {
@@ -138,6 +239,137 @@ export const addCharacterToRoom = async (roomId, characterId) => {
   }
 };
 
+// Oda poop sayısını artır (hem odada hem kullanıcıda) (YENİ)
+export const incrementRoomPoopForUser = async (roomId, userId) => {
+  try {
+    const room = await getRoomById(roomId);
+    if (!room) throw new Error('Oda bulunamadı');
+
+    // Kullanıcının odada olup olmadığını kontrol et
+    const userInRoom = room.users?.find(user => user.uid === userId);
+    if (!userInRoom) throw new Error('Kullanıcı bu odada değil');
+
+    // Oda toplam poop sayısını artır
+    await updateDoc(doc(db, 'rooms', room.firestoreId), {
+      totalPoopCount: (room.totalPoopCount || 0) + 1
+    });
+
+    // Kullanıcının oda içindeki poop sayısını artır
+    const updatedUsers = room.users.map(user => 
+      user.uid === userId 
+        ? { ...user, poopCount: (user.poopCount || 0) + 1 }
+        : user
+    );
+
+    await updateDoc(doc(db, 'rooms', room.firestoreId), {
+      users: updatedUsers
+    });
+
+    // Kullanıcının global poop sayısını artır
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    if (userDoc.exists()) {
+      const newTotalCount = (userDoc.data().totalPoopCount || 0) + 1;
+      await updateDoc(doc(db, 'users', userId), {
+        totalPoopCount: newTotalCount
+      });
+
+      // Achievement kontrolü yap
+      try {
+        const { checkUserAchievements } = await import('./achievementService');
+        const { showAchievement, notifyPoopAdded } = await import('./simpleNotificationService');
+        
+        const updatedUserData = { ...userDoc.data(), totalPoopCount: newTotalCount };
+        const newAchievements = await checkUserAchievements(userId, updatedUserData);
+        
+        // Poop notification
+        notifyPoopAdded(newTotalCount);
+        
+        // Achievement notifications
+        for (const achievement of newAchievements) {
+          showAchievement(achievement);
+        }
+      } catch (error) {
+        console.error('Achievement/Notification kontrol hatasi:', error);
+      }
+    }
+
+    // İstatistikler için poops collection'una da entry ekle
+    try {
+      await addDoc(collection(db, 'poops'), {
+        roomId: room.id,
+        characterId: userId, // Multi-user sistemde characterId = userId
+        userId: userId,
+        timestamp: serverTimestamp(),
+        date: new Date().toISOString().split('T')[0],
+        createdAt: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Poop collection entry hatası:', error);
+      // Poop collection hatası istatistikleri etkilemez, sessizce geç
+    }
+
+    return true;
+  } catch (error) {
+    logError(error, 'incrementRoomPoopForUser');
+    throw new Error(getFirebaseErrorMessage(error));
+  }
+};
+
+// Karakter sırasını yönet (YENİ)
+export const getNextCharacterTurn = async (roomId) => {
+  try {
+    const room = await getRoomById(roomId);
+    if (!room) throw new Error('Oda bulunamadı');
+
+    // Hazır olmayan ilk kullanıcıyı bul
+    const nextUser = room.users?.find(user => !user.characterReady);
+    
+    return {
+      nextUser: nextUser || null,
+      allReady: !nextUser,
+      totalUsers: room.users?.length || 0,
+      readyCount: room.users?.filter(user => user.characterReady).length || 0
+    };
+  } catch (error) {
+    console.error('Karakter sırası getirme hatası:', error);
+    throw error;
+  }
+};
+
+// Kullanıcının karakterini hazır olarak işaretle (YENİ)
+export const markUserCharacterReady = async (roomId, userId, characterId) => {
+  try {
+    const room = await getRoomById(roomId);
+    if (!room) throw new Error('Oda bulunamadı');
+
+    // Kullanıcının oda içindeki bilgilerini güncelle
+    const updatedUsers = room.users.map(user => 
+      user.uid === userId 
+        ? { ...user, characterReady: true, characterId }
+        : user
+    );
+
+    await updateDoc(doc(db, 'rooms', room.firestoreId), {
+      users: updatedUsers,
+      characters: arrayUnion(characterId),
+      characterCount: (room.characterCount || 0) + 1
+    });
+
+    // Tüm kullanıcılar hazır mı kontrol et
+    const allReady = updatedUsers.every(user => user.characterReady);
+    if (allReady) {
+      await updateDoc(doc(db, 'rooms', room.firestoreId), {
+        status: 'characters_complete'
+      });
+    }
+
+    return allReady;
+  } catch (error) {
+    console.error('Karakter hazır işaretleme hatası:', error);
+    throw error;
+  }
+};
+
 export const checkRoomStatus = async (roomId) => {
   try {
     const room = await getRoomById(roomId);
@@ -149,7 +381,10 @@ export const checkRoomStatus = async (roomId) => {
       status: room.status,
       characterCount: room.characterCount || 0,
       characters: room.characters || [],
-      isComplete: room.characterCount >= 2
+      users: room.users || [],
+      isComplete: room.characterCount >= (room.users?.length || 0),
+      maxUsers: room.maxUsers || 5,
+      totalPoopCount: room.totalPoopCount || 0
     };
   } catch (error) {
     console.error('Room durumu kontrol hatası:', error);

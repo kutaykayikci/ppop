@@ -9,6 +9,18 @@ import {
 } from 'firebase/firestore';
 import { db } from './config';
 
+// YENİ: Çoklu kullanıcı sistemi için poop ekleme
+export const addPoopEntryMultiUser = async (roomId, userId) => {
+  try {
+    // Room service'den incrementRoomPoopForUser kullan
+    const { incrementRoomPoopForUser } = await import('../services/roomService');
+    return await incrementRoomPoopForUser(roomId, userId);
+  } catch (error) {
+    console.error('Multi-user poop entry hatasi:', error);
+    throw error;
+  }
+};
+
 export const addPoopEntry = async (roomId, characterId, profileId, timestamp = null) => {
   try {
     const poopData = {

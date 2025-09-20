@@ -115,8 +115,8 @@ const RoomSelector = () => {
     const animationTypes = ['delayed', 'spiral', 'bounce', 'wave'];
     const floatingEmojisArray = [];
     
-    // Performance için emoji sayısını azalt (8 adet)
-    for (let i = 0; i < 8; i++) {
+    // Çok daha fazla emoji oluştur (25-30 adet)
+    for (let i = 0; i < 28; i++) {
       floatingEmojisArray.push({
         id: i,
         emoji: emojis[Math.floor(Math.random() * emojis.length)],
@@ -133,8 +133,8 @@ const RoomSelector = () => {
     const handleMouseMove = (e) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
       
-      // Performance için parçacık oluşturma sıklığını azalt
-      if (Math.random() < 0.03) {
+      // Rastgele parçacık oluştur
+      if (Math.random() < 0.1) {
         createParticle(e.clientX, e.clientY);
       }
     };
@@ -349,8 +349,16 @@ const RoomSelector = () => {
       const updatedRooms = await getUserRooms(user.uid);
       setUserRooms(updatedRooms);
       
-      // Odaya katıldıktan sonra dashboard'a git
-      navigate(`/dashboard/${room.id}`);
+      // Kullanıcının bu odadaki durumunu kontrol et
+      const userInRoom = room.users?.find(u => u.uid === user.uid);
+      
+      if (userInRoom?.characterReady) {
+        // Kullanıcının karakteri hazır, dashboard'a git
+        navigate(`/dashboard/${room.id}`);
+      } else {
+        // Karakter oluşturma sayfasına git
+        navigate(`/rooms/${room.id}`);
+      }
     } catch (error) {
       // Kullanıcı dostu hata mesajı
       const friendlyMessage = error.message.includes('dolu')

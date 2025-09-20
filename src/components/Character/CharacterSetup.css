@@ -1,0 +1,325 @@
+.character-setup-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.character-setup-card {
+  background: #fff;
+  border: 4px solid #333;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.setup-header {
+  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+  padding: 24px;
+  text-align: center;
+  border-bottom: 3px solid #333;
+}
+
+.setup-header h1 {
+  margin: 0 0 8px 0;
+  color: #fff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 18px;
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3);
+}
+
+.setup-header p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+}
+
+.setup-content {
+  padding: 32px;
+}
+
+.character-step {
+  text-align: center;
+}
+
+.character-step h2 {
+  margin: 0 0 12px 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px;
+  color: #333;
+}
+
+.character-step p {
+  margin: 0 0 24px 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: #666;
+}
+
+/* Gender Selection */
+.gender-options {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.gender-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  border: 3px solid #333;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.gender-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.gender-btn.male:hover {
+  border-color: #4ecdc4;
+  background: #f0fdfa;
+}
+
+.gender-btn.female:hover {
+  border-color: #ff6b6b;
+  background: #fff5f5;
+}
+
+.gender-icon {
+  font-size: 48px;
+  filter: drop-shadow(2px 2px 0px rgba(0, 0, 0, 0.1));
+}
+
+.gender-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: #333;
+  font-weight: bold;
+}
+
+/* Name Input */
+.name-input-container {
+  margin-bottom: 32px;
+}
+
+.character-name-input {
+  width: 100%;
+  padding: 16px;
+  border: 3px solid #333;
+  border-radius: 8px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 20px;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+.character-name-input:focus {
+  outline: none;
+  border-color: #6c5ce7;
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+}
+
+.character-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+}
+
+.character-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  border: 3px solid #333;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.character-name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: #333;
+  font-weight: bold;
+}
+
+/* Color Selection */
+.color-palette {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.color-btn {
+  width: 50px;
+  height: 50px;
+  border: 3px solid #333;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.color-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.color-btn.selected {
+  border-color: #333;
+  border-width: 4px;
+  transform: scale(1.15);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.color-btn.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
+}
+
+.character-preview-large {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  border: 3px solid #333;
+  margin-bottom: 32px;
+}
+
+.character-avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  border: 4px solid #333;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.character-name-large {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #333;
+  font-weight: bold;
+}
+
+/* Step Actions */
+.step-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+/* Progress Bar */
+.setup-progress {
+  padding: 20px 32px;
+  background: #f8f9fa;
+  border-top: 2px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-right: 16px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6c5ce7 0%, #a29bfe 100%);
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: #666;
+  font-weight: bold;
+}
+
+/* Error Message */
+.error-message {
+  background: #ffe6e6;
+  border: 2px solid #ff6b6b;
+  border-radius: 6px;
+  padding: 12px;
+  color: #d63031;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  text-align: center;
+  margin: 16px 32px;
+  animation: errorShake 0.5s ease-in-out;
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .character-setup-container {
+    padding: 10px;
+  }
+  
+  .setup-content {
+    padding: 24px;
+  }
+  
+  .gender-options {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .gender-btn {
+    min-width: 200px;
+  }
+  
+  .color-palette {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .step-actions {
+    flex-direction: column;
+  }
+}

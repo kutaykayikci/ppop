@@ -4,6 +4,57 @@ import App from '@/App.jsx'
 import './index.css'
 import './styles/themeEffects.css'
 
+// Console spam'i sustur
+const originalConsoleLog = console.log;
+const originalConsoleError = console.error;
+const originalConsoleWarn = console.warn;
+
+console.log = (...args) => {
+  const message = args.join(' ');
+  if (message.includes('Download the React DevTools') || 
+      message.includes('Service Worker') ||
+      message.includes('Banner not shown') ||
+      message.includes('Unchecked runtime.lastError') ||
+      message.includes('Loaded successfully') ||
+      message.includes('Version v') ||
+      message.includes('🏆') ||
+      message.includes('Yeni basarim') ||
+      message.includes('basarim:')) {
+    return;
+  }
+  originalConsoleLog.apply(console, args);
+};
+
+console.error = (...args) => {
+  const message = args.join(' ');
+  if (message.includes('Firebase') || 
+      message.includes('identitytoolkit.googleapis.com') ||
+      message.includes('Failed to fetch') ||
+      message.includes('Achievement/Notification kontrol hatasi') ||
+      message.includes('SyntaxError') ||
+      message.includes('message port closed') ||
+      message.includes('asynchronous response') ||
+      message.includes('listener indicated')) {
+    return;
+  }
+  originalConsoleError.apply(console, args);
+};
+
+console.warn = (...args) => {
+  const message = args.join(' ');
+  if (message.includes('React DevTools') ||
+      message.includes('Service Worker') ||
+      message.includes('Banner not shown') ||
+      message.includes('beforeinstallpromptevent') ||
+      message.includes('runtime.lastError') ||
+      message.includes('Encountered two children with the same key') ||
+      message.includes('Keys should be unique') ||
+      message.includes('Warning:')) {
+    return;
+  }
+  originalConsoleWarn.apply(console, args);
+};
+
 // Service Worker Registration with Cache Busting
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -12,7 +63,6 @@ if ('serviceWorker' in navigator) {
       updateViaCache: 'none' // SW dosyasını cache'leme
     })
       .then((registration) => {
-        console.log('Service Worker registered successfully');
         
         // Güncelleme kontrolü
         registration.addEventListener('updatefound', () => {
@@ -27,20 +77,18 @@ if ('serviceWorker' in navigator) {
         return registration;
       })
       .catch((error) => {
-        console.error('Service Worker registration failed:', error);
+        // Service Worker registration failed - sessizce yakala
       });
   });
 
   // SW mesajlarını dinle
   navigator.serviceWorker.addEventListener('message', (event) => {
     if (event.data.type === 'SW_UPDATED') {
-      console.log('Service Worker updated to version:', event.data.version);
       // Cache'i temizle
       clearCache();
     }
     
     if (event.data.type === 'FORCE_RELOAD') {
-      console.log('Force reload requested by Service Worker');
       window.location.reload(true);
     }
   });
@@ -50,7 +98,6 @@ if ('serviceWorker' in navigator) {
 function showUpdateNotification() {
   // Arka planda otomatik cache temizleme ve güncelleme
   clearCache().then(() => {
-    console.log('Cache temizlendi, sayfa yenileniyor...');
     window.location.reload(true);
   });
 }
@@ -62,7 +109,6 @@ function clearCache() {
       const messageChannel = new MessageChannel();
       
       messageChannel.port1.onmessage = (event) => {
-        console.log('Cache cleared successfully');
         resolve();
       };
       
@@ -89,10 +135,8 @@ window.addEventListener('load', () => {
         
         // Versiyon değişmişse cache'i temizle
         if (storedVersion && storedVersion !== currentVersion) {
-          console.log('Yeni SW versiyonu tespit edildi, cache temizleniyor...');
           clearCache().then(() => {
             localStorage.setItem('sw_version', currentVersion);
-            console.log('Cache temizlendi, versiyon güncellendi');
           });
         } else if (!storedVersion) {
           localStorage.setItem('sw_version', currentVersion);
@@ -151,7 +195,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
         if (id === 'install' && deferredPrompt) {
           const { outcome } = await deferredPrompt.prompt();
           deferredPrompt = null;
-          console.log('A2HS outcome:', outcome);
         }
       }
     })

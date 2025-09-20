@@ -1,6 +1,99 @@
 import { db } from '../firebase/config';
-import { collection, doc, setDoc, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { collection, doc, setDoc, getDocs, query, where, orderBy, updateDoc, arrayUnion } from 'firebase/firestore';
+import { getFirebaseErrorMessage, logError } from '../utils/errorUtils';
 
+// Basit achievement definitions
+export const SIMPLE_ACHIEVEMENTS = [
+  {
+    id: 'first_poop',
+    title: 'Ilk Adim',
+    description: 'Ilk poop\'unu yaptin!',
+    icon: '🎉',
+    condition: (stats) => stats.totalPoopCount >= 1
+  },
+  {
+    id: 'early_bird',
+    title: 'Erken Kus',
+    description: '5 poop tamamladin!',
+    icon: '🐦',
+    condition: (stats) => stats.totalPoopCount >= 5
+  },
+  {
+    id: 'social_butterfly',
+    title: 'Sosyal Kelebek',
+    description: '3 farkli odaya katildin!',
+    icon: '🦋',
+    condition: (stats) => (stats.joinedRooms?.length || 0) >= 3
+  },
+  {
+    id: 'team_player',
+    title: 'Takim Oyuncusu',
+    description: '5 farkli odaya katildin!',
+    icon: '👥',
+    condition: (stats) => (stats.joinedRooms?.length || 0) >= 5
+  },
+  {
+    id: 'productive',
+    title: 'Uretken',
+    description: '25 poop tamamladin!',
+    icon: '⚡',
+    condition: (stats) => stats.totalPoopCount >= 25
+  },
+  {
+    id: 'poop_master',
+    title: 'Poop Ustasi',
+    description: '100 poop tamamladin!',
+    icon: '👑',
+    condition: (stats) => stats.totalPoopCount >= 100
+  },
+  {
+    id: 'legend',
+    title: 'Efsane',
+    description: '500 poop tamamladin!',
+    icon: '💎',
+    condition: (stats) => stats.totalPoopCount >= 500
+  }
+];
+
+// Kullanici achievement'larini kontrol et
+export const checkUserAchievements = async (userId, userStats) => {
+  try {
+    const newAchievements = [];
+    const currentAchievements = userStats.achievements || [];
+    
+    for (const achievement of SIMPLE_ACHIEVEMENTS) {
+      const hasAchievement = currentAchievements.includes(achievement.id);
+      
+      if (!hasAchievement && achievement.condition(userStats)) {
+        newAchievements.push(achievement);
+        
+        // Firestore'da achievement ekle
+        await updateDoc(doc(db, 'users', userId), {
+          achievements: arrayUnion(achievement.id)
+        });
+        
+        console.log(`🏆 Yeni basarim: ${achievement.title}`);
+      }
+    }
+    
+    return newAchievements;
+  } catch (error) {
+    logError(error, 'checkUserAchievements');
+    return [];
+  }
+};
+
+// Basarim bilgilerini getir
+export const getAchievementInfo = (achievementId) => {
+  return SIMPLE_ACHIEVEMENTS.find(a => a.id === achievementId);
+};
+
+// Tum basarimlari getir
+export const getAllAchievements = () => {
+  return SIMPLE_ACHIEVEMENTS;
+};
+
+// ESKİ SYSTEM:
 // Başarı türleri ve koşulları
 export const ACHIEVEMENT_TYPES = {
   // Günlük hedefler
