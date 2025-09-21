@@ -449,8 +449,8 @@ const SimpleRoomDashboard = () => {
       setExtraStats({
         totalPoops,
         activeUsers,
-        averagePerUser: roomUsers.length > 0 ? Math.round(totalPoops / roomUsers.length) : 0,
-        dailyAverage: roomUsers.length > 0 ? Math.round(totalPoops / roomUsers.length) : 0,
+        averagePerUser: roomUsers.length > 0 ? (totalPoops / roomUsers.length).toFixed(1) : 0,
+        dailyAverage: roomUsers.length > 0 ? (totalPoops / roomUsers.length).toFixed(1) : 0,
         mostActiveCharacter: mostActiveUser,
         mostActiveDay: ['Henüz yok', 0], // Basit versiyon
         streakInfo: { current: 0, longest: 0 } // Basit versiyon
