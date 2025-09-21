@@ -12,7 +12,7 @@ export default function ContinueCard({ lastRoomId, onContinue }) {
           <div style={{ fontSize: 'clamp(10px,2.6vw,12px)', color: '#666' }}>Son oda: {lastRoomId}</div>
         </div>
         <PixelButton onClick={() => onContinue(lastRoomId)} style={{ width: '100%' }}>
-          🚀 Dashboard'a Git
+          Dashboard'a Git
         </PixelButton>
       </PixelCard>
     </div>

@@ -11,10 +11,8 @@ import AuthModal from '@/components/Auth/AuthModal';
 import UserDashboard from '@/components/Home/UserDashboard';
 import HomeHero from '@/components/Home/HomeHero';
 import QuickActions from '@/components/Home/QuickActions';
-import ContinueCard from '@/components/Home/ContinueCard';
-import HowItWorks from '@/components/Home/HowItWorks';
-import Highlights from '@/components/Home/Highlights';
 import OfflineBanner from '@/components/Home/OfflineBanner';
+import Highlights from '@/components/Home/Highlights';
 
 const RoomSelector = () => {
   const navigate = useNavigate();
@@ -115,8 +113,8 @@ const RoomSelector = () => {
     const animationTypes = ['delayed', 'spiral', 'bounce', 'wave'];
     const floatingEmojisArray = [];
     
-    // Performance için emoji sayısını azalt (8 adet)
-    for (let i = 0; i < 8; i++) {
+    // Performance için emoji sayısını azalt (12 adet)
+    for (let i = 0; i < 12; i++) {
       floatingEmojisArray.push({
         id: i,
         emoji: emojis[Math.floor(Math.random() * emojis.length)],
@@ -134,7 +132,7 @@ const RoomSelector = () => {
       setMousePosition({ x: e.clientX, y: e.clientY });
       
       // Performance için parçacık oluşturma sıklığını azalt
-      if (Math.random() < 0.03) {
+      if (Math.random() < 0.08) {
         createParticle(e.clientX, e.clientY);
       }
     };
@@ -392,12 +390,12 @@ const RoomSelector = () => {
             background: 'linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%)',
             color: '#fff',
             border: '3px solid #333',
-            fontSize: '14px',
+            fontSize: '16px',
             padding: '16px 24px',
             marginBottom: '12px'
           }}
         >
-          🔐 Giris Yap / Kayit Ol
+          Gırıs Yap / Kayıt Ol
         </PixelButton>
         <div style={{ 
           fontSize: '10px', 
@@ -405,15 +403,10 @@ const RoomSelector = () => {
           fontFamily: '"Press Start 2P", monospace',
           lineHeight: '1.4'
         }}>
-          Kendi karakterini olustur ve arkadaslarinla<br />
-          birlikte poop sayini takip et! 🚀
+         
         </div>
       </div>
       
-      <ContinueCard 
-        lastRoomId={lastRoomId}
-        onContinue={(id) => navigate(`/dashboard/${id}`)}
-      />
       <QuickActions
         onCreate={() => setMode('create')}
         onJoin={() => setMode('join')}
@@ -436,8 +429,8 @@ const RoomSelector = () => {
             💩 Poop Count Hakkında
           </h3>
           <p style={{ fontSize: '12px', color: '#666', lineHeight: '1.4', marginBottom: '10px' }}>
-            Sevgililer için özel olarak tasarlanmış eğlenceli bir poop sayma oyunu! 
-            Partnerinizle birlikte günlük poop sayılarınızı takip edin, başarılar kazanın ve 
+            Arkadaşlar için özel olarak tasarlanmış eğlenceli bir poop sayma oyunu! 
+            Arkadaşlarınızla birlikte günlük poop sayılarınızı takip edin, başarılar kazanın ve 
             birbirinizi motive edin. 💕
           </p>
         </div>
@@ -446,76 +439,30 @@ const RoomSelector = () => {
       {/* Alt Menü */}
       <div style={{
         display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: '20px',
-        gap: '8px'
+        gap: '12px',
+        marginTop: '20px'
       }}>
-        <button
-          onClick={() => setShowProjectInfo(!showProjectInfo)}
-          style={{
-            background: 'none',
-            border: '2px solid #333',
-            borderRadius: '50%',
-            width: '40px',
-            height: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            fontSize: '16px',
-            transition: 'all 0.2s ease'
-          }}
-          className="glow-effect"
-          title="Proje Bilgisi"
-        >
-          ℹ️
-        </button>
-        
-        <button
-          onClick={() => setShowOnboarding(true)}
-          style={{
-            background: 'none',
-            border: '2px solid #333',
-            borderRadius: '50%',
-            width: '40px',
-            height: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            fontSize: '16px',
-            transition: 'all 0.2s ease'
-          }}
-          className="glow-effect"
-          title="Nasıl Kullanılır?"
-        >
-          🎓
-        </button>
-        
         <PixelButton
           onClick={addToHomeScreen}
           variant="secondary"
-          size="sm"
-          style={{ flex: 1, height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}
+          size="lg"
+          style={{ flex: 1, height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', padding: '16px' }}
           className="glow-effect"
         >
-          📱 Ana Sayfaya Ekle
+          ANA SAYFAYA EKLE
         </PixelButton>
         
         <PixelButton
           onClick={copyLink}
           variant="primary"
-          size="sm"
-          style={{ flex: 1, height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}
+          size="lg"
+          style={{ flex: 1, height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', padding: '16px' }}
           className="glow-effect"
         >
-          📋 Linki Kopyala
+          LİNKİ KOPYALA
         </PixelButton>
-        
       </div>
 
-      <HowItWorks />
       <Highlights onOpenLeaderboard={() => setShowLeaderboard(true)} />
     </div>
   );
@@ -933,8 +880,8 @@ const RoomSelector = () => {
       {/* Global Liderlik Tablosu Modal */}
       {showLeaderboard && (
         <GlobalLeaderboard
-          roomId={null}
-          characterId={null}
+          roomId={userProfile?.activeRoomId || null}
+          characterId={userProfile?.activeCharacterId || null}
           onClose={() => setShowLeaderboard(false)}
         />
       )}

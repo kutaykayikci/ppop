@@ -193,8 +193,14 @@ window.addEventListener('beforeinstallprompt', (e) => {
       ],
       onAction: async (id) => {
         if (id === 'install' && deferredPrompt) {
-          const { outcome } = await deferredPrompt.prompt();
-          deferredPrompt = null;
+          try {
+            const { outcome } = await deferredPrompt.prompt();
+            console.log('PWA installation outcome:', outcome);
+            deferredPrompt = null;
+          } catch (error) {
+            console.error('PWA installation error:', error);
+            deferredPrompt = null;
+          }
         }
       }
     })

@@ -17,7 +17,7 @@ import { incrementRoomPoopForUser } from '@/services/roomService';
 import './SimpleRoomDashboard.css';
 
 // UserCard bileşeni - Multi-user sistemine uygun
-const UserCard = ({ user, isCurrentUser, roomId, onPoopAdded }) => {
+const UserCard = ({ user, isCurrentUser, roomId, onPoopAdded, stats }) => {
   const [poopLoading, setPoopLoading] = useState(false);
 
   const handleAddPoop = async () => {
@@ -37,23 +37,23 @@ const UserCard = ({ user, isCurrentUser, roomId, onPoopAdded }) => {
 
   // Kullanıcı karakteri varsa emoji ve renk bilgisini al
   const getUserDisplay = () => {
-    // Room'daki characterReady durumunu kontrol et (odaya özel karakter durumu)
-    if (user.characterReady && user.character) {
-      // Gerçek karakter verilerini kullan
+    // Veritabanından gelen karakter verilerini kullan
+    if (user.character && user.character.name) {
       const genderEmoji = user.character.gender === 'male' ? '👨' : '👩';
       return {
         emoji: genderEmoji,
         color: user.character.color || '#6c5ce7',
-        name: user.character.name || user.displayName,
+        name: user.character.name,
         isReady: true
       };
     }
-    // Karakter hazır değilse varsayılan
+    
+    // Karakter objesi yoksa varsayılan avatar
     return {
       emoji: '👤',
-      color: '#999',
+      color: '#6c5ce7',
       name: user.displayName,
-      isReady: false
+      isReady: true
     };
   };
 
@@ -62,13 +62,16 @@ const UserCard = ({ user, isCurrentUser, roomId, onPoopAdded }) => {
   return (
     <div style={{
       backgroundColor: '#fff',
-      border: `3px solid ${display.isReady ? display.color : '#ddd'}`,
-      borderRadius: '8px',
-      padding: '20px',
+      border: `3px solid ${display.color}`,
+      borderRadius: '4px',
+      padding: '12px',
       textAlign: 'center',
-      boxShadow: '6px 6px 0px rgba(0, 0, 0, 0.2)',
+      boxShadow: '4px 4px 0px rgba(0, 0, 0, 0.3)',
       position: 'relative',
-      opacity: display.isReady ? 1 : 0.8
+      minHeight: '120px',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between'
     }}>
       {/* Creator badge */}
       {user.isCreator && (
@@ -84,34 +87,34 @@ const UserCard = ({ user, isCurrentUser, roomId, onPoopAdded }) => {
 
       {/* User Avatar */}
       <div style={{
-        fontSize: '48px',
-        marginBottom: '10px',
+        fontSize: '32px',
         color: display.color,
-        opacity: display.isReady ? 1 : 0.5,
-        filter: display.isReady ? 'none' : 'grayscale(50%)'
+        marginBottom: '8px'
       }}>
         {display.emoji}
       </div>
 
       {/* User Name */}
       <h3 style={{
-        margin: '0 0 15px 0',
-        fontSize: '14px',
+        margin: '0 0 8px 0',
+        fontSize: '12px',
         color: '#333',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        fontFamily: '"Press Start 2P", monospace'
       }}>
         {display.name}
         {isCurrentUser && ' (Sen)'}
       </h3>
 
-      {/* Poop Count */}
+      {/* Poop Count - Günlük */}
       <div style={{
-        fontSize: '32px',
+        fontSize: '24px',
         fontWeight: 'bold',
         color: display.color,
-        marginBottom: '15px'
+        marginBottom: '8px',
+        fontFamily: '"Press Start 2P", monospace'
       }}>
-        {user.poopCount || 0}
+        {stats.today?.[user.uid] || 0}
       </div>
 
       {/* Add Poop Button - Only for current user */}
@@ -120,26 +123,20 @@ const UserCard = ({ user, isCurrentUser, roomId, onPoopAdded }) => {
           onClick={handleAddPoop}
           disabled={poopLoading}
           variant="primary"
-          size="lg"
+          size="sm"
           style={{
             width: '100%',
             backgroundColor: display.color,
-            borderColor: display.color
+            borderColor: display.color,
+            fontSize: '10px',
+            padding: '6px 8px',
+            fontFamily: '"Press Start 2P", monospace'
           }}
         >
           {poopLoading ? 'Ekleniyor...' : '💩 Poop Ekle'}
         </PixelButton>
       )}
 
-      {/* Character status */}
-      <div style={{
-        marginTop: '10px',
-        fontSize: '10px',
-        color: display.isReady ? '#4caf50' : '#ff9800',
-        fontWeight: 'bold'
-      }}>
-        {display.isReady ? '✅ Karakter Hazır' : '⏳ Karakter Seçimi Bekliyor'}
-      </div>
     </div>
   );
 };
@@ -173,52 +170,42 @@ const SimpleRoomDashboard = () => {
   // Kullanıcıları karakter verileriyle birleştiren fonksiyon
   const enrichUsersWithCharacters = async (users, roomId) => {
     try {
-      console.log('🔍 DEBUG - enrichUsersWithCharacters:');
-      console.log('users:', users);
-      console.log('roomId:', roomId);
       
-      // Sadece kullanıcıları döndür, karakter verilerini ayrı tut
-      return users.map((user, index) => {
-          // ÖZEL: Current user için global karakter durumunu kontrol et
-          const isCurrentUser = user.uid === userProfile?.uid;
-          if (isCurrentUser && userProfile?.character?.ready && !user.characterReady) {
-            // Global karakteri room'a taşı
-            return {
-              ...user,
-              characterReady: true,
-              characterId: userProfile.character.id || `global-${user.uid}`,
-              character: {
-                id: userProfile.character.id || `global-${user.uid}`,
-                name: userProfile.character.name,
-                gender: userProfile.character.gender,
-                color: userProfile.character.color,
-                emoji: userProfile.character.gender === 'male' ? '👨' : '👩'
-              }
-            };
-          }
-
-          // Eğer characterReady=false ise, kullanıcıyı olduğu gibi bırak
-          // (Karakter seçimi yapması gerekiyor)
-          if (!user.characterReady) {
-            return {
-              ...user,
-              characterReady: false, // Açıkça false yap
-              character: null,
-              characterId: null
-            };
-          }
-          
-          // Normal flow: characterId ile eşleştir
-          if (user.characterReady && user.characterId) {
-            // Karakter verilerini ayrı yükle
-            return {
-              ...user,
-              character: user.character || null
-            };
-          }
-          
-          return user;
+      // Veritabanından oda karakterlerini getir
+      const roomCharacters = await getRoomCharacters(roomId);
+      
+      return users.map((user) => {
+        
+        // Kullanıcının karakterini bul
+        const userCharacter = roomCharacters.find(char => {
+          return char.characterId === user.characterId || 
+                 char.userId === user.uid ||
+                 char.createdBy === user.uid;
         });
+        
+        
+        if (userCharacter) {
+          
+          return {
+            ...user,
+            characterReady: true,
+            character: {
+              id: userCharacter.id,
+              name: userCharacter.name,
+              gender: userCharacter.gender,
+              color: userCharacter.color,
+              emoji: userCharacter.emoji
+            }
+          };
+        }
+
+        // Karakter bulunamadıysa kullanıcıyı olduğu gibi bırak
+        return {
+          ...user,
+          characterReady: false,
+          character: null
+        };
+      });
       } catch (error) {
         // Sessizce hata logla
         return users; // Hata durumında orijinal kullanıcıları döndür
@@ -918,6 +905,7 @@ const SimpleRoomDashboard = () => {
                 isCurrentUser={isCurrentUser}
                 roomId={room.id}
                 onPoopAdded={handlePoopAdded}
+                stats={stats}
               />
             );
           })}
@@ -978,16 +966,16 @@ const SimpleRoomDashboard = () => {
               const currentStats = stats[selectedPeriod] || {};
               const count = currentStats[user.uid] || 0;
               const display = {
-                emoji: user.characterReady && user.character
+                emoji: user.character
                   ? (user.character.gender === 'male' ? '👨' : '👩')
                   : '👤',
-                color: user.characterReady && user.character
+                color: user.character
                   ? (user.character.color || '#6c5ce7')
-                  : '#999',
-                name: user.characterReady && user.character
+                  : '#6c5ce7',
+                name: user.character
                   ? (user.character.name || user.displayName)
                   : user.displayName,
-                isReady: user.characterReady || false
+                isReady: true // Odaya katıldıysa hazır
               };
               
               return (
@@ -1014,9 +1002,6 @@ const SimpleRoomDashboard = () => {
                   </div>
                   <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
                     {count}
-                  </div>
-                  <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '5px' }}>
-                    {display.isReady ? 'Karakter Hazır' : 'Karakter Seçimi Bekliyor'}
                   </div>
                 </div>
               );

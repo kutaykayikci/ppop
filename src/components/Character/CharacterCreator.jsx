@@ -547,7 +547,10 @@ const CharacterCreator = () => {
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(5, 1fr)',
-            gap: '10px'
+            gap: '10px',
+            justifyContent: 'center',
+            maxWidth: '300px',
+            margin: '0 auto'
           }}>
             {characterPresets[gender]?.colors.map((color, index) => (
               <PixelButton

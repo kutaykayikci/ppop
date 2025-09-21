@@ -8,43 +8,31 @@ export default function QuickActions({ onCreate, onJoin, onShowLeaderboard, onSh
         onClick={() => { playSound?.('click'); onCreate(); }}
         variant="primary"
         size="lg"
-        style={{ width: '100%' }}
+        style={{ width: '100%', fontSize: '12px' }}
         className="glow-effect"
       >
-        🆕 Yeni Oda Oluştur
+        Yeni Oda Oluştur
       </PixelButton>
 
       <PixelButton
         onClick={() => { playSound?.('click'); onJoin(); }}
         variant="secondary"
         size="lg"
-        style={{ width: '100%' }}
+        style={{ width: '100%', fontSize: '12px' }}
         className="glow-effect"
       >
-        🔑 Room ID ile Gir
+        Room ID ile Gir
       </PixelButton>
 
-      <div style={{ display: 'flex', gap: '8px' }}>
-        <PixelButton
-          onClick={() => { playSound?.('click'); onShowLeaderboard(); }}
-          variant="special"
-          size="md"
-          style={{ flex: 1 }}
-          className="glow-effect"
-        >
-          🏆 Liderlik
-        </PixelButton>
-
-        <PixelButton
-          onClick={() => { playSound?.('click'); onShowOnboarding(); }}
-          variant="secondary"
-          size="md"
-          style={{ flex: 1 }}
-          className="glow-effect"
-        >
-          🎓 Nasıl Çalışır?
-        </PixelButton>
-      </div>
+      <PixelButton
+        onClick={() => { playSound?.('click'); onShowOnboarding(); }}
+        variant="secondary"
+        size="md"
+        style={{ width: '100%', fontSize: '12px' }}
+        className="glow-effect"
+      >
+        Nasıl Çalışır?
+      </PixelButton>
     </div>
   )
 }

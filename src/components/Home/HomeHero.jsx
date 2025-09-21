@@ -11,10 +11,10 @@ export default function HomeHero() {
         background: 'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9))'
       }}>
         <div style={{ fontSize: 'clamp(14px, 3.6vw, 18px)', fontWeight: 'bold', color: '#333', marginBottom: '6px' }}>
-          💩 Poop Count
+          💩 Poop Hero 💩
         </div>
         <div style={{ fontSize: 'clamp(10px, 2.8vw, 12px)', color: '#555' }}>
-          Sevgilinle günlük mini hedefler, eğlenceli rekabet ve başarılar!
+          Count your poop and be a poop Hero!
         </div>
       </PixelCard>
     </div>

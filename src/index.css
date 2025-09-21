@@ -517,41 +517,47 @@ body {
 
 .floating-emoji {
   position: fixed;
-  font-size: 20px;
+  font-size: 24px;
   pointer-events: none;
   z-index: 1;
-  animation: float-slow 8s ease-in-out infinite;
+  animation: float-slow 4s ease-in-out infinite;
 }
 
 .floating-emoji.delayed {
-  animation: float-fast 6s ease-in-out infinite;
+  animation: float-fast 3s ease-in-out infinite;
 }
 
 .floating-emoji.spiral {
-  animation: float-spiral 10s linear infinite;
+  animation: float-spiral 5s linear infinite;
 }
 
 .floating-emoji.bounce {
-  animation: float-bounce 7s ease-in-out infinite;
+  animation: float-bounce 3.5s ease-in-out infinite;
 }
 
 .floating-emoji.wave {
-  animation: float-wave 9s ease-in-out infinite;
+  animation: float-wave 4.5s ease-in-out infinite;
 }
 
-/* Gelişmiş Gradient Animasyonları */
+/* Gelişmiş Gradient Animasyonları - Hızlı ve Canlı */
 @keyframes gradient-shift {
   0% {
     background-position: 0% 50%;
   }
-  25% {
+  16.66% {
     background-position: 100% 25%;
   }
-  50% {
+  33.33% {
     background-position: 100% 75%;
   }
-  75% {
+  50% {
     background-position: 0% 25%;
+  }
+  66.66% {
+    background-position: 100% 50%;
+  }
+  83.33% {
+    background-position: 0% 75%;
   }
   100% {
     background-position: 0% 50%;
@@ -560,37 +566,53 @@ body {
 
 @keyframes gradient-pulse {
   0%, 100% {
+    background-size: 300% 300%;
+    filter: hue-rotate(0deg) brightness(1.1);
+  }
+  25% {
     background-size: 400% 400%;
-    filter: hue-rotate(0deg);
+    filter: hue-rotate(90deg) brightness(1.3);
   }
   50% {
     background-size: 500% 500%;
-    filter: hue-rotate(30deg);
+    filter: hue-rotate(180deg) brightness(1.2);
+  }
+  75% {
+    background-size: 400% 400%;
+    filter: hue-rotate(270deg) brightness(1.4);
   }
 }
 
 @keyframes gradient-wave {
   0% {
     background-position: 0% 0%;
+    transform: scale(1);
   }
   25% {
     background-position: 100% 0%;
+    transform: scale(1.05);
   }
   50% {
     background-position: 100% 100%;
+    transform: scale(1.1);
   }
   75% {
     background-position: 0% 100%;
+    transform: scale(1.05);
   }
   100% {
     background-position: 0% 0%;
+    transform: scale(1);
   }
 }
 
 .animated-gradient {
-  background: linear-gradient(-45deg, #ff6b6b, #4ecdc4, #45b7b8, #96ceb4, #feca57, #ff9ff3, #ff6b6b, #4ecdc4);
-  background-size: 400% 400%;
-  animation: gradient-shift 12s ease infinite, gradient-pulse 8s ease-in-out infinite;
+  background: linear-gradient(-45deg, 
+    #ff0000, #ff4500, #ffd700, #00ff00, 
+    #00bfff, #8a2be2, #ff1493, #ff0000
+  );
+  background-size: 300% 300%;
+  animation: gradient-shift 3s ease infinite, gradient-pulse 2s ease-in-out infinite;
 }
 
 /* Home helpers */
@@ -1064,29 +1086,29 @@ body {
     margin: 16px;
   }
   
-  /* Desktop için daha smooth animasyonlar */
+  /* Desktop için daha hızlı animasyonlar */
   .animated-gradient {
-    animation: gradient-shift 8s ease infinite;
+    animation: gradient-shift 2s ease infinite, gradient-pulse 1.5s ease-in-out infinite;
   }
   
   .floating-emoji {
-    animation-duration: 6s;
+    animation-duration: 3s;
   }
   
   .floating-emoji.delayed {
-    animation-duration: 5s;
+    animation-duration: 2.5s;
   }
   
   .floating-emoji.spiral {
-    animation-duration: 7s;
+    animation-duration: 3.5s;
   }
   
   .floating-emoji.bounce {
-    animation-duration: 5.5s;
+    animation-duration: 2.8s;
   }
   
   .floating-emoji.wave {
-    animation-duration: 6.5s;
+    animation-duration: 3.2s;
   }
 }
 
@@ -1151,37 +1173,37 @@ body {
     min-width: 44px;
   }
   
-  /* Mobil için daha az CPU kullanan animasyonlar */
+  /* Mobil için hızlı ama optimize animasyonlar */
   .animated-gradient {
-    animation: gradient-shift 15s ease infinite;
+    animation: gradient-shift 4s ease infinite, gradient-pulse 3s ease-in-out infinite;
   }
   
   .floating-emoji {
-    animation-duration: 12s;
+    animation-duration: 5s;
   }
   
   .floating-emoji.delayed {
-    animation-duration: 10s;
+    animation-duration: 4s;
   }
   
   .floating-emoji.spiral {
-    animation-duration: 14s;
+    animation-duration: 6s;
   }
   
   .floating-emoji.bounce {
-    animation-duration: 11s;
+    animation-duration: 4.5s;
   }
   
   .floating-emoji.wave {
-    animation-duration: 13s;
+    animation-duration: 5.5s;
   }
 }
 
 /* Çok küçük ekranlar için daha da optimize */
 @media (max-width: 480px) {
   .floating-emoji {
-    font-size: 14px;
-    animation-duration: 14s;
+    font-size: 18px;
+    animation-duration: 6s;
   }
   
   .particle {
@@ -1190,7 +1212,7 @@ body {
   }
   
   .animated-gradient {
-    animation: gradient-shift 18s ease infinite;
+    animation: gradient-shift 5s ease infinite, gradient-pulse 3.5s ease-in-out infinite;
   }
   
   /* Reduced motion desteği */

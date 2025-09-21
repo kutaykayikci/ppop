@@ -39,7 +39,7 @@ service cloud.firestore {
 
     // Poop kayıtları
     match /poops/{poopId} {
-      allow read: if isAuthenticated();
+      allow read: if true; // Global liderlik tablosu için herkes okuyabilir
       allow create: if isAuthenticated() && 
                       isOwner(request.resource.data.userId) &&
                       request.resource.data.roomId is string &&
@@ -51,6 +51,13 @@ service cloud.firestore {
     match /leaderboard/{document} {
       allow read: if isAuthenticated();
       allow write: if false; // Sadece server tarafından güncellenebilir
+    }
+
+    // Karakterler - herkes okuyabilir (liderlik tablosu için)
+    match /characters/{characterId} {
+      allow read: if true; // Global liderlik tablosu için herkes okuyabilir
+      allow create, update, delete: if isAuthenticated() && 
+                                      request.auth.uid == request.resource.data.userId;
     }
 
     // Achievements - sadece kullanıcının kendi başarımları

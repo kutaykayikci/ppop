@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PixelCard from '../PixelCard';
 import PixelButton from '../PixelButton';
-import { getGlobalLeaderboard, getUserGlobalRank } from '../../services/leaderboardService';
+import { getGlobalLeaderboard, getUserGlobalRank, testFirestoreConnection } from '../../services/leaderboardService';
 
 const GlobalLeaderboard = ({ roomId, characterId, onClose }) => {
   const [leaderboard, setLeaderboard] = useState([]);
@@ -22,15 +22,24 @@ const GlobalLeaderboard = ({ roomId, characterId, onClose }) => {
     setError(null);
     
     try {
+      console.log('Liderlik tablosu yükleniyor...', { timeframe });
+      
+      // Önce Firestore bağlantısını test et
+      const connectionTest = await testFirestoreConnection();
+      console.log('Firestore bağlantı testi:', connectionTest);
+      
       const result = await getGlobalLeaderboard(timeframe);
+      console.log('Liderlik tablosu sonucu:', result);
       
       if (result.success) {
-        setLeaderboard(result.leaderboard);
+        setLeaderboard(result.leaderboard || []);
       } else {
+        console.error('Liderlik tablosu hatası:', result.error);
         setError(result.error || 'Liderlik tablosu yüklenemedi');
       }
     } catch (error) {
-      setError('Bir hata oluştu');
+      console.error('Liderlik tablosu yükleme hatası:', error);
+      setError('Bir hata oluştu: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -38,7 +47,9 @@ const GlobalLeaderboard = ({ roomId, characterId, onClose }) => {
 
   const loadUserRank = async () => {
     try {
+      console.log('Kullanıcı sıralaması yükleniyor...', { roomId, characterId });
       const result = await getUserGlobalRank(roomId, characterId);
+      console.log('Kullanıcı sıralaması sonucu:', result);
       if (result.success) {
         setUserRank(result);
       }
@@ -223,6 +234,9 @@ const GlobalLeaderboard = ({ roomId, characterId, onClose }) => {
             }}>
               <div style={{ fontSize: '32px', marginBottom: '10px' }}>📊</div>
               <div>Henüz veri yok</div>
+              <div style={{ fontSize: '12px', marginTop: '10px', color: '#999' }}>
+                İlk poop'ları yapmaya başlayın!
+              </div>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

@@ -2,9 +2,114 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+}
+
+/* Animasyon efektleri */
+.animated-gradient {
+  background: linear-gradient(-45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.floating-emoji {
+  position: absolute;
+  font-size: 20px;
+  pointer-events: none;
+  z-index: 1;
+  animation: float 6s ease-in-out infinite;
+}
+
+.floating-emoji.delayed {
+  animation: float 8s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+.floating-emoji.spiral {
+  animation: spiral 10s linear infinite;
+}
+
+.floating-emoji.bounce {
+  animation: bounce 4s ease-in-out infinite;
+}
+
+.floating-emoji.wave {
+  animation: wave 7s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+@keyframes spiral {
+  0% { transform: translateY(0px) rotate(0deg); }
+  100% { transform: translateY(-100px) rotate(360deg); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-30px); }
+}
+
+@keyframes wave {
+  0%, 100% { transform: translateY(0px) translateX(0px); }
+  25% { transform: translateY(-15px) translateX(10px); }
+  50% { transform: translateY(-5px) translateX(-5px); }
+  75% { transform: translateY(-20px) translateX(5px); }
+}
+
+.particle {
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+  border-radius: 50%;
+}
+
+.particle.sparkle {
+  width: 4px;
+  height: 4px;
+  animation: sparkle 2s ease-out forwards;
+}
+
+.particle.trail {
+  width: 2px;
+  height: 2px;
+  animation: trail 1.5s ease-out forwards;
+}
+
+@keyframes sparkle {
+  0% { 
+    opacity: 1; 
+    transform: scale(0) rotate(0deg); 
+  }
+  50% { 
+    opacity: 1; 
+    transform: scale(1) rotate(180deg); 
+  }
+  100% { 
+    opacity: 0; 
+    transform: scale(0.5) rotate(360deg); 
+  }
+}
+
+@keyframes trail {
+  0% { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+  100% { 
+    opacity: 0; 
+    transform: scale(0.1); 
+  }
 }
 
 .profile-card {

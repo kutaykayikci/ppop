@@ -8,12 +8,12 @@ export default function OnboardingModal({ onClose, onPrimary }) {
   const steps = [
     {
       title: "👋 Hoş Geldin!",
-      content: "Poop Count'a hoş geldin! Bu eğlenceli uygulama ile sevgilinle birlikte günlük poop sayılarınızı takip edebilir, hedefler belirleyebilir ve birbirinizi motive edebilirsiniz.",
+      content: "Poop Count'a hoş geldin! Bu eğlenceli uygulama ile arkadaşlarınla birlikte günlük poop sayılarınızı takip edebilir, hedefler belirleyebilir ve birbirinizi motive edebilirsiniz.",
       emoji: "💩"
     },
     {
       title: "🏠 Oda Oluştur",
-      content: "İlk olarak bir oda oluştur veya mevcut bir odaya katıl. Her oda benzersiz bir ID'ye sahip ve sadece sen ve sevgilin erişebilirsiniz.",
+      content: "İlk olarak bir oda oluştur veya mevcut bir odaya katıl. Her oda benzersiz bir ID'ye sahip ve sadece sen ve arkadaşların erişebilirsiniz.",
       emoji: "🏠"
     },
     {
@@ -23,12 +23,12 @@ export default function OnboardingModal({ onClose, onPrimary }) {
     },
     {
       title: "🎯 Hedef Belirle",
-      content: "Günlük poop hedefini belirle! Bu hedefe ulaştığında başarılar kazanacak ve sevgilinle rekabet edebileceksin.",
+      content: "Günlük poop hedefini belirle! Bu hedefe ulaştığında başarılar kazanacak ve arkadaşlarınla rekabet edebileceksin.",
       emoji: "🎯"
     },
     {
       title: "📊 Takip Et",
-      content: "Her poop'u kaydet ve ilerlemeni takip et! İstatistiklerini gör, başarılarını kazan ve sevgilinle karşılaştır.",
+      content: "Her poop'u kaydet ve ilerlemeni takip et! İstatistiklerini gör, başarılarını kazan ve arkadaşlarınla karşılaştır.",
       emoji: "📊"
     },
     {
@@ -38,7 +38,7 @@ export default function OnboardingModal({ onClose, onPrimary }) {
     },
     {
       title: "💕 Partner Sinerjisi",
-      content: "Sevgilinle birlikte çalışarak özel sinerji bonusları kazanabilirsiniz! Birlikte daha fazla başarı elde edin.",
+      content: "Arkadaşlarınla birlikte çalışarak özel sinerji bonusları kazanabilirsiniz! Birlikte daha fazla başarı elde edin.",
       emoji: "💕"
     },
     {

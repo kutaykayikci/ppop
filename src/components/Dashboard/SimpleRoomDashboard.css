@@ -1,51 +1,10 @@
 .simple-dashboard-container {
   min-height: 100vh;
-  background: linear-gradient(-45deg, #ff6b6b, #4ecdc4, #45b7b8, #96ceb4, #feca57, #ff9ff3, #ff6b6b, #4ecdc4);
-  background-size: 400% 400%;
-  animation: gradient-shift 12s ease infinite, gradient-pulse 8s ease-in-out infinite;
   padding: 0;
   position: relative;
   overflow-x: hidden;
 }
 
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  25% { background-position: 100% 25%; }
-  50% { background-position: 100% 75%; }
-  75% { background-position: 0% 25%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes gradient-pulse {
-  0%, 100% {
-    background-size: 400% 400%;
-    filter: hue-rotate(0deg);
-  }
-  50% {
-    background-size: 500% 500%;
-    filter: hue-rotate(30deg);
-  }
-}
-
-.simple-dashboard-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-  animation: float 20s linear infinite;
-  pointer-events: none;
-}
-
-@keyframes float {
-  0% { transform: translateY(0px) translateX(0px); }
-  25% { transform: translateY(-10px) translateX(5px); }
-  50% { transform: translateY(-5px) translateX(-5px); }
-  75% { transform: translateY(5px) translateX(10px); }
-  100% { transform: translateY(0px) translateX(0px); }
-}
 
 .dashboard-header {
   background: var(--color-bg);

@@ -51,10 +51,15 @@ export const createRoomWithUser = async (uniqueName, userId, userDisplayName, ma
     
     const docRef = await addDoc(collection(db, 'rooms'), roomData);
     
-    // Kullanıcının profline oda ekle
-    await updateDoc(doc(db, 'users', userId), {
-      joinedRooms: arrayUnion(roomId)
-    });
+    // Kullanıcının profline oda ekle (hata durumunda sessizce devam et)
+    try {
+      await updateDoc(doc(db, 'users', userId), {
+        joinedRooms: arrayUnion(roomId)
+      });
+    } catch (userUpdateError) {
+      // Kullanıcı dokümanı yoksa veya güncellenemezse sessizce devam et
+      console.warn('Kullanıcı dokümanı güncellenemedi:', userUpdateError);
+    }
     
     return { 
       firestoreId: docRef.id,

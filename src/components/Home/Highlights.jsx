@@ -8,10 +8,10 @@ export default function Highlights({ onOpenLeaderboard }) {
       <PixelCard style={{ padding: '14px', marginBottom: '12px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#333', fontSize: 'clamp(12px,2.8vw,14px)' }}>Öne Çıkanlar</div>
-            <div style={{ fontSize: 'clamp(10px,2.6vw,12px)', color: '#666' }}>Günlük görevler ve mini başarılar yakında!</div>
+            <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#333', fontSize: 'clamp(12px,2.8vw,14px)' }}>Global Liderlık</div>
+            <div style={{ fontSize: 'clamp(10px,2.6vw,12px)', color: '#666' }}>Click and check it </div>
           </div>
-          <PixelButton size="sm" onClick={onOpenLeaderboard} className="glow-effect">🏆 Liderlik</PixelButton>
+          <PixelButton size="sm" onClick={onOpenLeaderboard} className="glow-effect">Liderlik</PixelButton>
         </div>
       </PixelCard>
     </div>
