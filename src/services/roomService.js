@@ -124,6 +124,7 @@ export const joinRoomWithUser = async (roomId, userId, userDisplayName) => {
     // Kullanıcı zaten bu odada mı?
     const isUserInRoom = room.users?.some(user => user.uid === userId);
     if (isUserInRoom) {
+      console.log('Kullanıcı zaten bu odada, mevcut oda bilgisi döndürülüyor');
       return room; // Zaten odada, başarılı dön
     }
 
@@ -172,12 +173,8 @@ export const joinRoom = async (roomId) => {
 // Kullanıcının odalarını getir (YENİ)
 export const getUserRooms = async (userId) => {
   try {
-    const q = query(
-      collection(db, 'rooms'), 
-      where('users', 'array-contains-any', [{uid: userId}])
-    );
-    
-    // Daha basit yaklaşım - tüm odaları çek ve filtrele
+    // Firestore'da array içinde object arama yapmak zor olduğu için
+    // Tüm odaları çek ve client-side'da filtrele
     const allRoomsQuery = query(collection(db, 'rooms'));
     const querySnapshot = await getDocs(allRoomsQuery);
     const rooms = [];

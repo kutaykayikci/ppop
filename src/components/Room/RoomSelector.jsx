@@ -423,14 +423,15 @@ const RoomSelector = () => {
             }
           }
         });
-      } else if (error.message.includes('bulunamadı')) {
+      } else if (error.message.includes('bulunamadı') || error.message.includes('Oda bulunamadı')) {
         showRoomNotFound();
-      } else if (error.message.includes('network')) {
+      } else if (error.message.includes('network') || error.message.includes('Network')) {
         showNetworkError();
       } else {
+        console.error('Join room error:', error);
         showFeedback(FEEDBACK_TYPES.VALIDATION_ERROR, {}, {
           title: 'Katılım Hatası',
-          message: 'Odaya katılamadı. Lütfen tekrar deneyin.',
+          message: `Odaya katılamadı: ${error.message}`,
           level: 'toast'
         });
       }
