@@ -317,7 +317,7 @@ const NotFound = ({ roomId = null, type = 'room' }) => {
           paddingTop: '20px'
         }}>
           <div style={{ marginBottom: '5px' }}>
-            🎮 Poop Count - Oyun Hatası
+            🎮 Poop Hero - Oyun Hatası
           </div>
           <div style={{ opacity: 0.7 }}>
             Bu sayfa bulunamadı, ama poop sayma oyunu devam ediyor! 💩

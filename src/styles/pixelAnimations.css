@@ -1,0 +1,778 @@
+/* ===== PIXEL ANIMATION LIBRARY ===== */
+
+/* Base Animation Keyframes */
+@keyframes pixelSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pixelBounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes pixelPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+@keyframes pixelShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes pixelWiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+/* Loading Animations */
+@keyframes pixelDots {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pixelBars {
+  0%, 40%, 100% {
+    transform: scaleY(0.4);
+  }
+  20% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes pixelStripes {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 20px 20px;
+  }
+}
+
+/* Entrance Animations */
+@keyframes pixelSlideInRight {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pixelSlideInLeft {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pixelSlideInUp {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pixelSlideInDown {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pixelFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes pixelScaleIn {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pixelRotateIn {
+  0% {
+    transform: rotate(-180deg) scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Exit Animations */
+@keyframes pixelSlideOutRight {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes pixelSlideOutLeft {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes pixelFadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes pixelScaleOut {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* Modal Animations */
+@keyframes modalFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideIn {
+  0% {
+    transform: scale(0.9) translateY(-20px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Notification Animations */
+@keyframes toastSlideIn {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes alertSlideIn {
+  0% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes notificationSlideIn {
+  0% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Button Animations */
+@keyframes pixelButtonPress {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pixelButtonGlow {
+  0%, 100% {
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2), 0 0 20px rgba(255, 107, 107, 0.6);
+  }
+}
+
+@keyframes pixelButtonHover {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-2px);
+  }
+}
+
+/* Card Animations */
+@keyframes pixelCardHover {
+  0% {
+    transform: translateY(0);
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.2);
+  }
+  100% {
+    transform: translateY(-4px);
+    box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.2);
+  }
+}
+
+@keyframes pixelCardTilt {
+  0% {
+    transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+  }
+  25% {
+    transform: perspective(1000px) rotateX(5deg) rotateY(5deg);
+  }
+  50% {
+    transform: perspective(1000px) rotateX(-3deg) rotateY(-3deg);
+  }
+  75% {
+    transform: perspective(1000px) rotateX(3deg) rotateY(-5deg);
+  }
+  100% {
+    transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+  }
+}
+
+/* Text Animations */
+@keyframes pixelTextPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes pixelTextGlow {
+  0%, 100% {
+    text-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 15px rgba(255, 107, 107, 0.8);
+  }
+}
+
+@keyframes pixelTextShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+/* Poop Specific Animations */
+@keyframes pixelPoopExplosion {
+  0% {
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+  }
+  25% {
+    transform: scale(1.2) rotate(5deg);
+    filter: brightness(1.3);
+  }
+  50% {
+    transform: scale(1.4) rotate(-3deg);
+    filter: brightness(1.5);
+  }
+  75% {
+    transform: scale(1.1) rotate(2deg);
+    filter: brightness(1.2);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+  }
+}
+
+@keyframes pixelPoopParticles {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateY(-20px) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px) scale(0.8);
+  }
+}
+
+@keyframes pixelCountJump {
+  0% {
+    transform: translateY(0) scale(1);
+    color: inherit;
+  }
+  25% {
+    transform: translateY(-15px) scale(1.2);
+    color: #ff6b6b;
+    text-shadow: 0 0 10px rgba(255, 107, 107, 0.8);
+  }
+  50% {
+    transform: translateY(-25px) scale(1.4);
+    color: #ff4757;
+    text-shadow: 0 0 15px rgba(255, 71, 87, 1);
+  }
+  75% {
+    transform: translateY(-15px) scale(1.2);
+    color: #ff6b6b;
+    text-shadow: 0 0 10px rgba(255, 107, 107, 0.8);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    color: inherit;
+    text-shadow: none;
+  }
+}
+
+/* Achievement Animations */
+@keyframes pixelAchievementCelebration {
+  0% {
+    transform: scale(0.8) rotate(-5deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1) rotate(2deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes pixelAchievementGlow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes pixelAchievementBounce {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.3) rotate(-10deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(10deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Particle Animations */
+@keyframes pixelParticleFloat {
+  0% {
+    transform: translateY(0px) translateX(0px) rotate(0deg) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(-10px) translateX(5px) rotate(36deg) scale(1);
+  }
+  30% {
+    opacity: 0.8;
+    transform: translateY(-30px) translateX(15px) rotate(108deg) scale(1.2);
+  }
+  60% {
+    opacity: 0.6;
+    transform: translateY(-60px) translateX(25px) rotate(216deg) scale(1.1);
+  }
+  90% {
+    opacity: 0.3;
+    transform: translateY(-90px) translateX(35px) rotate(324deg) scale(0.8);
+  }
+  100% {
+    transform: translateY(-120px) translateX(50px) rotate(360deg) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes pixelParticleSparkle {
+  0% {
+    transform: translateY(0px) translateX(0px) rotate(0deg) scale(0);
+    opacity: 0;
+    filter: brightness(1);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-20px) translateX(10px) rotate(72deg) scale(1.5);
+    filter: brightness(1.5);
+  }
+  40% {
+    opacity: 0.9;
+    transform: translateY(-40px) translateX(-10px) rotate(144deg) scale(1.2);
+    filter: brightness(1.2);
+  }
+  60% {
+    opacity: 0.7;
+    transform: translateY(-60px) translateX(20px) rotate(216deg) scale(1.3);
+    filter: brightness(1.8);
+  }
+  80% {
+    opacity: 0.4;
+    transform: translateY(-80px) translateX(-15px) rotate(288deg) scale(1);
+    filter: brightness(1.1);
+  }
+  100% {
+    transform: translateY(-100px) translateX(30px) rotate(360deg) scale(0);
+    opacity: 0;
+    filter: brightness(1);
+  }
+}
+
+/* Floating Animations */
+@keyframes pixelFloatSlow {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg) scale(1);
+    opacity: 0.2;
+  }
+  25% {
+    transform: translateY(-15px) translateX(10px) rotate(90deg) scale(1.1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(-25px) translateX(-5px) rotate(180deg) scale(1.2);
+    opacity: 0.6;
+  }
+  75% {
+    transform: translateY(-15px) translateX(-10px) rotate(270deg) scale(1.1);
+    opacity: 0.4;
+  }
+}
+
+@keyframes pixelFloatFast {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg) scale(1);
+    opacity: 0.3;
+  }
+  33% {
+    transform: translateY(-20px) translateX(15px) rotate(120deg) scale(1.3);
+    opacity: 0.7;
+  }
+  66% {
+    transform: translateY(-35px) translateX(-15px) rotate(240deg) scale(1.1);
+    opacity: 0.5;
+  }
+}
+
+@keyframes pixelFloatSpiral {
+  0% {
+    transform: translateY(0px) translateX(0px) rotate(0deg) scale(1);
+    opacity: 0.2;
+  }
+  25% {
+    transform: translateY(-20px) translateX(20px) rotate(90deg) scale(1.2);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-40px) translateX(0px) rotate(180deg) scale(1.4);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateY(-20px) translateX(-20px) rotate(270deg) scale(1.2);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(0px) translateX(0px) rotate(360deg) scale(1);
+    opacity: 0.2;
+  }
+}
+
+/* Utility Animation Classes */
+.pixel-animate-spin {
+  animation: pixelSpin 1s linear infinite;
+}
+
+.pixel-animate-bounce {
+  animation: pixelBounce 1s infinite;
+}
+
+.pixel-animate-pulse {
+  animation: pixelPulse 2s ease-in-out infinite;
+}
+
+.pixel-animate-shake {
+  animation: pixelShake 0.5s ease-in-out;
+}
+
+.pixel-animate-wiggle {
+  animation: pixelWiggle 0.5s ease-in-out;
+}
+
+/* Entrance Animation Classes */
+.pixel-animate-slide-in-right {
+  animation: pixelSlideInRight 0.5s ease-out;
+}
+
+.pixel-animate-slide-in-left {
+  animation: pixelSlideInLeft 0.5s ease-out;
+}
+
+.pixel-animate-slide-in-up {
+  animation: pixelSlideInUp 0.5s ease-out;
+}
+
+.pixel-animate-slide-in-down {
+  animation: pixelSlideInDown 0.5s ease-out;
+}
+
+.pixel-animate-fade-in {
+  animation: pixelFadeIn 0.5s ease-out;
+}
+
+.pixel-animate-scale-in {
+  animation: pixelScaleIn 0.3s ease-out;
+}
+
+.pixel-animate-rotate-in {
+  animation: pixelRotateIn 0.6s ease-out;
+}
+
+/* Exit Animation Classes */
+.pixel-animate-slide-out-right {
+  animation: pixelSlideOutRight 0.3s ease-in;
+}
+
+.pixel-animate-slide-out-left {
+  animation: pixelSlideOutLeft 0.3s ease-in;
+}
+
+.pixel-animate-fade-out {
+  animation: pixelFadeOut 0.3s ease-in;
+}
+
+.pixel-animate-scale-out {
+  animation: pixelScaleOut 0.3s ease-in;
+}
+
+/* Poop Animation Classes */
+.pixel-animate-poop-explosion {
+  animation: pixelPoopExplosion 0.8s ease-out;
+}
+
+.pixel-animate-poop-particles {
+  animation: pixelPoopParticles 1.2s ease-out forwards;
+}
+
+.pixel-animate-count-jump {
+  animation: pixelCountJump 1s ease-out;
+}
+
+/* Achievement Animation Classes */
+.pixel-animate-achievement-celebration {
+  animation: pixelAchievementCelebration 0.6s ease-out;
+}
+
+.pixel-animate-achievement-glow {
+  animation: pixelAchievementGlow 2s ease-in-out infinite;
+}
+
+.pixel-animate-achievement-bounce {
+  animation: pixelAchievementBounce 0.8s ease-out;
+}
+
+/* Particle Animation Classes */
+.pixel-animate-particle-float {
+  animation: pixelParticleFloat 4s ease-out forwards;
+}
+
+.pixel-animate-particle-sparkle {
+  animation: pixelParticleSparkle 3s ease-out forwards;
+}
+
+/* Floating Animation Classes */
+.pixel-animate-float-slow {
+  animation: pixelFloatSlow 4s ease-in-out infinite;
+}
+
+.pixel-animate-float-fast {
+  animation: pixelFloatFast 3s ease-in-out infinite;
+}
+
+.pixel-animate-float-spiral {
+  animation: pixelFloatSpiral 5s linear infinite;
+}
+
+/* Button Animation Classes */
+.pixel-animate-button-press {
+  animation: pixelButtonPress 0.2s ease-out;
+}
+
+.pixel-animate-button-glow {
+  animation: pixelButtonGlow 2s ease-in-out infinite;
+}
+
+.pixel-animate-button-hover {
+  animation: pixelButtonHover 0.3s ease-out;
+}
+
+/* Card Animation Classes */
+.pixel-animate-card-hover {
+  animation: pixelCardHover 0.3s ease-out;
+}
+
+.pixel-animate-card-tilt {
+  animation: pixelCardTilt 0.6s ease-in-out;
+}
+
+/* Text Animation Classes */
+.pixel-animate-text-pulse {
+  animation: pixelTextPulse 2s ease-in-out infinite;
+}
+
+.pixel-animate-text-glow {
+  animation: pixelTextGlow 2s ease-in-out infinite;
+}
+
+.pixel-animate-text-shake {
+  animation: pixelTextShake 0.5s ease-in-out;
+}
+
+/* Modal Animation Classes */
+.pixel-animate-modal-fade-in {
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+.pixel-animate-modal-slide-in {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+/* Notification Animation Classes */
+.pixel-animate-toast-slide-in {
+  animation: toastSlideIn 0.3s ease-out;
+}
+
+.pixel-animate-alert-slide-in {
+  animation: alertSlideIn 0.3s ease-out;
+}
+
+.pixel-animate-notification-slide-in {
+  animation: notificationSlideIn 0.3s ease-out;
+}
+
+/* Hover Effects */
+.pixel-hover-lift:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease-out;
+}
+
+.pixel-hover-glow:hover {
+  box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+  transition: box-shadow 0.2s ease-out;
+}
+
+.pixel-hover-scale:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s ease-out;
+}
+
+.pixel-hover-rotate:hover {
+  transform: rotate(5deg);
+  transition: transform 0.2s ease-out;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .pixel-animate-spin,
+  .pixel-animate-bounce,
+  .pixel-animate-pulse,
+  .pixel-animate-wiggle,
+  .pixel-animate-float-slow,
+  .pixel-animate-float-fast,
+  .pixel-animate-float-spiral,
+  .pixel-animate-button-glow,
+  .pixel-animate-text-pulse,
+  .pixel-animate-text-glow,
+  .pixel-animate-achievement-glow {
+    animation: none;
+  }
+  
+  .pixel-hover-lift:hover,
+  .pixel-hover-scale:hover,
+  .pixel-hover-rotate:hover {
+    transform: none;
+  }
+}

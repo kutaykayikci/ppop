@@ -1,6 +1,6 @@
 {
-  "name": "Poop Count - Sevgililer Takibi",
-  "short_name": "Poop Count",
+  "name": "💩 Poop Hero - Sevgililer Takibi 💩",
+  "short_name": "Poop Hero",
   "description": "Sevgilinizle birlikte poop sayısını takip edin! Eğlenceli ve interaktif poop counter uygulaması.",
   "start_url": "/",
   "display": "standalone",
@@ -30,14 +30,14 @@
       "sizes": "1280x720",
       "type": "image/svg+xml",
       "form_factor": "wide",
-      "label": "Poop Count Ana Sayfa"
+      "label": "Poop Hero Ana Sayfa"
     },
     {
       "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI0IiBmaWxsPSIjOEI0NTEzIi8+CiAgPHRleHQgeD0iMTYiIHk9IjIyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjIwIj7wn5KpPC90ZXh0Pgo8L3N2Zz4K",
       "sizes": "750x1334",
       "type": "image/svg+xml",
       "form_factor": "narrow",
-      "label": "Poop Count Mobil Görünüm"
+      "label": "Poop Hero Mobil Görünüm"
     }
   ],
   "shortcuts": [

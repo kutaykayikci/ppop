@@ -56,7 +56,7 @@ const AdminLogin = ({ onLoginSuccess, onBack }) => {
             color: '#666',
             margin: 0
           }}>
-            Poop Count Admin Paneli
+            Poop Hero Admin Paneli
           </p>
         </div>
 

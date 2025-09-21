@@ -13,6 +13,17 @@ import HomeHero from '@/components/Home/HomeHero';
 import QuickActions from '@/components/Home/QuickActions';
 import OfflineBanner from '@/components/Home/OfflineBanner';
 import Highlights from '@/components/Home/Highlights';
+import { 
+  showFeedback, 
+  FEEDBACK_TYPES, 
+  FEEDBACK_LEVELS,
+  showRoomFull, 
+  showRoomCapacityFull,
+  showRoomNotFound, 
+  showNetworkError, 
+  showRoomJoined, 
+  showRoomCreated 
+} from '@/services/feedbackManager';
 
 const RoomSelector = () => {
   const navigate = useNavigate();
@@ -291,23 +302,41 @@ const RoomSelector = () => {
       const updatedRooms = await getUserRooms(user.uid);
       setUserRooms(updatedRooms);
       
+      // Başarı feedback'i göster
+      showRoomCreated(uniqueName);
+      
       // Oda oluşturduktan sonra dashboard'a git
       navigate(`/dashboard/${room.id}`);
     } catch (error) {
-      // Kullanıcı dostu hata mesajı
-      const friendlyMessage = error.message.includes('zaten kullanımda') 
-        ? 'Bu oda adi zaten kullaniliyor. Farkli bir isim deneyin'
-        : error.message.includes('network')
-        ? 'Internet baglantinizi kontrol edin'
-        : 'Oda olusturulamadi. Lutfen tekrar deneyin';
+      // Yeni merkezi feedback sistemi ile hata göster
+      if (error.message.includes('zaten kullanımda')) {
+        showFeedback(FEEDBACK_TYPES.VALIDATION_ERROR, {}, {
+          title: 'Oda Adı Kullanımda',
+          message: 'Bu oda adı zaten kullanılıyor. Farklı bir isim deneyin.',
+          level: 'popup',
+          actions: [
+            { id: 'try_again', label: 'Tekrar Dene', primary: true },
+            { id: 'suggest_name', label: 'İsim Öner' }
+          ],
+          onAction: (actionId) => {
+            if (actionId === 'suggest_name') {
+              // Rastgele isim öner
+              const suggestions = ['Oda' + Math.floor(Math.random() * 1000), 'YeniOda' + Date.now()];
+              setUniqueName(suggestions[0]);
+            }
+          }
+        });
+      } else if (error.message.includes('network')) {
+        showNetworkError();
+      } else {
+        showFeedback(FEEDBACK_TYPES.VALIDATION_ERROR, {}, {
+          title: 'Oda Oluşturma Hatası',
+          message: 'Oda oluşturulamadı. Lütfen tekrar deneyin.',
+          level: 'toast'
+        });
+      }
       
-      setError(friendlyMessage);
-      
-      // Notification göster
-      try {
-        const { showError } = await import('../../services/simpleNotificationService');
-        showError(friendlyMessage);
-      } catch (e) {}
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -347,25 +376,66 @@ const RoomSelector = () => {
       const updatedRooms = await getUserRooms(user.uid);
       setUserRooms(updatedRooms);
       
+      // Başarı feedback'i göster
+      showRoomJoined(room.name);
+      
       // Odaya katıldıktan sonra dashboard'a git
       navigate(`/dashboard/${room.id}`);
     } catch (error) {
-      // Kullanıcı dostu hata mesajı
-      const friendlyMessage = error.message.includes('dolu')
-        ? 'Oda dolu! Maksimum kisiye ulasti'
-        : error.message.includes('bulunamadı')
-        ? 'Oda bulunamadi. Room ID\'yi kontrol edin'
-        : error.message.includes('network')
-        ? 'Internet baglantinizi kontrol edin'
-        : 'Odaya katilamadi. Lutfen tekrar deneyin';
+      // Yeni merkezi feedback sistemi ile hata göster
+      if (error.message.includes('dolu')) {
+        // Oda kapasitesi bilgisini çıkar
+        const capacityMatch = error.message.match(/\((\d+)\/(\d+)\)/);
+        const currentUsers = capacityMatch ? capacityMatch[1] : '?';
+        const maxUsers = capacityMatch ? capacityMatch[2] : '?';
+        
+        // Kapasite bilgisine göre farklı mesajlar
+        let title, message;
+        if (maxUsers === '1') {
+          title = 'Oda Dolu';
+          message = 'Bu oda 1 kişilik ve zaten dolu. Başka bir oda deneyin.';
+        } else {
+          title = 'Oda Kapasitesi Dolu';
+          message = `Bu oda maksimum kapasiteye ulaştı. (${currentUsers}/${maxUsers} kişi)`;
+        }
+        
+        showRoomCapacityFull(currentUsers, maxUsers, {
+          title: title,
+          message: message,
+          level: FEEDBACK_LEVELS.POPUP,
+          actions: [
+            { id: 'create_room', label: 'Yeni Oda Oluştur', primary: true },
+            { id: 'try_again', label: 'Tekrar Dene' },
+            { id: 'browse_rooms', label: 'Odaları Görüntüle' }
+          ],
+          onAction: (actionId) => {
+            if (actionId === 'create_room') {
+              setMode('create');
+            } else if (actionId === 'try_again') {
+              // Tekrar dene - mevcut room ID ile
+              setLoading(true);
+              setTimeout(() => {
+                handleJoinRoom();
+              }, 1000);
+            } else if (actionId === 'browse_rooms') {
+              // Oda listesini göster
+              setShowLeaderboard(true);
+            }
+          }
+        });
+      } else if (error.message.includes('bulunamadı')) {
+        showRoomNotFound();
+      } else if (error.message.includes('network')) {
+        showNetworkError();
+      } else {
+        showFeedback(FEEDBACK_TYPES.VALIDATION_ERROR, {}, {
+          title: 'Katılım Hatası',
+          message: 'Odaya katılamadı. Lütfen tekrar deneyin.',
+          level: 'toast'
+        });
+      }
       
-      setError(friendlyMessage);
-      
-      // Notification göster
-      try {
-        const { showError } = await import('../../services/simpleNotificationService');
-        showError(friendlyMessage);
-      } catch (e) {}
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -426,7 +496,7 @@ const RoomSelector = () => {
           animation: 'fade-in-up 0.5s ease-out'
         }}>
           <h3 style={{ fontSize: '16px', color: '#333', marginBottom: '10px' }}>
-            💩 Poop Count Hakkında
+            💩 Poop Hero Hakkında
           </h3>
           <p style={{ fontSize: '12px', color: '#666', lineHeight: '1.4', marginBottom: '10px' }}>
             Arkadaşlar için özel olarak tasarlanmış eğlenceli bir poop sayma oyunu! 

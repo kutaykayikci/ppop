@@ -1,4 +1,79 @@
 <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-  <rect width="32" height="32" rx="4" fill="#8B4513"/>
-  <text x="16" y="22" text-anchor="middle" font-size="20">💩</text>
+  <!-- Pixel Background with gradient -->
+  <rect width="32" height="32" rx="2" fill="#8B4513"/>
+  <rect x="1" y="1" width="30" height="30" rx="2" fill="#A0522D" stroke="#654321" stroke-width="1"/>
+  
+  <!-- Pixel Poop Character -->
+  <g transform="translate(4, 4)">
+    <!-- Poop Head (main body) -->
+    <rect x="8" y="4" width="4" height="4" fill="#8B4513"/>
+    <rect x="6" y="6" width="8" height="4" fill="#8B4513"/>
+    <rect x="4" y="8" width="12" height="4" fill="#8B4513"/>
+    <rect x="2" y="10" width="16" height="4" fill="#8B4513"/>
+    <rect x="2" y="12" width="16" height="4" fill="#8B4513"/>
+    <rect x="4" y="14" width="12" height="4" fill="#8B4513"/>
+    <rect x="6" y="16" width="8" height="4" fill="#8B4513"/>
+    <rect x="8" y="18" width="4" height="4" fill="#8B4513"/>
+    
+    <!-- Poop highlights and shadows -->
+    <rect x="10" y="6" width="2" height="2" fill="#A0522D"/>
+    <rect x="8" y="8" width="2" height="2" fill="#A0522D"/>
+    <rect x="6" y="10" width="2" height="2" fill="#A0522D"/>
+    <rect x="4" y="12" width="2" height="2" fill="#A0522D"/>
+    <rect x="6" y="14" width="2" height="2" fill="#A0522D"/>
+    <rect x="8" y="16" width="2" height="2" fill="#A0522D"/>
+    
+    <!-- Darker shadows -->
+    <rect x="6" y="6" width="2" height="2" fill="#654321"/>
+    <rect x="4" y="8" width="2" height="2" fill="#654321"/>
+    <rect x="2" y="10" width="2" height="2" fill="#654321"/>
+    <rect x="2" y="12" width="2" height="2" fill="#654321"/>
+    <rect x="4" y="14" width="2" height="2" fill="#654321"/>
+    <rect x="6" y="16" width="2" height="2" fill="#654321"/>
+    
+    <!-- Eyes (3 dots like poop emoji) -->
+    <rect x="7" y="6" width="1" height="1" fill="#000"/>
+    <rect x="9" y="6" width="1" height="1" fill="#000"/>
+    <rect x="11" y="6" width="1" height="1" fill="#000"/>
+    
+    <!-- Eye highlights -->
+    <rect x="7" y="6" width="1" height="1" fill="#FFF"/>
+    <rect x="9" y="6" width="1" height="1" fill="#FFF"/>
+    <rect x="11" y="6" width="1" height="1" fill="#FFF"/>
+    
+    <!-- Smile (curved) -->
+    <rect x="6" y="8" width="1" height="1" fill="#000"/>
+    <rect x="7" y="8" width="1" height="1" fill="#000"/>
+    <rect x="9" y="8" width="1" height="1" fill="#000"/>
+    <rect x="10" y="8" width="1" height="1" fill="#000"/>
+    
+    <!-- Toilet paper roll (accessory) -->
+    <rect x="16" y="12" width="2" height="6" fill="#FFF" stroke="#CCC" stroke-width="1"/>
+    <rect x="17" y="13" width="1" height="1" fill="#CCC"/>
+    <rect x="17" y="15" width="1" height="1" fill="#CCC"/>
+    <rect x="17" y="17" width="1" height="1" fill="#CCC"/>
+    
+    <!-- Crown (hero element) -->
+    <rect x="6" y="2" width="2" height="2" fill="#FFD700"/>
+    <rect x="8" y="2" width="2" height="2" fill="#FFD700"/>
+    <rect x="10" y="2" width="2" height="2" fill="#FFD700"/>
+    <rect x="7" y="1" width="1" height="1" fill="#FFD700"/>
+    <rect x="9" y="1" width="1" height="1" fill="#FFD700"/>
+    <rect x="11" y="1" width="1" height="1" fill="#FFD700"/>
+    
+    <!-- Crown jewels -->
+    <rect x="7" y="1" width="1" height="1" fill="#FF6B6B"/>
+    <rect x="9" y="1" width="1" height="1" fill="#4ECDC4"/>
+    <rect x="11" y="1" width="1" height="1" fill="#FF6B6B"/>
+  </g>
+  
+  <!-- Pixel border with shadow effect -->
+  <rect x="0" y="0" width="32" height="32" rx="2" fill="none" stroke="#654321" stroke-width="2"/>
+  <rect x="1" y="1" width="30" height="30" rx="1" fill="none" stroke="#8B4513" stroke-width="1"/>
+  
+  <!-- Corner pixel effects -->
+  <rect x="0" y="0" width="2" height="2" fill="#654321"/>
+  <rect x="30" y="0" width="2" height="2" fill="#654321"/>
+  <rect x="0" y="30" width="2" height="2" fill="#654321"/>
+  <rect x="30" y="30" width="2" height="2" fill="#654321"/>
 </svg>

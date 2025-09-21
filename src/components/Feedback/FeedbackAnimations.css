@@ -1,0 +1,280 @@
+/* Feedback Animasyon CSS'leri */
+
+/* Fade Animasyonu */
+.feedback-fade {
+  animation: feedbackFadeIn 0.3s ease-out;
+}
+
+.feedback-exit {
+  animation: feedbackFadeOut 0.3s ease-in;
+}
+
+@keyframes feedbackFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes feedbackFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/* Bounce Animasyonu */
+.feedback-bounce {
+  animation: feedbackBounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes feedbackBounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(-50px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05) translateY(0);
+  }
+  70% {
+    transform: scale(0.95) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Slide Animasyonu */
+.feedback-slide {
+  animation: feedbackSlideIn 0.4s ease-out;
+}
+
+@keyframes feedbackSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Shake Animasyonu */
+.feedback-shake {
+  animation: feedbackShake 0.6s ease-in-out;
+}
+
+@keyframes feedbackShake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-5px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(5px);
+  }
+}
+
+/* Pulse Animasyonu */
+.feedback-pulse {
+  animation: feedbackPulse 2s infinite;
+}
+
+@keyframes feedbackPulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Zoom Animasyonu */
+.feedback-zoom {
+  animation: feedbackZoomIn 0.4s ease-out;
+}
+
+@keyframes feedbackZoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Flip Animasyonu */
+.feedback-flip {
+  animation: feedbackFlipIn 0.6s ease-out;
+}
+
+@keyframes feedbackFlipIn {
+  from {
+    opacity: 0;
+    transform: rotateY(-90deg) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: rotateY(0deg) scale(1);
+  }
+}
+
+/* Toast Özel Animasyonları */
+.feedback-toast.feedback-bounce {
+  animation: feedbackToastBounce 0.5s ease-out;
+}
+
+@keyframes feedbackToastBounce {
+  0% {
+    opacity: 0;
+    transform: translateX(100%) scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-10px) scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Banner Özel Animasyonları */
+.feedback-banner.feedback-slide {
+  animation: feedbackBannerSlide 0.4s ease-out;
+}
+
+@keyframes feedbackBannerSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Modal Özel Animasyonları */
+.feedback-modal.feedback-zoom {
+  animation: feedbackModalZoom 0.3s ease-out;
+}
+
+@keyframes feedbackModalZoom {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Inline Özel Animasyonları */
+.feedback-inline.feedback-slide {
+  animation: feedbackInlineSlide 0.3s ease-out;
+}
+
+@keyframes feedbackInlineSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive Animasyonlar */
+@media (max-width: 768px) {
+  .feedback-bounce {
+    animation: feedbackBounceInMobile 0.4s ease-out;
+  }
+  
+  @keyframes feedbackBounceInMobile {
+    0% {
+      opacity: 0;
+      transform: scale(0.8) translateY(-20px);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  .feedback-shake {
+    animation: feedbackShakeMobile 0.4s ease-in-out;
+  }
+  
+  @keyframes feedbackShakeMobile {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-3px);
+    }
+    75% {
+      transform: translateX(3px);
+    }
+  }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .feedback-fade,
+  .feedback-bounce,
+  .feedback-slide,
+  .feedback-shake,
+  .feedback-pulse,
+  .feedback-zoom,
+  .feedback-flip {
+    animation: feedbackFadeIn 0.2s ease-out;
+  }
+  
+  .feedback-pulse {
+    animation: none;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .feedback-toast,
+  .feedback-banner,
+  .feedback-modal,
+  .feedback-inline {
+    filter: brightness(0.9) contrast(1.1);
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .feedback-toast,
+  .feedback-banner,
+  .feedback-modal,
+  .feedback-inline {
+    border-width: 3px;
+    font-weight: bold;
+  }
+}

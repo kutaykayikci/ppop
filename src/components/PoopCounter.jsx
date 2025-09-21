@@ -15,6 +15,7 @@ import { getUnlockedMiniGames, getNextUnlockInfo } from '@/services/miniGamesSer
 import TapConfetti from '@/components/Minigames/TapConfetti';
 import ReactionTest from '@/components/Minigames/ReactionTest';
 import { detectRecentSynergy } from '@/services/partnerSynergyService';
+import { showPoopAdded, showAchievementUnlocked, showMotivationMessage } from '@/services/feedbackManager';
 
 const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => {
   const [count, setCount] = useState(0);
@@ -247,6 +248,13 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
       // Veritabanından güncel sayıyı al
       await loadTodayCount();
       
+      // Yeni merkezi feedback sistemi ile poop eklendi bildirimi
+      showPoopAdded(count + 1, {
+        animation: 'bounce',
+        sound: 'poop',
+        vibration: [50, 50, 50]
+      });
+      
       // Sayı zıplama animasyonunu başlat
       setShowCountJump(true);
       setTimeout(() => setShowCountJump(false), 1000);
@@ -261,6 +269,14 @@ const PoopCounter = ({ character, profile, userColor, roomId, onPoopAdded }) => 
       if (newAchievements.length > 0) {
         setAchievements(newAchievements);
         soundService.playAchievement();
+        
+        // Yeni merkezi feedback sistemi ile başarı bildirimi
+        showAchievementUnlocked(newAchievements[0], {
+          animation: 'bounce',
+          sound: 'achievement',
+          vibration: [200, 100, 200, 100, 200]
+        });
+        
         // İlk başarı için motivasyon mesajı göster
         const motivation = getAchievementMotivation(newAchievements[0]);
         setMotivationMessage(motivation);

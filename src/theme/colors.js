@@ -64,5 +64,46 @@ export const colors = {
   success: '#4caf50',
   warning: '#ff9800',
   error: '#f44336',
-  info: '#2196f3'
+  info: '#2196f3',
+  
+  // Pixel oyun renkleri
+  neon: {
+    green: '#00ff41',    // Matrix yeşili
+    pink: '#ff0080',     // Pembe neon
+    cyan: '#00ffff',     // Cyan neon
+    yellow: '#ffff00',   // Sarı neon
+    orange: '#ff8000',   // Turuncu neon
+    blue: '#0080ff',     // Mavi neon
+    purple: '#8000ff',   // Mor neon
+    red: '#ff0040'       // Kırmızı neon
+  },
+  
+  // Oyun elementleri
+  game: {
+    health: '#ff0000',   // Can barı
+    energy: '#00ff00',   // Enerji
+    exp: '#0080ff',      // Deneyim
+    coin: '#ffd700',     // Altın
+    gem: '#9966cc',      // Değerli taş
+    power: '#ff6b00',    // Güç
+    shield: '#00bfff'    // Kalkan
+  },
+  
+  // Durum renkleri
+  status: {
+    online: '#00ff00',
+    offline: '#808080',
+    busy: '#ff8000',
+    away: '#ffff00',
+    invisible: '#404040'
+  },
+  
+  // Retro renkler
+  retro: {
+    bg: '#1a1a2e',       // Koyu arka plan
+    surface: '#16213e',  // Yüzey rengi
+    accent: '#0f3460',   // Vurgu rengi
+    text: '#e94560',     // Metin rengi
+    border: '#0f3460'    // Kenarlık rengi
+  }
 };

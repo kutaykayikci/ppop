@@ -116,7 +116,9 @@ export const joinRoomWithUser = async (roomId, userId, userDisplayName) => {
 
     // Oda dolu mu?
     if (room.users && room.users.length >= room.maxUsers) {
-      throw new Error('Oda dolu! Maksimum 5 kişi katılabilir.');
+      const currentUsers = room.users.length;
+      const maxUsers = room.maxUsers;
+      throw new Error(`Oda dolu! Maksimum ${maxUsers} kişi katılabilir. (${currentUsers}/${maxUsers})`);
     }
 
     // Kullanıcı zaten bu odada mı?

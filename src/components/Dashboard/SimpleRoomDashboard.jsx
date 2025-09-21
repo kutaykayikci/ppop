@@ -838,7 +838,7 @@ const SimpleRoomDashboard = () => {
             }}
             title={room.name.length > (isMobile ? 15 : 25) ? `Tam oda ismi: ${room.name}` : ''}
           >
-            💩 Poop Count - {getDisplayRoomName()} 💩
+            💩 Poop Hero - {getDisplayRoomName()} 💩
           </h1>
           <div style={{
             fontSize: isMobile ? '9px' : '12px',

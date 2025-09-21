@@ -3,26 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Poop Count - Sevgililer Takibi</title>
+    <title id="dynamic-title">💩 Poop Hero - Sevgililer Takibi 💩</title>
     
     <!-- SEO Meta Tags -->
     <meta name="description" content="Sevgilinizle birlikte poop sayısını takip edin! Eğlenceli ve interaktif poop counter uygulaması." />
-    <meta name="keywords" content="poop counter, sevgili, takip, eğlence, oyun, poop" />
-    <meta name="author" content="Poop Count Team" />
+    <meta name="keywords" content="poop hero, poop counter, sevgili, takip, eğlence, oyun, poop" />
+    <meta name="author" content="Poop Hero Team" />
     <meta name="robots" content="index, follow" />
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://poopcount.com/" />
-    <meta property="og:title" content="Poop Count - Sevgililer Takibi" />
+    <meta property="og:title" content="💩 Poop Hero - Sevgililer Takibi 💩" />
     <meta property="og:description" content="Sevgilinizle birlikte poop sayısını takip edin! Eğlenceli ve interaktif poop counter uygulaması." />
     <meta property="og:image" content="/poop-emoji.svg" />
-    <meta property="og:site_name" content="Poop Count" />
+    <meta property="og:site_name" content="Poop Hero" />
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://poopcount.com/" />
-    <meta property="twitter:title" content="Poop Count - Sevgililer Takibi" />
+    <meta property="twitter:title" content="💩 Poop Hero - Sevgililer Takibi 💩" />
     <meta property="twitter:description" content="Sevgilinizle birlikte poop sayısını takip edin! Eğlenceli ve interaktif poop counter uygulaması." />
     <meta property="twitter:image" content="/poop-emoji.svg" />
     
@@ -31,7 +31,7 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="Poop Count" />
+    <meta name="apple-mobile-web-app-title" content="Poop Hero" />
     <meta name="msapplication-TileColor" content="#8B4513" />
     <meta name="msapplication-config" content="/browserconfig.xml" />
     
@@ -45,5 +45,36 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Animated Tab Title -->
+    <script>
+      (function() {
+        const titleElement = document.getElementById('dynamic-title');
+        if (!titleElement) return;
+        
+        const titles = [
+          '💩 Poop Hero - Poop Takibi 💩',
+          '🚽 Poop Hero - Poop Takibi 🚽',
+          '🧻 Poop Hero - Poop Takibi 🧻',
+          '🪠 Poop Hero - Poop Takibi 🪠',
+          '💧 Poop Hero - Poop Takibi 💧',
+          '🌟 Poop Hero - Poop Takibi 🌟',
+          '✨ Poop Hero - Poop Takibi ✨',
+          '🎉 Poop Hero - Poop Takibi 🎉'
+        ];
+        
+        let currentIndex = 0;
+        
+        function animateTitle() {
+          titleElement.textContent = titles[currentIndex];
+          currentIndex = (currentIndex + 1) % titles.length;
+        }
+        
+        // Start animation after 2 seconds
+        setTimeout(() => {
+          setInterval(animateTitle, 3000); // Change every 3 seconds
+        }, 2000);
+      })();
+    </script>
   </body>
 </html>

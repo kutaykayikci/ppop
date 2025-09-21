@@ -8,7 +8,7 @@ export default function OnboardingModal({ onClose, onPrimary }) {
   const steps = [
     {
       title: "👋 Hoş Geldin!",
-      content: "Poop Count'a hoş geldin! Bu eğlenceli uygulama ile arkadaşlarınla birlikte günlük poop sayılarınızı takip edebilir, hedefler belirleyebilir ve birbirinizi motive edebilirsiniz.",
+      content: "Poop Hero'ya hoş geldin! Bu eğlenceli uygulama ile arkadaşlarınla birlikte günlük poop sayılarınızı takip edebilir, hedefler belirleyebilir ve birbirinizi motive edebilirsiniz.",
       emoji: "💩"
     },
     {

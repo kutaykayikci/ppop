@@ -330,7 +330,7 @@ const GlobalLeaderboard = ({ roomId, characterId, onClose }) => {
           fontSize: '12px',
           color: '#666'
         }}>
-          💩 Poop Count - {getTimeframeText(timeframe)} Global Sıralaması
+          💩 Poop Hero - {getTimeframeText(timeframe)} Global Sıralaması
         </div>
       </div>
     </div>

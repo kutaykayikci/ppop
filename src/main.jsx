@@ -19,7 +19,9 @@ console.log = (...args) => {
       message.includes('Version v') ||
       message.includes('🏆') ||
       message.includes('Yeni basarim') ||
-      message.includes('basarim:')) {
+      message.includes('basarim:') ||
+      message.includes('beforeinstallprompt') ||
+      message.includes('message port closed')) {
     return;
   }
   originalConsoleLog.apply(console, args);
@@ -34,7 +36,9 @@ console.error = (...args) => {
       message.includes('SyntaxError') ||
       message.includes('message port closed') ||
       message.includes('asynchronous response') ||
-      message.includes('listener indicated')) {
+      message.includes('listener indicated') ||
+      message.includes('beforeinstallprompt') ||
+      message.includes('Banner not shown')) {
     return;
   }
   originalConsoleError.apply(console, args);

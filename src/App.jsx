@@ -27,6 +27,35 @@ export default function App() {
     return () => unsubscribe()
   }, [setUser, setUserProfile, clearUserData])
 
+  // PWA Install Banner Handler
+  useEffect(() => {
+    let deferredPrompt = null;
+
+    const handleBeforeInstallPrompt = (e) => {
+      // Prevent the mini-infobar from appearing on mobile
+      e.preventDefault();
+      // Stash the event so it can be triggered later
+      deferredPrompt = e;
+      // Store the event for later use
+      window.deferredPrompt = e;
+    };
+
+    const handleAppInstalled = () => {
+      // Clear the deferredPrompt so it can only be used once
+      deferredPrompt = null;
+      window.deferredPrompt = null;
+    };
+
+    // Listen for the beforeinstallprompt event
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, [])
+
   return (
     <ErrorBoundary>
       <Router />
