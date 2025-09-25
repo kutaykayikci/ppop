@@ -10,6 +10,8 @@ export default defineConfig({
     react(),
     ...(analyzer ? [visualizer({ filename: 'dist/bundle-analysis.html', open: true, gzipSize: true, brotliSize: true })] : [])
   ],
+  // Environment variables için
+  envPrefix: 'VITE_',
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

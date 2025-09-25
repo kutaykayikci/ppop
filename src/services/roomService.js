@@ -32,7 +32,6 @@ export const createRoomWithUser = async (uniqueName, userId, userDisplayName, ma
       createdBy: userId,
       status: 'waiting_for_partner', // waiting_for_partner, active, completed
       characterCount: 0,
-      characters: [],
       maxUsers: maxUsers, // Seçilen kapasite
       // YENİ: Kullanıcı yönetimi
       users: [{
@@ -42,11 +41,8 @@ export const createRoomWithUser = async (uniqueName, userId, userDisplayName, ma
         poopCount: 0,
         isCreator: true,
         characterId: null,
-        characterReady: false
       }],
       totalPoopCount: 0,
-      characterQueue: [], // Karakter oluşturma sırası
-      currentCharacterTurn: 0 // Şu anda karakter oluşturan kullanıcı indexi
     };
     
     const docRef = await addDoc(collection(db, 'rooms'), roomData);
@@ -134,8 +130,7 @@ export const joinRoomWithUser = async (roomId, userId, userDisplayName) => {
       joinedAt: new Date(),
       poopCount: 0,
       isCreator: false,
-      characterId: null,
-      characterReady: false
+      characterId: null
     };
 
     // Kullanıcıyı odaya ekle
@@ -188,7 +183,6 @@ export const getUserRooms = async (userId) => {
           firestoreId: doc.id,
           ...roomData,
           userPoopCount: userInRoom?.poopCount || 0,
-          userCharacterReady: userInRoom?.characterReady || false
         });
       }
     });
@@ -224,19 +218,17 @@ export const addCharacterToRoom = async (roomId, characterId) => {
 
     // room.firestoreId Firestore document ID'si
     const roomRef = doc(db, 'rooms', room.firestoreId);
-    const updatedCharacters = [...(room.characters || []), characterId];
-    const newCharacterCount = updatedCharacters.length;
+    const newCharacterCount = (room.characterCount || 0) + 1;
     
     // 2 karakter olduğunda room'u aktif yap
     const newStatus = newCharacterCount >= 2 ? 'active' : 'waiting_for_partner';
     
     await updateDoc(roomRef, {
-      characters: updatedCharacters,
       characterCount: newCharacterCount,
       status: newStatus
     });
 
-    return { ...room, characters: updatedCharacters, characterCount: newCharacterCount, status: newStatus };
+    return { ...room, characterCount: newCharacterCount, status: newStatus };
   } catch (error) {
     console.error('Room\'a karakter ekleme hatası:', error);
     throw error;
@@ -319,60 +311,6 @@ export const incrementRoomPoopForUser = async (roomId, userId) => {
   }
 };
 
-// Karakter sırasını yönet (YENİ)
-export const getNextCharacterTurn = async (roomId) => {
-  try {
-    const room = await getRoomById(roomId);
-    if (!room) throw new Error('Oda bulunamadı');
-
-    // Hazır olmayan ilk kullanıcıyı bul
-    const nextUser = room.users?.find(user => !user.characterReady);
-    
-    return {
-      nextUser: nextUser || null,
-      allReady: !nextUser,
-      totalUsers: room.users?.length || 0,
-      readyCount: room.users?.filter(user => user.characterReady).length || 0
-    };
-  } catch (error) {
-    console.error('Karakter sırası getirme hatası:', error);
-    throw error;
-  }
-};
-
-// Kullanıcının karakterini hazır olarak işaretle (YENİ)
-export const markUserCharacterReady = async (roomId, userId, characterId) => {
-  try {
-    const room = await getRoomById(roomId);
-    if (!room) throw new Error('Oda bulunamadı');
-
-    // Kullanıcının oda içindeki bilgilerini güncelle
-    const updatedUsers = room.users.map(user => 
-      user.uid === userId 
-        ? { ...user, characterReady: true, characterId }
-        : user
-    );
-
-    await updateDoc(doc(db, 'rooms', room.firestoreId), {
-      users: updatedUsers,
-      characters: arrayUnion(characterId),
-      characterCount: (room.characterCount || 0) + 1
-    });
-
-    // Tüm kullanıcılar hazır mı kontrol et
-    const allReady = updatedUsers.every(user => user.characterReady);
-    if (allReady) {
-      await updateDoc(doc(db, 'rooms', room.firestoreId), {
-        status: 'characters_complete'
-      });
-    }
-
-    return allReady;
-  } catch (error) {
-    console.error('Karakter hazır işaretleme hatası:', error);
-    throw error;
-  }
-};
 
 export const checkRoomStatus = async (roomId) => {
   try {
@@ -384,7 +322,6 @@ export const checkRoomStatus = async (roomId) => {
     return {
       status: room.status,
       characterCount: room.characterCount || 0,
-      characters: room.characters || [],
       users: room.users || [],
       isComplete: room.characterCount >= (room.users?.length || 0),
       maxUsers: room.maxUsers || 5,
