@@ -3,7 +3,6 @@
 
 import { createPopup, POPUP_TYPES, closePopup, closeAllPopups } from './popupManagerService';
 import { showNotification, NOTIFICATION_TYPES, clearAllNotifications } from './simpleNotificationService';
-import feedbackSoundService from './feedbackSoundService';
 
 // Feedback tipleri - tüm uygulama genelinde kullanılacak
 export const FEEDBACK_TYPES = {
@@ -692,7 +691,7 @@ class FeedbackManager {
     }
 
     // FeedbackSoundService kullan
-    feedbackSoundService.play(soundType);
+    // Sound feedback disabled
   }
 
   // Titreşim
@@ -732,11 +731,11 @@ class FeedbackManager {
     
     // Ses servisi ayarlarını güncelle
     if (newSettings.enableSound !== undefined) {
-      feedbackSoundService.setEnabled(newSettings.enableSound);
+      // Sound settings disabled
     }
     
     if (newSettings.soundVolume !== undefined) {
-      feedbackSoundService.setVolume(newSettings.soundVolume);
+      // Sound volume settings disabled
     }
     
     // LocalStorage'a kaydet

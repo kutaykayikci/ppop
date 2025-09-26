@@ -2,8 +2,7 @@ import { collection, addDoc, getDocs, query, orderBy, limit, updateDoc, doc } fr
 import { db } from '@/firebase/config';
 import { sendPushNotification } from '@/services/notificationService';
 
-// Popup-only stratejisi: FCM kullanmıyoruz, sadece UI popup gösteriyoruz
-const sendFCMNotification = async () => ({ success: false, error: 'FCM disabled' })
+// Popup-only stratejisi: Sadece UI popup gösteriyoruz
 
 // Push bildirimini tüm kullanıcılara gönder
 export const sendPushToAllUsers = async (pushData) => {

@@ -1,6 +1,4 @@
-// Push Notification Debug Utility
-import { getAllActiveFCMTokens } from '../services/fcmService';
-import { checkPushNotificationStatus } from '../services/fcmService';
+// Push Notification Debug Utility (Popup-only)
 
 export const debugPushNotifications = async () => {
   console.log('🔍 Push Notification Debug Başlatılıyor...');
@@ -27,38 +25,10 @@ export const debugPushNotifications = async () => {
     }
   }
   
-  // 4. FCM Token'ları kontrol et
-  try {
-    const tokens = await getAllActiveFCMTokens();
-    console.log('🎫 FCM Token\'lar:', tokens);
-    console.log('- Token sayısı:', tokens.length);
-    
-    if (tokens.length > 0) {
-      tokens.forEach((token, index) => {
-        console.log(`Token ${index + 1}:`, {
-          id: token.id,
-          userId: token.userId,
-          roomId: token.roomId,
-          characterId: token.characterId,
-          createdAt: token.createdAt,
-          isActive: token.isActive,
-          token: token.token ? `${token.token.substring(0, 20)}...` : 'YOK'
-        });
-      });
-    } else {
-      console.warn('⚠️ Hiç FCM token bulunamadı!');
-    }
-  } catch (error) {
-    console.error('❌ FCM Token kontrol hatası:', error);
-  }
-  
-  // 5. Permission status kontrolü
-  try {
-    const status = checkPushNotificationStatus();
-    console.log('📊 Permission Status:', status);
-  } catch (error) {
-    console.error('❌ Permission status hatası:', error);
-  }
+  // 4. Popup-only stratejisi bilgisi
+  console.log('📋 Popup-only Stratejisi:');
+  console.log('- FCM devre dışı, sadece UI popup\'lar kullanılıyor');
+  console.log('- Push bildirimleri local popup olarak gösteriliyor');
   
   // 6. Local Storage kontrolü
   console.log('💾 Local Storage:');
